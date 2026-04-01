@@ -1,0 +1,362 @@
+2026-04-01 23:40:28,718 - apscheduler.scheduler - INFO - Scheduler started
+2026-04-01 23:41:20,901 - apscheduler.scheduler - INFO - Scheduler started
+2026-04-01 23:43:09,839 - apscheduler.scheduler - INFO - Scheduler started
+2026-04-01 23:43:30,499 - controller.controller - ERROR - º”‘ÿ ±º‰±Ì ß∞‹: No application found. Either work inside a view function or push an application context. See http://flask-sqlalchemy.pocoo.org/contexts/.
+2026-04-01 23:43:30,522 - apscheduler.scheduler - INFO - Scheduler started
+2026-04-01 23:43:30,536 - controller.controller - ERROR - º”‘ÿ ±º‰±Ì ß∞‹: No application found. Either work inside a view function or push an application context. See http://flask-sqlalchemy.pocoo.org/contexts/.
+2026-04-01 23:43:30,611 - security.watchdog - INFO - ø¥√≈π∑∆Ù∂Ø≥…π¶
+2026-04-01 23:43:30,625 - werkzeug - WARNING -  * Running on all addresses.
+   WARNING: This is a development server. Do not use it in a production deployment.
+2026-04-01 23:43:30,626 - werkzeug - INFO -  * Running on http://192.168.1.73:5000/ (Press CTRL+C to quit)
+2026-04-01 23:43:54,541 - werkzeug - INFO - 127.0.0.1 - - [01/Apr/2026 23:43:54] "[32mGET / HTTP/1.1[0m" 302 -
+2026-04-01 23:43:54,547 - werkzeug - INFO - 127.0.0.1 - - [01/Apr/2026 23:43:54] "GET /login?next=%2F HTTP/1.1" 200 -
+2026-04-01 23:43:54,836 - werkzeug - INFO - 127.0.0.1 - - [01/Apr/2026 23:43:54] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-04-01 23:44:12,363 - main - ERROR - Exception on /login [POST]
+Traceback (most recent call last):
+  File "C:\Users\Daniel\.conda\envs\youthplayer\lib\site-packages\flask\app.py", line 2070, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\Daniel\.conda\envs\youthplayer\lib\site-packages\flask\app.py", line 1515, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\Daniel\.conda\envs\youthplayer\lib\site-packages\flask\app.py", line 1513, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\Daniel\.conda\envs\youthplayer\lib\site-packages\flask\app.py", line 1499, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**req.view_args)
+  File "C:\Users\Daniel\Documents\projects\youthPlayer\web\routes.py", line 27, in login
+    login_user(user)
+  File "C:\Users\Daniel\.conda\envs\youthplayer\lib\site-packages\flask_login\utils.py", line 166, in login_user
+    if not force and not user.is_active:
+AttributeError: 'User' object has no attribute 'is_active'
+2026-04-01 23:44:12,364 - werkzeug - INFO - 127.0.0.1 - - [01/Apr/2026 23:44:12] "[35m[1mPOST /login?next=%2F HTTP/1.1[0m" 500 -
+2026-04-01 23:45:15,166 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2026-04-01 23:45:23,791 - controller.controller - ERROR - º”‘ÿ ±º‰±Ì ß∞‹: No application found. Either work inside a view function or push an application context. See http://flask-sqlalchemy.pocoo.org/contexts/.
+2026-04-01 23:45:23,808 - apscheduler.scheduler - INFO - Scheduler started
+2026-04-01 23:45:23,825 - controller.controller - ERROR - º”‘ÿ ±º‰±Ì ß∞‹: No application found. Either work inside a view function or push an application context. See http://flask-sqlalchemy.pocoo.org/contexts/.
+2026-04-01 23:45:37,354 - controller.controller - ERROR - º”‘ÿ ±º‰±Ì ß∞‹: No application found. Either work inside a view function or push an application context. See http://flask-sqlalchemy.pocoo.org/contexts/.
+2026-04-01 23:45:37,368 - apscheduler.scheduler - INFO - Scheduler started
+2026-04-01 23:45:37,385 - controller.controller - ERROR - º”‘ÿ ±º‰±Ì ß∞‹: No application found. Either work inside a view function or push an application context. See http://flask-sqlalchemy.pocoo.org/contexts/.
+2026-04-01 23:46:12,381 - apscheduler.scheduler - INFO - Scheduler started
+2026-04-01 23:46:12,425 - controller.controller - ERROR - º”‘ÿ ±º‰±Ì ß∞‹: (sqlite3.OperationalError) no such table: schedule
+[SQL: SELECT schedule.id AS schedule_id, schedule.name AS schedule_name, schedule.start_time AS schedule_start_time, schedule.end_time AS schedule_end_time, schedule.content_type AS schedule_content_type, schedule.content_path AS schedule_content_path, schedule.screen_index AS schedule_screen_index, schedule.is_active AS schedule_is_active 
+FROM schedule 
+WHERE schedule.is_active = 1]
+(Background on this error at: https://sqlalche.me/e/14/e3q8)
+2026-04-01 23:46:12,438 - controller.controller - ERROR - º”‘ÿ ±º‰±Ì ß∞‹: (sqlite3.OperationalError) no such table: schedule
+[SQL: SELECT schedule.id AS schedule_id, schedule.name AS schedule_name, schedule.start_time AS schedule_start_time, schedule.end_time AS schedule_end_time, schedule.content_type AS schedule_content_type, schedule.content_path AS schedule_content_path, schedule.screen_index AS schedule_screen_index, schedule.is_active AS schedule_is_active 
+FROM schedule 
+WHERE schedule.is_active = 1]
+(Background on this error at: https://sqlalche.me/e/14/e3q8)
+2026-04-01 23:46:12,485 - security.watchdog - INFO - ø¥√≈π∑∆Ù∂Ø≥…π¶
+2026-04-01 23:46:12,500 - werkzeug - WARNING -  * Running on all addresses.
+   WARNING: This is a development server. Do not use it in a production deployment.
+2026-04-01 23:46:12,501 - werkzeug - INFO -  * Running on http://192.168.1.73:5000/ (Press CTRL+C to quit)
+2026-04-01 23:46:18,508 - werkzeug - INFO - 127.0.0.1 - - [01/Apr/2026 23:46:18] "[32mPOST /login?next=%2F HTTP/1.1[0m" 302 -
+2026-04-01 23:46:18,539 - werkzeug - INFO - 127.0.0.1 - - [01/Apr/2026 23:46:18] "GET / HTTP/1.1" 200 -
+2026-04-01 23:46:22,800 - werkzeug - INFO - 127.0.0.1 - - [01/Apr/2026 23:46:22] "POST /control HTTP/1.1" 200 -
+2026-04-01 23:47:15,234 - apscheduler.scheduler - INFO - Added job "Controller._execute_schedule" to job store "default"
+2026-04-01 23:47:15,234 - controller.controller - INFO - ÃÌº” ±º‰±Ì»ŒŒÒ: 111 (ID: 1)
+2026-04-01 23:47:15,234 - controller.controller - INFO - ÃÌº”–¬ ±º‰±Ì: 111
+2026-04-01 23:47:15,235 - werkzeug - INFO - 127.0.0.1 - - [01/Apr/2026 23:47:15] "[32mPOST /schedule/add HTTP/1.1[0m" 302 -
+2026-04-01 23:47:15,512 - werkzeug - INFO - 127.0.0.1 - - [01/Apr/2026 23:47:15] "GET / HTTP/1.1" 200 -
+2026-04-01 23:47:23,084 - werkzeug - INFO - 127.0.0.1 - - [01/Apr/2026 23:47:23] "POST /control HTTP/1.1" 200 -
+2026-04-01 23:47:26,214 - player.player - INFO - ª÷∏¥≤•∑≈
+2026-04-01 23:47:26,215 - werkzeug - INFO - 127.0.0.1 - - [01/Apr/2026 23:47:26] "POST /control HTTP/1.1" 200 -
+2026-04-01 23:47:29,417 - player.player - INFO - Õ£÷π≤•∑≈
+2026-04-01 23:47:29,418 - werkzeug - INFO - 127.0.0.1 - - [01/Apr/2026 23:47:29] "POST /control HTTP/1.1" 200 -
+2026-04-01 23:47:43,245 - werkzeug - INFO - 127.0.0.1 - - [01/Apr/2026 23:47:43] "GET / HTTP/1.1" 200 -
+2026-04-01 23:53:31,434 - apscheduler.scheduler - INFO - Scheduler started
+2026-04-01 23:53:31,494 - apscheduler.scheduler - INFO - Added job "Controller._execute_schedule" to job store "default"
+2026-04-01 23:53:31,495 - controller.controller - INFO - ÃÌº” ±º‰±Ì»ŒŒÒ: 111 (ID: 1)
+2026-04-01 23:53:31,495 - controller.controller - INFO - º”‘ÿ¡À 1 ∏ˆ ±º‰±Ì
+2026-04-01 23:53:31,512 - apscheduler.scheduler - INFO - Added job "Controller._execute_schedule" to job store "default"
+2026-04-01 23:53:31,513 - controller.controller - INFO - ÃÌº” ±º‰±Ì»ŒŒÒ: 111 (ID: 1)
+2026-04-01 23:53:31,514 - controller.controller - INFO - º”‘ÿ¡À 1 ∏ˆ ±º‰±Ì
+2026-04-01 23:53:31,528 - security.watchdog - INFO - ø¥√≈π∑∆Ù∂Ø≥…π¶
+2026-04-01 23:53:31,552 - werkzeug - WARNING -  * Running on all addresses.
+   WARNING: This is a development server. Do not use it in a production deployment.
+2026-04-01 23:53:31,554 - werkzeug - INFO -  * Running on http://192.168.1.73:5000/ (Press CTRL+C to quit)
+2026-04-01 23:53:35,951 - werkzeug - INFO - 127.0.0.1 - - [01/Apr/2026 23:53:35] "GET / HTTP/1.1" 200 -
+2026-04-01 23:53:40,866 - werkzeug - INFO - 127.0.0.1 - - [01/Apr/2026 23:53:40] "POST /control HTTP/1.1" 200 -
+2026-04-01 23:54:13,708 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2026-04-01 23:54:49,661 - apscheduler.scheduler - INFO - Scheduler started
+2026-04-01 23:54:49,712 - apscheduler.scheduler - INFO - Added job "Controller._execute_schedule" to job store "default"
+2026-04-01 23:54:49,713 - controller.controller - INFO - ÃÌº” ±º‰±Ì»ŒŒÒ: 111 (ID: 1)
+2026-04-01 23:54:49,713 - controller.controller - INFO - º”‘ÿ¡À 1 ∏ˆ ±º‰±Ì
+2026-04-01 23:54:49,728 - apscheduler.scheduler - INFO - Added job "Controller._execute_schedule" to job store "default"
+2026-04-01 23:54:49,728 - controller.controller - INFO - ÃÌº” ±º‰±Ì»ŒŒÒ: 111 (ID: 1)
+2026-04-01 23:54:49,728 - controller.controller - INFO - º”‘ÿ¡À 1 ∏ˆ ±º‰±Ì
+2026-04-01 23:54:49,740 - security.watchdog - INFO - ø¥√≈π∑∆Ù∂Ø≥…π¶
+2026-04-01 23:54:49,758 - werkzeug - WARNING -  * Running on all addresses.
+   WARNING: This is a development server. Do not use it in a production deployment.
+2026-04-01 23:54:49,758 - werkzeug - INFO -  * Running on http://192.168.1.73:5000/ (Press CTRL+C to quit)
+2026-04-01 23:54:54,042 - werkzeug - INFO - 127.0.0.1 - - [01/Apr/2026 23:54:54] "GET / HTTP/1.1" 200 -
+2026-04-01 23:54:55,139 - werkzeug - INFO - 127.0.0.1 - - [01/Apr/2026 23:54:55] "POST /control HTTP/1.1" 200 -
+2026-04-01 23:55:48,314 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2026-04-01 23:55:49,741 - security.watchdog - INFO - ø¥√≈π∑Õ£÷π≥…π¶
+2026-04-01 23:55:52,079 - apscheduler.scheduler - INFO - Scheduler started
+2026-04-01 23:55:52,137 - apscheduler.scheduler - INFO - Added job "Controller._execute_schedule" to job store "default"
+2026-04-01 23:55:52,138 - controller.controller - INFO - ÃÌº” ±º‰±Ì»ŒŒÒ: 111 (ID: 1)
+2026-04-01 23:55:52,138 - controller.controller - INFO - º”‘ÿ¡À 1 ∏ˆ ±º‰±Ì
+2026-04-01 23:55:52,153 - apscheduler.scheduler - INFO - Added job "Controller._execute_schedule" to job store "default"
+2026-04-01 23:55:52,153 - controller.controller - INFO - ÃÌº” ±º‰±Ì»ŒŒÒ: 111 (ID: 1)
+2026-04-01 23:55:52,153 - controller.controller - INFO - º”‘ÿ¡À 1 ∏ˆ ±º‰±Ì
+2026-04-01 23:55:52,162 - security.watchdog - INFO - ø¥√≈π∑∆Ù∂Ø≥…π¶
+2026-04-01 23:55:52,179 - werkzeug - WARNING -  * Running on all addresses.
+   WARNING: This is a development server. Do not use it in a production deployment.
+2026-04-01 23:55:52,180 - werkzeug - INFO -  * Running on http://192.168.1.73:5000/ (Press CTRL+C to quit)
+2026-04-01 23:55:55,502 - werkzeug - INFO - 127.0.0.1 - - [01/Apr/2026 23:55:55] "GET / HTTP/1.1" 200 -
+2026-04-01 23:55:57,442 - player.player - INFO - …Ë÷√≤•∑≈∆¡ƒª: 1
+2026-04-01 23:55:57,443 - player.player - INFO - Õ£÷π≤•∑≈
+2026-04-01 23:55:57,444 - player.player - INFO - ø™ º≤•∑≈Õ¯¬Á÷±≤•¡˜: https://tv.cctv.com/live/cctv13/
+2026-04-01 23:55:57,445 - werkzeug - INFO - 127.0.0.1 - - [01/Apr/2026 23:55:57] "POST /control HTTP/1.1" 200 -
+2026-04-01 23:56:05,528 - player.player - INFO - Õ£÷π≤•∑≈
+2026-04-01 23:56:05,529 - werkzeug - INFO - 127.0.0.1 - - [01/Apr/2026 23:56:05] "POST /control HTTP/1.1" 200 -
+2026-04-01 23:56:09,310 - player.player - INFO - …Ë÷√≤•∑≈∆¡ƒª: 1
+2026-04-01 23:56:09,310 - player.player - INFO - Õ£÷π≤•∑≈
+2026-04-01 23:56:09,311 - player.player - INFO - ø™ º≤•∑≈Õ¯¬Á÷±≤•¡˜: https://tv.cctv.com/live/cctv13/
+2026-04-01 23:56:09,313 - werkzeug - INFO - 127.0.0.1 - - [01/Apr/2026 23:56:09] "POST /control HTTP/1.1" 200 -
+2026-04-01 23:56:13,279 - player.player - INFO - ‘›Õ£≤•∑≈
+2026-04-01 23:56:13,280 - werkzeug - INFO - 127.0.0.1 - - [01/Apr/2026 23:56:13] "POST /control HTTP/1.1" 200 -
+2026-04-01 23:57:05,624 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2026-04-01 23:57:12,719 - apscheduler.scheduler - INFO - Scheduler started
+2026-04-01 23:57:12,770 - apscheduler.scheduler - INFO - Added job "Controller._execute_schedule" to job store "default"
+2026-04-01 23:57:12,770 - controller.controller - INFO - ÃÌº” ±º‰±Ì»ŒŒÒ: 111 (ID: 1)
+2026-04-01 23:57:12,771 - controller.controller - INFO - º”‘ÿ¡À 1 ∏ˆ ±º‰±Ì
+2026-04-01 23:57:12,805 - apscheduler.scheduler - INFO - Added job "Controller._execute_schedule" to job store "default"
+2026-04-01 23:57:12,806 - controller.controller - INFO - ÃÌº” ±º‰±Ì»ŒŒÒ: 111 (ID: 1)
+2026-04-01 23:57:12,806 - controller.controller - INFO - º”‘ÿ¡À 1 ∏ˆ ±º‰±Ì
+2026-04-01 23:57:12,820 - security.watchdog - INFO - ø¥√≈π∑∆Ù∂Ø≥…π¶
+2026-04-01 23:57:12,841 - werkzeug - WARNING -  * Running on all addresses.
+   WARNING: This is a development server. Do not use it in a production deployment.
+2026-04-01 23:57:12,842 - werkzeug - INFO -  * Running on http://192.168.1.73:5000/ (Press CTRL+C to quit)
+2026-04-01 23:57:15,926 - werkzeug - INFO - 127.0.0.1 - - [01/Apr/2026 23:57:15] "GET / HTTP/1.1" 200 -
+2026-04-01 23:57:17,028 - player.player - INFO - …Ë÷√≤•∑≈∆¡ƒª: 1
+2026-04-01 23:57:17,031 - player.player - INFO - Õ£÷π≤•∑≈
+2026-04-01 23:57:17,032 - player.player - INFO - ø™ º≤•∑≈Õ¯¬Á÷±≤•¡˜: https://tv.cctv.com/live/cctv13/
+2026-04-01 23:57:17,033 - werkzeug - INFO - 127.0.0.1 - - [01/Apr/2026 23:57:17] "[32mPOST /control HTTP/1.1[0m" 302 -
+2026-04-01 23:57:17,044 - werkzeug - INFO - 127.0.0.1 - - [01/Apr/2026 23:57:17] "GET / HTTP/1.1" 200 -
+2026-04-01 23:57:19,798 - player.player - INFO - …Ë÷√≤•∑≈∆¡ƒª: 1
+2026-04-01 23:57:19,798 - player.player - INFO - Õ£÷π≤•∑≈
+2026-04-01 23:57:19,799 - player.player - INFO - ø™ º≤•∑≈Õ¯¬Á÷±≤•¡˜: https://tv.cctv.com/live/cctv13/
+2026-04-01 23:57:19,799 - werkzeug - INFO - 127.0.0.1 - - [01/Apr/2026 23:57:19] "[32mPOST /control HTTP/1.1[0m" 302 -
+2026-04-01 23:57:19,807 - werkzeug - INFO - 127.0.0.1 - - [01/Apr/2026 23:57:19] "GET / HTTP/1.1" 200 -
+2026-04-01 23:57:20,308 - player.player - INFO - …Ë÷√≤•∑≈∆¡ƒª: 1
+2026-04-01 23:57:20,308 - player.player - INFO - Õ£÷π≤•∑≈
+2026-04-01 23:57:20,309 - player.player - INFO - ø™ º≤•∑≈Õ¯¬Á÷±≤•¡˜: https://tv.cctv.com/live/cctv13/
+2026-04-01 23:57:20,310 - werkzeug - INFO - 127.0.0.1 - - [01/Apr/2026 23:57:20] "[32mPOST /control HTTP/1.1[0m" 302 -
+2026-04-01 23:57:20,611 - werkzeug - INFO - 127.0.0.1 - - [01/Apr/2026 23:57:20] "GET / HTTP/1.1" 200 -
+2026-04-01 23:57:21,373 - player.player - INFO - …Ë÷√≤•∑≈∆¡ƒª: 1
+2026-04-01 23:57:21,373 - player.player - INFO - Õ£÷π≤•∑≈
+2026-04-01 23:57:21,374 - player.player - INFO - ø™ º≤•∑≈Õ¯¬Á÷±≤•¡˜: https://tv.cctv.com/live/cctv13/
+2026-04-01 23:57:21,375 - werkzeug - INFO - 127.0.0.1 - - [01/Apr/2026 23:57:21] "[32mPOST /control HTTP/1.1[0m" 302 -
+2026-04-01 23:57:21,385 - werkzeug - INFO - 127.0.0.1 - - [01/Apr/2026 23:57:21] "GET / HTTP/1.1" 200 -
+2026-04-01 23:57:56,642 - player.player - INFO - Õ£÷π≤•∑≈
+2026-04-01 23:57:56,643 - werkzeug - INFO - 127.0.0.1 - - [01/Apr/2026 23:57:56] "[32mPOST /control HTTP/1.1[0m" 302 -
+2026-04-01 23:57:56,946 - werkzeug - INFO - 127.0.0.1 - - [01/Apr/2026 23:57:56] "GET / HTTP/1.1" 200 -
+2026-04-01 23:57:58,941 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2026-04-01 23:58:25,132 - player.player - INFO -  π”√÷∏∂®µƒVLC¬∑æ∂: C:\Program Files\VideoLAN\VLC\vlc.exe
+2026-04-01 23:58:25,674 - player.player - INFO - ≤•∑≈∆˜≥ı ºªØ≥…π¶
+2026-04-01 23:58:25,687 - apscheduler.scheduler - INFO - Scheduler started
+2026-04-01 23:58:25,689 - player.player - INFO -  π”√÷∏∂®µƒVLC¬∑æ∂: C:\Program Files\VideoLAN\VLC\vlc.exe
+2026-04-01 23:58:26,361 - player.player - INFO - ≤•∑≈∆˜≥ı ºªØ≥…π¶
+2026-04-01 23:58:26,401 - apscheduler.scheduler - INFO - Added job "Controller._execute_schedule" to job store "default"
+2026-04-01 23:58:26,401 - controller.controller - INFO - ÃÌº” ±º‰±Ì»ŒŒÒ: 111 (ID: 1)
+2026-04-01 23:58:26,402 - controller.controller - INFO - º”‘ÿ¡À 1 ∏ˆ ±º‰±Ì
+2026-04-01 23:58:26,419 - apscheduler.scheduler - INFO - Added job "Controller._execute_schedule" to job store "default"
+2026-04-01 23:58:26,420 - controller.controller - INFO - ÃÌº” ±º‰±Ì»ŒŒÒ: 111 (ID: 1)
+2026-04-01 23:58:26,420 - controller.controller - INFO - º”‘ÿ¡À 1 ∏ˆ ±º‰±Ì
+2026-04-01 23:58:26,432 - security.watchdog - INFO - ø¥√≈π∑∆Ù∂Ø≥…π¶
+2026-04-01 23:58:26,456 - werkzeug - WARNING -  * Running on all addresses.
+   WARNING: This is a development server. Do not use it in a production deployment.
+2026-04-01 23:58:26,458 - werkzeug - INFO -  * Running on http://192.168.1.73:5000/ (Press CTRL+C to quit)
+2026-04-01 23:58:30,851 - werkzeug - INFO - 127.0.0.1 - - [01/Apr/2026 23:58:30] "GET / HTTP/1.1" 200 -
+2026-04-01 23:58:31,987 - player.player - INFO - …Ë÷√≤•∑≈∆¡ƒª: 1
+2026-04-01 23:58:31,997 - player.player - INFO - Õ£÷π≤•∑≈
+2026-04-01 23:58:32,003 - player.player - INFO - ø™ º≤•∑≈Õ¯¬Á÷±≤•¡˜: https://tv.cctv.com/live/cctv13/
+2026-04-01 23:58:32,004 - werkzeug - INFO - 127.0.0.1 - - [01/Apr/2026 23:58:32] "[32mPOST /control HTTP/1.1[0m" 302 -
+2026-04-01 23:58:32,016 - werkzeug - INFO - 127.0.0.1 - - [01/Apr/2026 23:58:32] "GET / HTTP/1.1" 200 -
+2026-04-01 23:59:54,654 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2026-04-01 23:59:58,981 - player.player - INFO -  π”√÷∏∂®µƒVLC¬∑æ∂: C:\Program Files\VideoLAN\VLC\vlc.exe
+2026-04-01 23:59:59,498 - player.player - INFO - ≤•∑≈∆˜≥ı ºªØ≥…π¶
+2026-04-01 23:59:59,510 - apscheduler.scheduler - INFO - Scheduler started
+2026-04-01 23:59:59,511 - player.player - INFO -  π”√÷∏∂®µƒVLC¬∑æ∂: C:\Program Files\VideoLAN\VLC\vlc.exe
+2026-04-02 00:00:00,199 - player.player - INFO - ≤•∑≈∆˜≥ı ºªØ≥…π¶
+2026-04-02 00:00:00,238 - apscheduler.scheduler - INFO - Added job "Controller._execute_schedule" to job store "default"
+2026-04-02 00:00:00,239 - controller.controller - INFO - ÃÌº” ±º‰±Ì»ŒŒÒ: 111 (ID: 1)
+2026-04-02 00:00:00,239 - controller.controller - INFO - º”‘ÿ¡À 1 ∏ˆ ±º‰±Ì
+2026-04-02 00:00:00,259 - apscheduler.scheduler - INFO - Added job "Controller._execute_schedule" to job store "default"
+2026-04-02 00:00:00,260 - controller.controller - INFO - ÃÌº” ±º‰±Ì»ŒŒÒ: 111 (ID: 1)
+2026-04-02 00:00:00,261 - controller.controller - INFO - º”‘ÿ¡À 1 ∏ˆ ±º‰±Ì
+2026-04-02 00:00:00,277 - security.watchdog - INFO - ø¥√≈π∑∆Ù∂Ø≥…π¶
+2026-04-02 00:00:00,301 - werkzeug - WARNING -  * Running on all addresses.
+   WARNING: This is a development server. Do not use it in a production deployment.
+2026-04-02 00:00:00,302 - werkzeug - INFO -  * Running on http://192.168.1.73:5000/ (Press CTRL+C to quit)
+2026-04-02 00:00:04,080 - werkzeug - INFO - 127.0.0.1 - - [02/Apr/2026 00:00:04] "GET / HTTP/1.1" 200 -
+2026-04-02 00:00:05,289 - player.player - INFO - …Ë÷√≤•∑≈∆¡ƒª: 1
+2026-04-02 00:00:05,296 - player.player - INFO - Õ£÷π≤•∑≈
+2026-04-02 00:00:05,297 - player.player - INFO -  ∂±Œ™Õ¯“≥÷±≤•URL: https://tv.cctv.com/live/cctv13/
+2026-04-02 00:00:05,303 - player.player - INFO - ø™ º≤•∑≈Õ¯“≥÷±≤•: https://tv.cctv.com/live/cctv13/
+2026-04-02 00:00:05,304 - werkzeug - INFO - 127.0.0.1 - - [02/Apr/2026 00:00:05] "[32mPOST /control HTTP/1.1[0m" 302 -
+2026-04-02 00:00:05,313 - werkzeug - INFO - 127.0.0.1 - - [02/Apr/2026 00:00:05] "GET / HTTP/1.1" 200 -
+2026-04-02 00:01:22,370 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2026-04-02 00:01:29,371 - player.player - INFO -  π”√÷∏∂®µƒVLC¬∑æ∂: C:\Program Files\VideoLAN\VLC\vlc.exe
+2026-04-02 00:01:29,702 - player.player - INFO - ≤•∑≈∆˜≥ı ºªØ≥…π¶
+2026-04-02 00:01:29,712 - apscheduler.scheduler - INFO - Scheduler started
+2026-04-02 00:01:29,713 - player.player - INFO -  π”√÷∏∂®µƒVLC¬∑æ∂: C:\Program Files\VideoLAN\VLC\vlc.exe
+2026-04-02 00:01:30,248 - player.player - INFO - ≤•∑≈∆˜≥ı ºªØ≥…π¶
+2026-04-02 00:01:30,289 - apscheduler.scheduler - INFO - Added job "Controller._execute_schedule" to job store "default"
+2026-04-02 00:01:30,289 - controller.controller - INFO - ÃÌº” ±º‰±Ì»ŒŒÒ: 111 (ID: 1)
+2026-04-02 00:01:30,290 - controller.controller - INFO - º”‘ÿ¡À 1 ∏ˆ ±º‰±Ì
+2026-04-02 00:01:30,307 - apscheduler.scheduler - INFO - Added job "Controller._execute_schedule" to job store "default"
+2026-04-02 00:01:30,308 - controller.controller - INFO - ÃÌº” ±º‰±Ì»ŒŒÒ: 111 (ID: 1)
+2026-04-02 00:01:30,308 - controller.controller - INFO - º”‘ÿ¡À 1 ∏ˆ ±º‰±Ì
+2026-04-02 00:01:30,321 - security.watchdog - INFO - ø¥√≈π∑∆Ù∂Ø≥…π¶
+2026-04-02 00:01:30,343 - werkzeug - WARNING -  * Running on all addresses.
+   WARNING: This is a development server. Do not use it in a production deployment.
+2026-04-02 00:01:30,343 - werkzeug - INFO -  * Running on http://192.168.1.73:5000/ (Press CTRL+C to quit)
+2026-04-02 00:01:55,892 - werkzeug - INFO - 192.168.1.24 - - [02/Apr/2026 00:01:55] "[32mGET / HTTP/1.1[0m" 302 -
+2026-04-02 00:01:55,913 - werkzeug - INFO - 192.168.1.24 - - [02/Apr/2026 00:01:55] "GET /login?next=%2F HTTP/1.1" 200 -
+2026-04-02 00:01:56,032 - werkzeug - INFO - 192.168.1.24 - - [02/Apr/2026 00:01:56] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-04-02 00:01:56,045 - werkzeug - INFO - 192.168.1.24 - - [02/Apr/2026 00:01:56] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-04-02 00:02:05,800 - werkzeug - INFO - 192.168.1.24 - - [02/Apr/2026 00:02:05] "[32mPOST /login?next=%2F HTTP/1.1[0m" 302 -
+2026-04-02 00:02:05,828 - werkzeug - INFO - 192.168.1.24 - - [02/Apr/2026 00:02:05] "GET / HTTP/1.1" 200 -
+2026-04-02 00:02:08,325 - player.player - INFO - …Ë÷√≤•∑≈∆¡ƒª: 1
+2026-04-02 00:02:08,328 - player.player - INFO - Õ£÷π≤•∑≈
+2026-04-02 00:02:08,328 - player.player - INFO -  ∂±Œ™Õ¯“≥÷±≤•URL: https://tv.cctv.com/live/cctv13/
+2026-04-02 00:02:08,328 - player.player - INFO - ‘⁄∑˛ŒÒ∆˜∂À¥Úø™‰Ø¿¿∆˜≤•∑≈: https://tv.cctv.com/live/cctv13/
+2026-04-02 00:02:08,332 - player.player - INFO - ‰Ø¿¿∆˜¥Úø™≥…π¶
+2026-04-02 00:02:08,332 - player.player - INFO - ø™ º≤•∑≈Õ¯“≥÷±≤•: https://tv.cctv.com/live/cctv13/
+2026-04-02 00:02:08,333 - werkzeug - INFO - 192.168.1.24 - - [02/Apr/2026 00:02:08] "[32mPOST /control HTTP/1.1[0m" 302 -
+2026-04-02 00:02:08,356 - werkzeug - INFO - 192.168.1.24 - - [02/Apr/2026 00:02:08] "GET / HTTP/1.1" 200 -
+2026-04-02 00:02:13,217 - player.player - INFO - Õ£÷π≤•∑≈
+2026-04-02 00:02:13,218 - werkzeug - INFO - 192.168.1.24 - - [02/Apr/2026 00:02:13] "[32mPOST /control HTTP/1.1[0m" 302 -
+2026-04-02 00:02:13,323 - werkzeug - INFO - 192.168.1.24 - - [02/Apr/2026 00:02:13] "GET / HTTP/1.1" 200 -
+2026-04-02 00:02:15,061 - player.player - INFO - …Ë÷√≤•∑≈∆¡ƒª: 1
+2026-04-02 00:02:15,062 - player.player - INFO - Õ£÷π≤•∑≈
+2026-04-02 00:02:15,062 - player.player - INFO -  ∂±Œ™Õ¯“≥÷±≤•URL: https://tv.cctv.com/live/cctv13/
+2026-04-02 00:02:15,062 - player.player - INFO - ‘⁄∑˛ŒÒ∆˜∂À¥Úø™‰Ø¿¿∆˜≤•∑≈: https://tv.cctv.com/live/cctv13/
+2026-04-02 00:02:15,067 - player.player - INFO - ‰Ø¿¿∆˜¥Úø™≥…π¶
+2026-04-02 00:02:15,068 - player.player - INFO - ø™ º≤•∑≈Õ¯“≥÷±≤•: https://tv.cctv.com/live/cctv13/
+2026-04-02 00:02:15,071 - werkzeug - INFO - 192.168.1.24 - - [02/Apr/2026 00:02:15] "[32mPOST /control HTTP/1.1[0m" 302 -
+2026-04-02 00:02:15,097 - werkzeug - INFO - 192.168.1.24 - - [02/Apr/2026 00:02:15] "GET / HTTP/1.1" 200 -
+2026-04-02 00:02:26,490 - werkzeug - INFO - 192.168.1.24 - - [02/Apr/2026 00:02:26] "GET /users HTTP/1.1" 200 -
+2026-04-02 00:03:00,158 - werkzeug - INFO - 192.168.1.24 - - [02/Apr/2026 00:03:00] "GET / HTTP/1.1" 200 -
+2026-04-02 00:03:18,166 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2026-04-02 00:04:06,528 - player.player - INFO -  π”√÷∏∂®µƒVLC¬∑æ∂: C:\Program Files\VideoLAN\VLC\vlc.exe
+2026-04-02 00:04:06,849 - player.player - INFO - ≤•∑≈∆˜≥ı ºªØ≥…π¶
+2026-04-02 00:04:06,861 - apscheduler.scheduler - INFO - Scheduler started
+2026-04-02 00:04:06,863 - player.player - INFO -  π”√÷∏∂®µƒVLC¬∑æ∂: C:\Program Files\VideoLAN\VLC\vlc.exe
+2026-04-02 00:04:07,467 - player.player - INFO - ≤•∑≈∆˜≥ı ºªØ≥…π¶
+2026-04-02 00:04:07,505 - apscheduler.scheduler - INFO - Added job "Controller._execute_schedule" to job store "default"
+2026-04-02 00:04:07,505 - controller.controller - INFO - ÃÌº” ±º‰±Ì»ŒŒÒ: 111 (ID: 1)
+2026-04-02 00:04:07,505 - controller.controller - INFO - º”‘ÿ¡À 1 ∏ˆ ±º‰±Ì
+2026-04-02 00:04:07,527 - apscheduler.scheduler - INFO - Added job "Controller._execute_schedule" to job store "default"
+2026-04-02 00:04:07,528 - controller.controller - INFO - ÃÌº” ±º‰±Ì»ŒŒÒ: 111 (ID: 1)
+2026-04-02 00:04:07,528 - controller.controller - INFO - º”‘ÿ¡À 1 ∏ˆ ±º‰±Ì
+2026-04-02 00:04:07,541 - security.watchdog - INFO - ø¥√≈π∑∆Ù∂Ø≥…π¶
+2026-04-02 00:04:07,564 - werkzeug - WARNING -  * Running on all addresses.
+   WARNING: This is a development server. Do not use it in a production deployment.
+2026-04-02 00:04:07,565 - werkzeug - INFO -  * Running on http://192.168.1.73:5000/ (Press CTRL+C to quit)
+2026-04-02 00:04:09,602 - werkzeug - INFO - 192.168.1.24 - - [02/Apr/2026 00:04:09] "GET / HTTP/1.1" 200 -
+2026-04-02 00:04:12,593 - player.player - INFO - …Ë÷√≤•∑≈∆¡ƒª: 1
+2026-04-02 00:04:12,596 - player.player - INFO - Õ£÷π≤•∑≈
+2026-04-02 00:04:12,596 - player.player - INFO -  ∂±Œ™Õ¯“≥÷±≤•URL: https://tv.cctv.com/live/cctv13/
+2026-04-02 00:04:12,596 - player.player - INFO - ‘⁄∑˛ŒÒ∆˜∂À¥Úø™‰Ø¿¿∆˜≤•∑≈: https://tv.cctv.com/live/cctv13/
+2026-04-02 00:04:12,599 - player.player - INFO - ‰Ø¿¿∆˜¥Úø™≥…π¶
+2026-04-02 00:04:12,600 - player.player - INFO - ø™ º≤•∑≈Õ¯“≥÷±≤•: https://tv.cctv.com/live/cctv13/
+2026-04-02 00:04:12,601 - werkzeug - INFO - 192.168.1.24 - - [02/Apr/2026 00:04:12] "[32mPOST /control HTTP/1.1[0m" 302 -
+2026-04-02 00:04:12,633 - werkzeug - INFO - 192.168.1.24 - - [02/Apr/2026 00:04:12] "GET / HTTP/1.1" 200 -
+2026-04-02 00:04:15,934 - player.player - INFO - ≥¢ ‘Õ£÷π‰Ø¿¿∆˜Ω¯≥Ã
+2026-04-02 00:04:15,934 - player.player - INFO - ‰Ø¿¿∆˜Ω¯≥Ã“—≥…π¶÷’÷π
+2026-04-02 00:04:15,935 - player.player - INFO - Õ£÷π≤•∑≈
+2026-04-02 00:04:15,936 - werkzeug - INFO - 192.168.1.24 - - [02/Apr/2026 00:04:15] "[32mPOST /control HTTP/1.1[0m" 302 -
+2026-04-02 00:04:15,975 - werkzeug - INFO - 192.168.1.24 - - [02/Apr/2026 00:04:15] "GET / HTTP/1.1" 200 -
+2026-04-02 00:04:18,961 - player.player - INFO - Õ£÷π≤•∑≈
+2026-04-02 00:04:18,961 - werkzeug - INFO - 192.168.1.24 - - [02/Apr/2026 00:04:18] "[32mPOST /control HTTP/1.1[0m" 302 -
+2026-04-02 00:04:18,984 - werkzeug - INFO - 192.168.1.24 - - [02/Apr/2026 00:04:18] "GET / HTTP/1.1" 200 -
+2026-04-02 00:05:23,034 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2026-04-02 00:05:28,036 - security.watchdog - INFO - ø¥√≈π∑œﬂ≥Ã±ª÷–∂œ
+2026-04-02 00:05:28,036 - security.watchdog - INFO - ø¥√≈π∑Õ£÷π≥…π¶
+2026-04-02 00:05:29,969 - player.player - INFO -  π”√÷∏∂®µƒVLC¬∑æ∂: C:\Program Files\VideoLAN\VLC\vlc.exe
+2026-04-02 00:05:30,300 - player.player - INFO - ≤•∑≈∆˜≥ı ºªØ≥…π¶
+2026-04-02 00:05:30,311 - apscheduler.scheduler - INFO - Scheduler started
+2026-04-02 00:05:30,313 - player.player - INFO -  π”√÷∏∂®µƒVLC¬∑æ∂: C:\Program Files\VideoLAN\VLC\vlc.exe
+2026-04-02 00:05:30,757 - player.player - INFO - ≤•∑≈∆˜≥ı ºªØ≥…π¶
+2026-04-02 00:05:30,791 - apscheduler.scheduler - INFO - Added job "Controller._execute_schedule" to job store "default"
+2026-04-02 00:05:30,793 - controller.controller - INFO - ÃÌº” ±º‰±Ì»ŒŒÒ: 111 (ID: 1)
+2026-04-02 00:05:30,793 - controller.controller - INFO - º”‘ÿ¡À 1 ∏ˆ ±º‰±Ì
+2026-04-02 00:05:30,810 - apscheduler.scheduler - INFO - Added job "Controller._execute_schedule" to job store "default"
+2026-04-02 00:05:30,810 - controller.controller - INFO - ÃÌº” ±º‰±Ì»ŒŒÒ: 111 (ID: 1)
+2026-04-02 00:05:30,810 - controller.controller - INFO - º”‘ÿ¡À 1 ∏ˆ ±º‰±Ì
+2026-04-02 00:05:30,823 - security.watchdog - INFO - ø¥√≈π∑∆Ù∂Ø≥…π¶
+2026-04-02 00:05:30,844 - werkzeug - WARNING -  * Running on all addresses.
+   WARNING: This is a development server. Do not use it in a production deployment.
+2026-04-02 00:05:30,845 - werkzeug - INFO -  * Running on http://192.168.1.73:5000/ (Press CTRL+C to quit)
+2026-04-02 00:05:32,440 - werkzeug - INFO - 192.168.1.24 - - [02/Apr/2026 00:05:32] "GET / HTTP/1.1" 200 -
+2026-04-02 00:05:33,857 - player.player - INFO - …Ë÷√≤•∑≈∆¡ƒª: 1
+2026-04-02 00:05:33,861 - player.player - INFO - Õ£÷π≤•∑≈
+2026-04-02 00:05:33,862 - player.player - INFO -  ∂±Œ™Õ¯“≥÷±≤•URL: https://tv.cctv.com/live/cctv13/
+2026-04-02 00:05:33,862 - player.player - INFO - ‘⁄∑˛ŒÒ∆˜∂À¥Úø™‰Ø¿¿∆˜≤•∑≈: https://tv.cctv.com/live/cctv13/
+2026-04-02 00:05:33,906 - player.player - INFO - Edge‰Ø¿¿∆˜¥Úø™≥…π¶
+2026-04-02 00:05:33,906 - player.player - INFO - ø™ º≤•∑≈Õ¯“≥÷±≤•: https://tv.cctv.com/live/cctv13/
+2026-04-02 00:05:33,907 - werkzeug - INFO - 192.168.1.24 - - [02/Apr/2026 00:05:33] "[32mPOST /control HTTP/1.1[0m" 302 -
+2026-04-02 00:05:33,935 - werkzeug - INFO - 192.168.1.24 - - [02/Apr/2026 00:05:33] "GET / HTTP/1.1" 200 -
+2026-04-02 00:05:43,768 - player.player - INFO - ≥¢ ‘Õ£÷π‰Ø¿¿∆˜Ω¯≥Ã
+2026-04-02 00:05:43,854 - player.player - INFO - ‰Ø¿¿∆˜Ω¯≥Ã“—≥…π¶÷’÷π
+2026-04-02 00:05:43,855 - player.player - INFO - Õ£÷π≤•∑≈
+2026-04-02 00:05:43,857 - werkzeug - INFO - 192.168.1.24 - - [02/Apr/2026 00:05:43] "[32mPOST /control HTTP/1.1[0m" 302 -
+2026-04-02 00:05:43,897 - werkzeug - INFO - 192.168.1.24 - - [02/Apr/2026 00:05:43] "GET / HTTP/1.1" 200 -
+2026-04-02 00:05:45,499 - player.player - INFO - …Ë÷√≤•∑≈∆¡ƒª: 1
+2026-04-02 00:05:45,499 - player.player - INFO - Õ£÷π≤•∑≈
+2026-04-02 00:05:45,499 - player.player - INFO -  ∂±Œ™Õ¯“≥÷±≤•URL: https://tv.cctv.com/live/cctv13/
+2026-04-02 00:05:45,500 - player.player - INFO - ‘⁄∑˛ŒÒ∆˜∂À¥Úø™‰Ø¿¿∆˜≤•∑≈: https://tv.cctv.com/live/cctv13/
+2026-04-02 00:05:45,508 - player.player - INFO - Edge‰Ø¿¿∆˜¥Úø™≥…π¶
+2026-04-02 00:05:45,508 - player.player - INFO - ø™ º≤•∑≈Õ¯“≥÷±≤•: https://tv.cctv.com/live/cctv13/
+2026-04-02 00:05:45,509 - werkzeug - INFO - 192.168.1.24 - - [02/Apr/2026 00:05:45] "[32mPOST /control HTTP/1.1[0m" 302 -
+2026-04-02 00:05:45,531 - werkzeug - INFO - 192.168.1.24 - - [02/Apr/2026 00:05:45] "GET / HTTP/1.1" 200 -
+2026-04-02 00:06:03,083 - player.player - INFO - ≥¢ ‘Õ£÷π‰Ø¿¿∆˜Ω¯≥Ã
+2026-04-02 00:06:03,231 - player.player - INFO - ‰Ø¿¿∆˜Ω¯≥Ã“—≥…π¶÷’÷π
+2026-04-02 00:06:03,231 - player.player - INFO - Õ£÷π≤•∑≈
+2026-04-02 00:06:03,232 - werkzeug - INFO - 192.168.1.24 - - [02/Apr/2026 00:06:03] "[32mPOST /control HTTP/1.1[0m" 302 -
+2026-04-02 00:06:03,270 - werkzeug - INFO - 192.168.1.24 - - [02/Apr/2026 00:06:03] "GET / HTTP/1.1" 200 -
+2026-04-02 00:06:56,312 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2026-04-02 00:07:00,825 - security.watchdog - INFO - ø¥√≈π∑œﬂ≥Ã±ª÷–∂œ
+2026-04-02 00:07:00,825 - security.watchdog - INFO - ø¥√≈π∑Õ£÷π≥…π¶
+2026-04-02 00:07:04,595 - player.player - INFO -  π”√÷∏∂®µƒVLC¬∑æ∂: C:\Program Files\VideoLAN\VLC\vlc.exe
+2026-04-02 00:07:04,952 - player.player - INFO - ≤•∑≈∆˜≥ı ºªØ≥…π¶
+2026-04-02 00:07:04,964 - apscheduler.scheduler - INFO - Scheduler started
+2026-04-02 00:07:04,966 - player.player - INFO -  π”√÷∏∂®µƒVLC¬∑æ∂: C:\Program Files\VideoLAN\VLC\vlc.exe
+2026-04-02 00:07:05,515 - player.player - INFO - ≤•∑≈∆˜≥ı ºªØ≥…π¶
+2026-04-02 00:07:05,552 - apscheduler.scheduler - INFO - Added job "Controller._execute_schedule" to job store "default"
+2026-04-02 00:07:05,552 - controller.controller - INFO - ÃÌº” ±º‰±Ì»ŒŒÒ: 111 (ID: 1)
+2026-04-02 00:07:05,553 - controller.controller - INFO - º”‘ÿ¡À 1 ∏ˆ ±º‰±Ì
+2026-04-02 00:07:05,569 - apscheduler.scheduler - INFO - Added job "Controller._execute_schedule" to job store "default"
+2026-04-02 00:07:05,570 - controller.controller - INFO - ÃÌº” ±º‰±Ì»ŒŒÒ: 111 (ID: 1)
+2026-04-02 00:07:05,570 - controller.controller - INFO - º”‘ÿ¡À 1 ∏ˆ ±º‰±Ì
+2026-04-02 00:07:05,583 - security.watchdog - INFO - ø¥√≈π∑∆Ù∂Ø≥…π¶
+2026-04-02 00:07:05,603 - werkzeug - WARNING -  * Running on all addresses.
+   WARNING: This is a development server. Do not use it in a production deployment.
+2026-04-02 00:07:05,604 - werkzeug - INFO -  * Running on http://192.168.1.73:5000/ (Press CTRL+C to quit)
+2026-04-02 00:07:07,376 - werkzeug - INFO - 192.168.1.24 - - [02/Apr/2026 00:07:07] "GET / HTTP/1.1" 200 -
+2026-04-02 00:07:08,687 - player.player - INFO - …Ë÷√≤•∑≈∆¡ƒª: 1
+2026-04-02 00:07:08,691 - player.player - INFO - Õ£÷π≤•∑≈
+2026-04-02 00:07:08,691 - player.player - INFO -  ∂±Œ™Õ¯“≥÷±≤•URL: https://tv.cctv.com/live/cctv13/
+2026-04-02 00:07:08,691 - player.player - INFO - ‘⁄∑˛ŒÒ∆˜∂À¥Úø™‰Ø¿¿∆˜≤•∑≈: https://tv.cctv.com/live/cctv13/
+2026-04-02 00:07:08,704 - player.player - INFO - Edge‰Ø¿¿∆˜¥Úø™≥…π¶£®»´∆¡ƒ£ Ω£©
+2026-04-02 00:07:08,704 - player.player - INFO - ø™ º≤•∑≈Õ¯“≥÷±≤•: https://tv.cctv.com/live/cctv13/
+2026-04-02 00:07:08,704 - werkzeug - INFO - 192.168.1.24 - - [02/Apr/2026 00:07:08] "[32mPOST /control HTTP/1.1[0m" 302 -
+2026-04-02 00:07:08,727 - werkzeug - INFO - 192.168.1.24 - - [02/Apr/2026 00:07:08] "GET / HTTP/1.1" 200 -
+2026-04-02 00:07:17,952 - player.player - INFO - ≥¢ ‘Õ£÷π‰Ø¿¿∆˜Ω¯≥Ã
+2026-04-02 00:07:18,094 - player.player - INFO - ‰Ø¿¿∆˜Ω¯≥Ã“—≥…π¶÷’÷π
+2026-04-02 00:07:18,094 - player.player - INFO - Õ£÷π≤•∑≈
+2026-04-02 00:07:18,097 - werkzeug - INFO - 192.168.1.24 - - [02/Apr/2026 00:07:18] "[32mPOST /control HTTP/1.1[0m" 302 -
+2026-04-02 00:07:18,202 - werkzeug - INFO - 192.168.1.24 - - [02/Apr/2026 00:07:18] "GET / HTTP/1.1" 200 -
+2026-04-02 00:07:18,950 - player.player - INFO - …Ë÷√≤•∑≈∆¡ƒª: 1
+2026-04-02 00:07:18,950 - player.player - INFO - Õ£÷π≤•∑≈
+2026-04-02 00:07:18,950 - player.player - INFO -  ∂±Œ™Õ¯“≥÷±≤•URL: https://tv.cctv.com/live/cctv13/
+2026-04-02 00:07:18,952 - player.player - INFO - ‘⁄∑˛ŒÒ∆˜∂À¥Úø™‰Ø¿¿∆˜≤•∑≈: https://tv.cctv.com/live/cctv13/
+2026-04-02 00:07:18,964 - player.player - INFO - Edge‰Ø¿¿∆˜¥Úø™≥…π¶£®»´∆¡ƒ£ Ω£©
+2026-04-02 00:07:18,964 - player.player - INFO - ø™ º≤•∑≈Õ¯“≥÷±≤•: https://tv.cctv.com/live/cctv13/
+2026-04-02 00:07:18,965 - werkzeug - INFO - 192.168.1.24 - - [02/Apr/2026 00:07:18] "[32mPOST /control HTTP/1.1[0m" 302 -
+2026-04-02 00:07:18,986 - werkzeug - INFO - 192.168.1.24 - - [02/Apr/2026 00:07:18] "GET / HTTP/1.1" 200 -
+2026-04-02 00:07:40,000 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2026-04-02 00:07:45,002 - security.watchdog - INFO - ø¥√≈π∑Õ£÷π≥…π¶
