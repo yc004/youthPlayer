@@ -30,4 +30,39 @@
         <li>RTSP / RTMP 在 Electron 兼容性较弱，系统会自动回退 VLC。</li>
     </ul>
 </section>
+
+<section class="panel">
+    <div class="panel-head">
+        <h2>设置操作审计日志</h2>
+        <span class="chip info">最近 50 条</span>
+    </div>
+    <div class="table-wrap">
+        <table class="audit-table">
+            <thead>
+                <tr>
+                    <th>时间</th>
+                    <th>操作人</th>
+                    <th>设置项</th>
+                    <th>变更</th>
+                    <th>来源 IP</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in audit_logs %}
+                <tr>
+                    <td>{{ item.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                    <td>{{ item.operator_username or ('UID:' ~ item.operator_user_id) }}</td>
+                    <td>{{ item.setting_key }}</td>
+                    <td>{{ item.old_value }} → {{ item.new_value }}</td>
+                    <td title="{{ item.user_agent }}">{{ item.remote_addr }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5" class="empty-cell">暂无审计日志</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
 {% endblock %}

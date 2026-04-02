@@ -500,6 +500,39 @@ a {
     border-radius: 16px;
 }
 
+.table-wrap {
+    overflow: auto;
+    margin-top: 14px;
+}
+
+.audit-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.audit-table th,
+.audit-table td {
+    border-bottom: 1px solid #e5e7eb;
+    padding: 10px 8px;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.audit-table th {
+    color: #475569;
+    font-weight: 700;
+    background: #f8fafc;
+    position: sticky;
+    top: 0;
+}
+
+.audit-table .empty-cell {
+    text-align: center;
+    color: #6b7280;
+    padding: 20px 8px;
+}
+
 .auth-page {
     min-height: 100vh;
     background: radial-gradient(circle at top, #dbeafe 0%, #eef2ff 40%, #f8fafc 100%);

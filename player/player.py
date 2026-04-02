@@ -66,7 +66,13 @@ class Player:
             logger.warning("python-vlc not installed, VLC playback unavailable.")
             return
         try:
-            options = ["--no-video-title-show", "--quiet"]
+            options = [
+                "--no-video-title-show",
+                "--quiet",
+                "--fullscreen",
+                "--video-on-top",
+                "--mouse-hide-timeout=100",
+            ]
             if os.path.exists(Config.VLC_PATH):
                 logger.info("Using VLC at: %s", Config.VLC_PATH)
             self.instance = vlc.Instance(*options)
@@ -171,6 +177,11 @@ class Player:
             result = self.player.play()
             time.sleep(0.5)
             self.player.set_fullscreen(True)
+            try:
+                self.player.video_set_mouse_input(False)
+                self.player.video_set_key_input(False)
+            except Exception:
+                pass
             self.current_media = media
             self.current_source = source
             self.current_backend = "vlc"

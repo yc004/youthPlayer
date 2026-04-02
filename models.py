@@ -90,3 +90,20 @@ class SystemSetting(db.Model):
 
     def __repr__(self):
         return f"<SystemSetting {self.key}={self.value}>"
+
+
+class SettingAuditLog(db.Model):
+    __tablename__ = "setting_audit_log"
+
+    id = db.Column(db.Integer, primary_key=True)
+    setting_key = db.Column(db.String(100), nullable=False, index=True)
+    old_value = db.Column(db.String(500), nullable=True)
+    new_value = db.Column(db.String(500), nullable=True)
+    operator_user_id = db.Column(db.Integer, nullable=True, index=True)
+    operator_username = db.Column(db.String(50), nullable=False, default="")
+    remote_addr = db.Column(db.String(100), nullable=False, default="")
+    user_agent = db.Column(db.String(500), nullable=False, default="")
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.now, index=True)
+
+    def __repr__(self):
+        return f"<SettingAuditLog {self.setting_key} {self.old_value}->{self.new_value}>"

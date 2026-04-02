@@ -5,7 +5,7 @@ from flask import Blueprint, flash, jsonify, redirect, render_template, request,
 from flask_login import current_user, login_required, login_user, logout_user
 
 from config import Config
-from models import Schedule, SystemSetting, User, db
+from models import Schedule, SettingAuditLog, SystemSetting, User, db
 
 
 main = Blueprint("main", __name__)
@@ -96,6 +96,23 @@ def _set_setting_bool(key, value):
     else:
         item.value = "1" if value else "0"
     db.session.commit()
+
+
+def _append_setting_audit_log(setting_key, old_value, new_value):
+    try:
+        log = SettingAuditLog(
+            setting_key=setting_key,
+            old_value=old_value,
+            new_value=new_value,
+            operator_user_id=getattr(current_user, "id", None),
+            operator_username=getattr(current_user, "username", "") or "",
+            remote_addr=request.remote_addr or "",
+            user_agent=(request.headers.get("User-Agent", "") or "")[:500],
+        )
+        db.session.add(log)
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
 
 
 @main.route("/login", methods=["GET", "POST"])
@@ -354,13 +371,26 @@ def settings():
 
     if request.method == "POST":
         enable_all_electron = "all_play_via_electron" in request.form
+        old_value = "1" if _get_setting_bool(SETTING_KEY_ALL_ELECTRON, Config.ALL_PLAY_VIA_ELECTRON) else "0"
+        new_value = "1" if enable_all_electron else "0"
         _set_setting_bool(SETTING_KEY_ALL_ELECTRON, enable_all_electron)
         Config.ALL_PLAY_VIA_ELECTRON = enable_all_electron
+        if old_value != new_value:
+            _append_setting_audit_log(SETTING_KEY_ALL_ELECTRON, old_value, new_value)
         flash("系统设置已保存。", "success")
         return redirect(url_for("main.settings"))
 
     all_play_via_electron = _get_setting_bool(SETTING_KEY_ALL_ELECTRON, Config.ALL_PLAY_VIA_ELECTRON)
-    return render_template("settings.html", all_play_via_electron=all_play_via_electron)
+    audit_logs = (
+        SettingAuditLog.query.order_by(SettingAuditLog.created_at.desc(), SettingAuditLog.id.desc())
+        .limit(50)
+        .all()
+    )
+    return render_template(
+        "settings.html",
+        all_play_via_electron=all_play_via_electron,
+        audit_logs=audit_logs,
+    )
 
 
 @main.route("/user/add", methods=["POST"])

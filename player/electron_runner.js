@@ -77,6 +77,23 @@ const SCRIPT_FULLSCREEN = `
 })();
 `;
 
+const SCRIPT_HIDE_CURSOR = `
+(() => {
+  try {
+    const styleId = "__yp_hide_cursor_style__";
+    if (!document.getElementById(styleId)) {
+      const style = document.createElement("style");
+      style.id = styleId;
+      style.textContent = "* { cursor: none !important; }";
+      document.documentElement.appendChild(style);
+    }
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: String(e) };
+  }
+})();
+`;
+
 let mainWindow = null;
 let controlServer = null;
 const params = parseArgs();
@@ -192,16 +209,34 @@ function createWindow() {
   mainWindow.once("ready-to-show", () => {
     trace("window.ready-to-show");
     mainWindow.show();
+    mainWindow.setKiosk(true);
     mainWindow.setFullScreen(true);
+  });
+  mainWindow.on("leave-full-screen", () => {
+    trace("window.leave-full-screen -> force back");
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.setFullScreen(true);
+    }
+  });
+  mainWindow.on("blur", () => {
+    if (mainWindow && !mainWindow.isDestroyed() && params.topmost) {
+      mainWindow.setAlwaysOnTop(true, "screen-saver");
+      mainWindow.focus();
+    }
+  });
+  mainWindow.webContents.on("dom-ready", async () => {
+    await runInject(SCRIPT_HIDE_CURSOR);
   });
   mainWindow.webContents.on("did-fail-load", (_event, code, desc, validatedUrl) => {
     trace("did-fail-load", { code, desc, validatedUrl });
   });
   mainWindow.webContents.on("did-finish-load", async () => {
     trace("did-finish-load");
+    await runInject(SCRIPT_HIDE_CURSOR);
     await runInject(SCRIPT_PLAY);
     await runInject(SCRIPT_FULLSCREEN);
     if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.setKiosk(true);
       mainWindow.setFullScreen(true);
     }
   });
