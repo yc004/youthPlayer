@@ -600,3 +600,547 @@ error sending request for url (https://msedgedriver.azureedge.net/LATEST_STABLE)
 2026-04-02 09:58:51,622 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:58:51] "GET /api/status HTTP/1.1" 200 -
 2026-04-02 09:59:01,603 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:59:01] "GET /api/status HTTP/1.1" 200 -
 2026-04-02 09:59:05,092 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2026-04-02 11:54:22,261 - apscheduler.scheduler - INFO - Scheduler started
+2026-04-02 11:54:22,663 - player.player - INFO - Using VLC at: C:\Program Files\VideoLAN\VLC\vlc.exe
+2026-04-02 11:54:22,810 - player.player - INFO - VLC player initialized.
+2026-04-02 11:54:22,811 - player.player - INFO - Target screen set to: 0
+2026-04-02 11:54:22,885 - controller.controller - INFO - 已加载 0 个有效时间表
+2026-04-02 11:54:22,890 - security.watchdog - INFO - 看门狗启动成功
+2026-04-02 11:54:22,932 - werkzeug - WARNING -  * Running on all addresses.
+   WARNING: This is a development server. Do not use it in a production deployment.
+2026-04-02 11:54:22,934 - werkzeug - INFO -  * Running on http://192.168.43.24:5000/ (Press CTRL+C to quit)
+2026-04-02 11:54:26,760 - werkzeug - INFO - 192.168.43.24 - - [02/Apr/2026 11:54:26] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 11:54:28,931 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 11:54:28] "GET / HTTP/1.1" 200 -
+2026-04-02 11:54:29,019 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 11:54:29] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-02 11:54:29,022 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 11:54:29] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-02 11:54:29,090 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 11:54:29] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 11:54:29,251 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 11:54:29] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-04-02 11:54:29,266 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 11:54:29] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-04-02 11:54:39,656 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 11:54:39] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 11:54:41,728 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 11:54:41] "GET / HTTP/1.1" 200 -
+2026-04-02 11:54:41,776 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 11:54:41] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-02 11:54:41,777 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 11:54:41] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-02 11:54:41,803 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 11:54:41] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 11:54:43,876 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 11:54:43] "GET / HTTP/1.1" 200 -
+2026-04-02 11:54:43,911 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 11:54:43] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-02 11:54:43,913 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 11:54:43] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-02 11:54:43,961 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 11:54:43] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 11:54:44,569 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 11:54:44] "GET / HTTP/1.1" 200 -
+2026-04-02 11:54:44,609 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 11:54:44] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-02 11:54:44,614 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 11:54:44] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-02 11:54:44,652 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 11:54:44] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 11:54:52,301 - apscheduler.scheduler - INFO - Added job "Controller._finish_schedule" to job store "default"
+2026-04-02 11:54:52,301 - controller.controller - INFO - 已注册时间表任务: 111 (ID=1)
+2026-04-02 11:54:52,303 - controller.controller - INFO - 开始执行时间表 [sync]: 111
+2026-04-02 11:54:52,304 - player.player - INFO - Target screen set to: 1
+2026-04-02 11:54:52,305 - player.player - INFO - Playback stopped.
+2026-04-02 11:54:52,901 - controller.controller - INFO - 开始执行时间表 [sync]: 111
+2026-04-02 11:54:52,901 - player.player - INFO - Target screen set to: 1
+2026-04-02 11:54:54,725 - player.player - ERROR - PyQt WebEngine open failed: WebEngine control endpoint not ready.
+2026-04-02 11:54:54,729 - controller.controller - INFO - 开始执行时间表 [sync]: 111
+2026-04-02 11:54:54,730 - player.player - INFO - Target screen set to: 1
+2026-04-02 11:54:54,904 - player.player - INFO - Playback stopped.
+2026-04-02 11:54:56,730 - player.player - WARNING - PyQt WebEngine mode failed, fallback to other browser backends.
+2026-04-02 11:54:56,733 - player.player - INFO - Playback stopped.
+2026-04-02 11:54:57,233 - player.player - ERROR - Driver browser open failed: Message: Unable to obtain msedgedriver using Selenium Manager; Message: Unsuccessful command executed: C:\Users\Daniel\.conda\envs\youthplayer\lib\site-packages\selenium\webdriver\common\windows\selenium-manager.exe --browser MicrosoftEdge --output json --browser-path C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe.
+error sending request for url (https://msedgedriver.azureedge.net/LATEST_STABLE): error trying to connect: tls handshake eof
+; For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors/driver_location
+
+2026-04-02 11:54:57,233 - player.player - WARNING - Driver mode failed, fallback to native browser process.
+2026-04-02 11:54:58,266 - player.player - INFO - Web live opened via native browser process: https://tv.cctv.com/live/cctv13/
+2026-04-02 11:54:58,268 - controller.controller - INFO - 更新时间表: 111
+2026-04-02 11:54:58,271 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 11:54:58] "[32mPOST /schedule/toggle/1 HTTP/1.1[0m" 302 -
+2026-04-02 11:54:58,338 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 11:54:58] "GET / HTTP/1.1" 200 -
+2026-04-02 11:54:58,442 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 11:54:58] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-02 11:54:58,454 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 11:54:58] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-02 11:54:58,524 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 11:54:58] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 11:54:59,156 - player.player - ERROR - PyQt WebEngine open failed: WebEngine control endpoint not ready.
+2026-04-02 11:54:59,733 - player.player - ERROR - PyQt WebEngine open failed: WebEngine control endpoint not ready.
+2026-04-02 11:55:01,162 - player.player - WARNING - PyQt WebEngine mode failed, fallback to other browser backends.
+2026-04-02 11:55:01,738 - player.player - WARNING - PyQt WebEngine mode failed, fallback to other browser backends.
+2026-04-02 11:55:02,478 - player.player - ERROR - Driver browser open failed: Message: Unable to obtain msedgedriver using Selenium Manager; Message: Unsuccessful command executed: C:\Users\Daniel\.conda\envs\youthplayer\lib\site-packages\selenium\webdriver\common\windows\selenium-manager.exe --browser MicrosoftEdge --output json --browser-path C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe.
+error sending request for url (https://msedgedriver.azureedge.net/LATEST_STABLE): error trying to connect: tls handshake eof
+; For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors/driver_location
+
+2026-04-02 11:55:02,479 - player.player - WARNING - Driver mode failed, fallback to native browser process.
+2026-04-02 11:55:03,077 - player.player - ERROR - Driver browser open failed: Message: Unable to obtain msedgedriver using Selenium Manager; Message: Unsuccessful command executed: C:\Users\Daniel\.conda\envs\youthplayer\lib\site-packages\selenium\webdriver\common\windows\selenium-manager.exe --browser MicrosoftEdge --output json --browser-path C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe.
+error sending request for url (https://msedgedriver.azureedge.net/LATEST_STABLE): error trying to connect: tls handshake eof
+; For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors/driver_location
+
+2026-04-02 11:55:03,079 - player.player - WARNING - Driver mode failed, fallback to native browser process.
+2026-04-02 11:55:13,597 - player.player - INFO - Web live opened via native browser process: https://tv.cctv.com/live/cctv13/
+2026-04-02 11:55:13,613 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 11:55:13] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 11:55:14,159 - player.player - INFO - Web live opened via native browser process: https://tv.cctv.com/live/cctv13/
+2026-04-02 11:55:14,160 - security.watchdog - WARNING - 检测到播放器异常，尝试恢复当前时间表: 111
+2026-04-02 11:55:14,169 - controller.controller - INFO - 开始执行时间表 [sync]: 111
+2026-04-02 11:55:14,169 - player.player - INFO - Target screen set to: 1
+2026-04-02 11:55:14,708 - player.player - INFO - Playback stopped.
+2026-04-02 11:55:14,757 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2026-04-02 11:55:17,130 - player.player - ERROR - PyQt WebEngine open failed: WebEngine control endpoint not ready.
+2026-04-02 11:55:19,133 - player.player - WARNING - PyQt WebEngine mode failed, fallback to other browser backends.
+2026-04-02 11:55:19,603 - player.player - ERROR - Driver browser open failed: Message: Unable to obtain msedgedriver using Selenium Manager; Message: Unsuccessful command executed: C:\Users\Daniel\.conda\envs\youthplayer\lib\site-packages\selenium\webdriver\common\windows\selenium-manager.exe --browser MicrosoftEdge --output json --browser-path C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe.
+error sending request for url (https://msedgedriver.azureedge.net/LATEST_STABLE): error trying to connect: tls handshake eof
+; For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors/driver_location
+
+2026-04-02 11:55:19,603 - player.player - WARNING - Driver mode failed, fallback to native browser process.
+2026-04-02 11:56:10,275 - apscheduler.scheduler - INFO - Scheduler started
+2026-04-02 11:56:10,520 - player.player - INFO - Using VLC at: C:\Program Files\VideoLAN\VLC\vlc.exe
+2026-04-02 11:56:10,651 - player.player - INFO - VLC player initialized.
+2026-04-02 11:56:10,651 - player.player - INFO - Target screen set to: 0
+2026-04-02 11:56:10,716 - apscheduler.scheduler - INFO - Added job "Controller._finish_schedule" to job store "default"
+2026-04-02 11:56:10,716 - controller.controller - INFO - 已注册时间表任务: 111 (ID=1)
+2026-04-02 11:56:10,717 - controller.controller - INFO - 已加载 1 个有效时间表
+2026-04-02 11:56:10,722 - controller.controller - INFO - 开始执行时间表 [sync]: 111
+2026-04-02 11:56:10,722 - player.player - INFO - Target screen set to: 1
+2026-04-02 11:56:10,724 - player.player - INFO - Playback stopped.
+2026-04-02 11:56:15,179 - player.player - ERROR - PyQt WebEngine open failed: timed out
+2026-04-02 11:56:18,052 - player.player - WARNING - PyQt WebEngine mode failed, fallback to other browser backends.
+2026-04-02 11:56:18,623 - player.player - ERROR - Driver browser open failed: Message: Unable to obtain msedgedriver using Selenium Manager; Message: Unsuccessful command executed: C:\Users\Daniel\.conda\envs\youthplayer\lib\site-packages\selenium\webdriver\common\windows\selenium-manager.exe --browser MicrosoftEdge --output json --browser-path C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe.
+error sending request for url (https://msedgedriver.azureedge.net/LATEST_STABLE): error trying to connect: dns error: 不知道这样的主机。 (os error 11001)
+; For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors/driver_location
+
+2026-04-02 11:56:18,624 - player.player - WARNING - Driver mode failed, fallback to native browser process.
+2026-04-02 11:56:19,795 - player.player - INFO - Web live opened via native browser process: https://tv.cctv.com/live/cctv13/
+2026-04-02 11:56:19,798 - security.watchdog - INFO - 看门狗启动成功
+2026-04-02 11:56:19,827 - werkzeug - WARNING -  * Running on all addresses.
+   WARNING: This is a development server. Do not use it in a production deployment.
+2026-04-02 11:56:19,828 - werkzeug - INFO -  * Running on http://192.168.43.24:5000/ (Press CTRL+C to quit)
+2026-04-02 11:56:21,568 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 11:56:21] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 11:56:21,653 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 11:56:21] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 11:56:21,656 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 11:56:21] "GET / HTTP/1.1" 200 -
+2026-04-02 11:56:21,831 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 11:56:21] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-02 11:56:21,834 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 11:56:21] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-02 11:56:21,987 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 11:56:21] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 11:56:26,766 - werkzeug - INFO - 192.168.43.24 - - [02/Apr/2026 11:56:26] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 11:56:31,961 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 11:56:31] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 11:56:41,960 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 11:56:41] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 11:56:43,605 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 11:56:43] "GET /users HTTP/1.1" 200 -
+2026-04-02 11:56:43,647 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 11:56:43] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-02 11:56:43,652 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 11:56:43] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-02 11:56:47,791 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 11:56:47] "GET / HTTP/1.1" 200 -
+2026-04-02 11:56:47,837 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 11:56:47] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-02 11:56:47,841 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 11:56:47] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-02 11:56:47,892 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 11:56:47] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 11:56:57,881 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 11:56:57] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 11:57:07,903 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 11:57:07] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 11:57:17,890 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2026-04-02 11:57:19,897 - security.watchdog - INFO - 看门狗停止成功
+2026-04-02 12:00:17,117 - apscheduler.scheduler - INFO - Scheduler started
+2026-04-02 12:00:17,383 - player.player - INFO - Using VLC at: C:\Program Files\VideoLAN\VLC\vlc.exe
+2026-04-02 12:00:17,490 - player.player - INFO - VLC player initialized.
+2026-04-02 12:00:17,491 - player.player - INFO - Target screen set to: 0
+2026-04-02 12:00:17,546 - apscheduler.scheduler - INFO - Added job "Controller._finish_schedule" to job store "default"
+2026-04-02 12:00:17,546 - controller.controller - INFO - 已注册时间表任务: 111 (ID=1)
+2026-04-02 12:00:17,547 - controller.controller - INFO - 已加载 1 个有效时间表
+2026-04-02 12:00:17,551 - controller.controller - INFO - 开始执行时间表 [sync]: 111
+2026-04-02 12:00:17,551 - player.player - INFO - Target screen set to: 1
+2026-04-02 12:00:17,553 - player.player - INFO - Playback stopped.
+2026-04-02 12:00:21,983 - player.player - ERROR - PyQt WebEngine open failed: timed out
+2026-04-02 12:00:24,603 - player.player - WARNING - PyQt WebEngine mode failed, fallback to other browser backends.
+2026-04-02 12:00:25,270 - player.player - ERROR - Driver browser open failed: Message: Unable to obtain msedgedriver using Selenium Manager; Message: Unsuccessful command executed: C:\Users\Daniel\.conda\envs\youthplayer\lib\site-packages\selenium\webdriver\common\windows\selenium-manager.exe --browser MicrosoftEdge --output json --browser-path C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe.
+error sending request for url (https://msedgedriver.azureedge.net/LATEST_STABLE): error trying to connect: dns error: 不知道这样的主机。 (os error 11001)
+; For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors/driver_location
+
+2026-04-02 12:00:25,271 - player.player - WARNING - Driver mode failed, fallback to native browser process.
+2026-04-02 12:00:26,878 - player.player - INFO - Web live opened via native browser process: https://tv.cctv.com/live/cctv13/
+2026-04-02 12:00:26,881 - security.watchdog - INFO - 看门狗启动成功
+2026-04-02 12:00:26,974 - werkzeug - WARNING -  * Running on all addresses.
+   WARNING: This is a development server. Do not use it in a production deployment.
+2026-04-02 12:00:26,987 - werkzeug - INFO -  * Running on http://192.168.43.24:5000/ (Press CTRL+C to quit)
+2026-04-02 12:00:27,105 - werkzeug - INFO - 192.168.43.24 - - [02/Apr/2026 12:00:27] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 12:00:44,101 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 12:00:44] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 12:00:44,103 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 12:00:44] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 12:00:46,180 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 12:00:46] "GET / HTTP/1.1" 200 -
+2026-04-02 12:00:46,241 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 12:00:46] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-02 12:00:46,243 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 12:00:46] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-02 12:00:46,272 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 12:00:46] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 12:00:52,252 - player.player - INFO - Playback stopped.
+2026-04-02 12:00:52,255 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 12:00:52] "[32mPOST /control HTTP/1.1[0m" 302 -
+2026-04-02 12:00:52,319 - controller.controller - INFO - 开始执行时间表 [sync]: 111
+2026-04-02 12:00:52,321 - player.player - INFO - Target screen set to: 1
+2026-04-02 12:00:52,322 - player.player - INFO - Playback stopped.
+2026-04-02 12:00:56,280 - controller.controller - INFO - 开始执行时间表 [sync]: 111
+2026-04-02 12:00:56,281 - player.player - INFO - Target screen set to: 1
+2026-04-02 12:00:56,773 - player.player - ERROR - PyQt WebEngine open failed: timed out
+2026-04-02 12:00:56,959 - controller.controller - INFO - 开始执行时间表 [sync]: 111
+2026-04-02 12:00:57,992 - player.player - INFO - Target screen set to: 1
+2026-04-02 12:00:58,261 - player.player - WARNING - PyQt WebEngine mode failed, fallback to other browser backends.
+2026-04-02 12:00:59,768 - player.player - INFO - Playback stopped.
+2026-04-02 12:00:59,792 - player.player - INFO - Playback stopped.
+2026-04-02 12:01:00,097 - player.player - ERROR - Driver browser open failed: Message: Unable to obtain msedgedriver using Selenium Manager; Message: Unsuccessful command executed: C:\Users\Daniel\.conda\envs\youthplayer\lib\site-packages\selenium\webdriver\common\windows\selenium-manager.exe --browser MicrosoftEdge --output json --browser-path C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe.
+error sending request for url (https://msedgedriver.azureedge.net/LATEST_STABLE): error trying to connect: dns error: 不知道这样的主机。 (os error 11001)
+; For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors/driver_location
+
+2026-04-02 12:01:00,097 - player.player - WARNING - Driver mode failed, fallback to native browser process.
+2026-04-02 12:01:01,290 - player.player - INFO - Web live opened via native browser process: https://tv.cctv.com/live/cctv13/
+2026-04-02 12:01:01,300 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 12:01:01] "GET / HTTP/1.1" 200 -
+2026-04-02 12:01:01,405 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 12:01:01] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-02 12:01:01,406 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 12:01:01] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-02 12:01:01,500 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 12:01:01] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 12:01:04,717 - player.player - ERROR - PyQt WebEngine open failed: timed out
+2026-04-02 12:01:04,732 - player.player - ERROR - PyQt WebEngine open failed: timed out
+2026-04-02 12:01:06,674 - player.player - WARNING - PyQt WebEngine mode failed, fallback to other browser backends.
+2026-04-02 12:01:06,777 - player.player - WARNING - PyQt WebEngine mode failed, fallback to other browser backends.
+2026-04-02 12:01:08,519 - player.player - ERROR - Driver browser open failed: Message: Unable to obtain msedgedriver using Selenium Manager; Message: Unsuccessful command executed: C:\Users\Daniel\.conda\envs\youthplayer\lib\site-packages\selenium\webdriver\common\windows\selenium-manager.exe --browser MicrosoftEdge --output json --browser-path C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe.
+error sending request for url (https://msedgedriver.azureedge.net/LATEST_STABLE): error trying to connect: dns error: 不知道这样的主机。 (os error 11001)
+; For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors/driver_location
+
+2026-04-02 12:01:08,519 - player.player - WARNING - Driver mode failed, fallback to native browser process.
+2026-04-02 12:01:08,578 - player.player - ERROR - Driver browser open failed: Message: Unable to obtain msedgedriver using Selenium Manager; Message: Unsuccessful command executed: C:\Users\Daniel\.conda\envs\youthplayer\lib\site-packages\selenium\webdriver\common\windows\selenium-manager.exe --browser MicrosoftEdge --output json --browser-path C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe.
+error sending request for url (https://msedgedriver.azureedge.net/LATEST_STABLE): error trying to connect: dns error: 不知道这样的主机。 (os error 11001)
+; For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors/driver_location
+
+2026-04-02 12:01:08,578 - player.player - WARNING - Driver mode failed, fallback to native browser process.
+2026-04-02 12:01:11,515 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 12:01:11] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 12:01:19,578 - player.player - INFO - Web live opened via native browser process: https://tv.cctv.com/live/cctv13/
+2026-04-02 12:01:19,585 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 12:01:19] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 12:01:19,642 - player.player - INFO - Web live opened via native browser process: https://tv.cctv.com/live/cctv13/
+2026-04-02 12:01:19,643 - security.watchdog - WARNING - 检测到播放器异常，尝试恢复当前时间表: 111
+2026-04-02 12:01:19,649 - controller.controller - INFO - 开始执行时间表 [sync]: 111
+2026-04-02 12:01:19,650 - player.player - INFO - Target screen set to: 1
+2026-04-02 12:01:20,705 - player.player - INFO - Playback stopped.
+2026-04-02 12:01:21,492 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 12:01:21] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 12:01:25,644 - player.player - ERROR - PyQt WebEngine open failed: timed out
+2026-04-02 12:01:27,339 - werkzeug - INFO - 192.168.43.24 - - [02/Apr/2026 12:01:27] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 12:01:28,724 - player.player - WARNING - PyQt WebEngine mode failed, fallback to other browser backends.
+2026-04-02 12:01:29,240 - player.player - ERROR - Driver browser open failed: Message: Unable to obtain msedgedriver using Selenium Manager; Message: Unsuccessful command executed: C:\Users\Daniel\.conda\envs\youthplayer\lib\site-packages\selenium\webdriver\common\windows\selenium-manager.exe --browser MicrosoftEdge --output json --browser-path C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe.
+error sending request for url (https://msedgedriver.azureedge.net/LATEST_STABLE): error trying to connect: dns error: 不知道这样的主机。 (os error 11001)
+; For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors/driver_location
+
+2026-04-02 12:01:29,241 - player.player - WARNING - Driver mode failed, fallback to native browser process.
+2026-04-02 12:01:31,513 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 12:01:31] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 12:01:33,781 - player.player - INFO - Playback stopped.
+2026-04-02 12:01:33,788 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 12:01:33] "[32mPOST /control HTTP/1.1[0m" 302 -
+2026-04-02 12:01:33,854 - controller.controller - INFO - 开始执行时间表 [sync]: 111
+2026-04-02 12:01:33,855 - player.player - INFO - Target screen set to: 1
+2026-04-02 12:01:33,856 - player.player - INFO - Playback stopped.
+2026-04-02 12:01:34,292 - player.player - ERROR - Native browser open failed: 'NoneType' object has no attribute 'pid'
+2026-04-02 12:01:38,289 - player.player - ERROR - PyQt WebEngine open failed: timed out
+2026-04-02 12:01:39,383 - player.player - WARNING - PyQt WebEngine mode failed, fallback to other browser backends.
+2026-04-02 12:01:39,995 - player.player - ERROR - Driver browser open failed: Message: Unable to obtain msedgedriver using Selenium Manager; Message: Unsuccessful command executed: C:\Users\Daniel\.conda\envs\youthplayer\lib\site-packages\selenium\webdriver\common\windows\selenium-manager.exe --browser MicrosoftEdge --output json --browser-path C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe.
+error sending request for url (https://msedgedriver.azureedge.net/LATEST_STABLE): error trying to connect: dns error: 不知道这样的主机。 (os error 11001)
+; For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors/driver_location
+
+2026-04-02 12:01:39,996 - player.player - WARNING - Driver mode failed, fallback to native browser process.
+2026-04-02 12:01:41,509 - controller.controller - INFO - 开始执行时间表 [sync]: 111
+2026-04-02 12:01:41,512 - player.player - INFO - Target screen set to: 1
+2026-04-02 12:01:42,763 - player.player - INFO - Playback stopped.
+2026-04-02 12:01:43,050 - player.player - ERROR - Native browser open failed: 'NoneType' object has no attribute 'pid'
+2026-04-02 12:01:43,060 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 12:01:43] "GET / HTTP/1.1" 200 -
+2026-04-02 12:01:43,170 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 12:01:43] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-02 12:01:43,170 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 12:01:43] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-02 12:01:43,218 - controller.controller - INFO - 开始执行时间表 [sync]: 111
+2026-04-02 12:01:43,220 - player.player - INFO - Target screen set to: 1
+2026-04-02 12:01:45,249 - player.player - INFO - Playback stopped.
+2026-04-02 12:01:49,296 - controller.controller - INFO - 开始执行时间表 [sync]: 111
+2026-04-02 12:01:49,297 - player.player - INFO - Target screen set to: 1
+2026-04-02 12:01:49,603 - player.player - ERROR - PyQt WebEngine open failed: timed out
+2026-04-02 12:01:49,686 - player.player - ERROR - PyQt WebEngine open failed: timed out
+2026-04-02 12:01:51,618 - player.player - WARNING - PyQt WebEngine mode failed, fallback to other browser backends.
+2026-04-02 12:01:51,699 - player.player - WARNING - PyQt WebEngine mode failed, fallback to other browser backends.
+2026-04-02 12:01:52,548 - player.player - INFO - Playback stopped.
+2026-04-02 12:01:52,903 - player.player - ERROR - Driver browser open failed: Message: Unable to obtain msedgedriver using Selenium Manager; Message: Unsuccessful command executed: C:\Users\Daniel\.conda\envs\youthplayer\lib\site-packages\selenium\webdriver\common\windows\selenium-manager.exe --browser MicrosoftEdge --output json --browser-path C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe.
+error sending request for url (https://msedgedriver.azureedge.net/LATEST_STABLE): error trying to connect: dns error: 不知道这样的主机。 (os error 11001)
+; For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors/driver_location
+
+2026-04-02 12:01:52,904 - player.player - ERROR - Driver browser open failed: Message: Unable to obtain msedgedriver using Selenium Manager; Message: Unsuccessful command executed: C:\Users\Daniel\.conda\envs\youthplayer\lib\site-packages\selenium\webdriver\common\windows\selenium-manager.exe --browser MicrosoftEdge --output json --browser-path C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe.
+error sending request for url (https://msedgedriver.azureedge.net/LATEST_STABLE): error trying to connect: dns error: 不知道这样的主机。 (os error 11001)
+; For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors/driver_location
+
+2026-04-02 12:01:52,904 - player.player - WARNING - Driver mode failed, fallback to native browser process.
+2026-04-02 12:01:52,904 - player.player - WARNING - Driver mode failed, fallback to native browser process.
+2026-04-02 12:01:58,488 - player.player - ERROR - PyQt WebEngine open failed: timed out
+2026-04-02 12:02:01,647 - player.player - WARNING - PyQt WebEngine mode failed, fallback to other browser backends.
+2026-04-02 12:02:02,270 - player.player - ERROR - Driver browser open failed: Message: Unable to obtain msedgedriver using Selenium Manager; Message: Unsuccessful command executed: C:\Users\Daniel\.conda\envs\youthplayer\lib\site-packages\selenium\webdriver\common\windows\selenium-manager.exe --browser MicrosoftEdge --output json --browser-path C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe.
+error sending request for url (https://msedgedriver.azureedge.net/LATEST_STABLE): error trying to connect: dns error: 不知道这样的主机。 (os error 11001)
+; For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors/driver_location
+
+2026-04-02 12:02:02,272 - player.player - WARNING - Driver mode failed, fallback to native browser process.
+2026-04-02 12:02:05,831 - controller.controller - INFO - 开始执行时间表 [sync]: 111
+2026-04-02 12:02:05,832 - player.player - INFO - Target screen set to: 1
+2026-04-02 12:02:06,127 - player.player - INFO - Web live opened via native browser process: https://tv.cctv.com/live/cctv13/
+2026-04-02 12:02:06,131 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 12:02:06] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 12:02:06,134 - player.player - INFO - Web live opened via native browser process: https://tv.cctv.com/live/cctv13/
+2026-04-02 12:02:06,139 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 12:02:06] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 12:02:06,922 - player.player - INFO - Playback stopped.
+2026-04-02 12:02:07,352 - player.player - ERROR - Native browser open failed: 'NoneType' object has no attribute 'pid'
+2026-04-02 12:02:08,827 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2026-04-02 12:02:09,346 - player.player - ERROR - PyQt WebEngine open failed: WebEngine control endpoint not ready.
+2026-04-02 12:02:11,349 - player.player - WARNING - PyQt WebEngine mode failed, fallback to other browser backends.
+2026-04-02 12:02:12,162 - player.player - ERROR - Driver browser open failed: Message: Unable to obtain msedgedriver using Selenium Manager; Message: Unsuccessful command executed: C:\Users\Daniel\.conda\envs\youthplayer\lib\site-packages\selenium\webdriver\common\windows\selenium-manager.exe --browser MicrosoftEdge --output json --browser-path C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe.
+error sending request for url (https://msedgedriver.azureedge.net/LATEST_STABLE): error trying to connect: dns error: 不知道这样的主机。 (os error 11001)
+; For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors/driver_location
+
+2026-04-02 12:02:12,163 - player.player - WARNING - Driver mode failed, fallback to native browser process.
+2026-04-02 12:02:13,828 - security.watchdog - INFO - 看门狗停止成功
+2026-04-02 12:07:25,107 - apscheduler.scheduler - INFO - Scheduler started
+2026-04-02 12:07:25,449 - player.player - INFO - Using VLC at: C:\Program Files\VideoLAN\VLC\vlc.exe
+2026-04-02 12:07:25,567 - player.player - INFO - VLC player initialized.
+2026-04-02 12:07:25,568 - player.player - INFO - Target screen set to: 0
+2026-04-02 12:07:25,642 - apscheduler.scheduler - INFO - Added job "Controller._finish_schedule" to job store "default"
+2026-04-02 12:07:25,643 - controller.controller - INFO - 已注册时间表任务: 111 (ID=1)
+2026-04-02 12:07:25,644 - controller.controller - INFO - 已加载 1 个有效时间表
+2026-04-02 12:07:25,651 - controller.controller - INFO - 开始执行时间表 [sync]: 111
+2026-04-02 12:07:25,652 - player.player - INFO - Target screen set to: 1
+2026-04-02 12:07:25,654 - player.player - INFO - Playback stopped.
+2026-04-02 12:07:30,125 - player.player - WARNING - WebEngine health endpoint not ready yet; proceeding with optimistic startup.
+2026-04-02 12:07:30,126 - player.player - INFO - Web live opened via PyQt WebEngine: https://tv.cctv.com/live/cctv13/
+2026-04-02 12:07:30,128 - security.watchdog - INFO - 看门狗启动成功
+2026-04-02 12:07:30,180 - werkzeug - WARNING -  * Running on all addresses.
+   WARNING: This is a development server. Do not use it in a production deployment.
+2026-04-02 12:07:30,181 - werkzeug - INFO -  * Running on http://192.168.43.24:5000/ (Press CTRL+C to quit)
+2026-04-02 12:07:59,701 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2026-04-02 12:10:16,953 - apscheduler.scheduler - INFO - Scheduler started
+2026-04-02 12:10:17,367 - player.player - INFO - Using VLC at: C:\Program Files\VideoLAN\VLC\vlc.exe
+2026-04-02 12:10:17,508 - player.player - INFO - VLC player initialized.
+2026-04-02 12:10:17,509 - player.player - INFO - Target screen set to: 0
+2026-04-02 12:10:17,585 - apscheduler.scheduler - INFO - Added job "Controller._finish_schedule" to job store "default"
+2026-04-02 12:10:17,585 - controller.controller - INFO - 已注册时间表任务: 111 (ID=1)
+2026-04-02 12:10:17,586 - controller.controller - INFO - 已加载 1 个有效时间表
+2026-04-02 12:10:17,590 - controller.controller - INFO - 开始执行时间表 [sync]: 111
+2026-04-02 12:10:17,591 - player.player - INFO - Target screen set to: 1
+2026-04-02 12:10:17,592 - player.player - INFO - Playback stopped.
+2026-04-02 12:10:20,026 - player.player - ERROR - PyQt WebEngine open failed: WebEngine control endpoint not ready.
+2026-04-02 12:10:22,030 - player.player - ERROR - WebEngine-only mode is enabled, fallback browser backends are disabled.
+2026-04-02 12:10:22,032 - security.watchdog - INFO - 看门狗启动成功
+2026-04-02 12:10:22,038 - controller.controller - INFO - 开始执行时间表 [sync]: 111
+2026-04-02 12:10:22,039 - player.player - INFO - Target screen set to: 1
+2026-04-02 12:10:22,039 - player.player - INFO - Playback stopped.
+2026-04-02 12:10:22,057 - werkzeug - WARNING -  * Running on all addresses.
+   WARNING: This is a development server. Do not use it in a production deployment.
+2026-04-02 12:10:22,058 - werkzeug - INFO -  * Running on http://192.168.43.24:5000/ (Press CTRL+C to quit)
+2026-04-02 12:10:24,467 - player.player - ERROR - PyQt WebEngine open failed: WebEngine control endpoint not ready.
+2026-04-02 12:10:26,469 - player.player - ERROR - WebEngine-only mode is enabled, fallback browser backends are disabled.
+2026-04-02 12:10:26,762 - werkzeug - INFO - 192.168.43.24 - - [02/Apr/2026 12:10:26] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 12:10:41,477 - controller.controller - INFO - 开始执行时间表 [sync]: 111
+2026-04-02 12:10:41,478 - player.player - INFO - Target screen set to: 1
+2026-04-02 12:10:41,479 - player.player - INFO - Playback stopped.
+2026-04-02 12:10:43,924 - player.player - ERROR - PyQt WebEngine open failed: WebEngine control endpoint not ready.
+2026-04-02 12:10:45,928 - player.player - ERROR - WebEngine-only mode is enabled, fallback browser backends are disabled.
+2026-04-02 12:11:00,932 - controller.controller - INFO - 开始执行时间表 [sync]: 111
+2026-04-02 12:11:00,933 - player.player - INFO - Target screen set to: 1
+2026-04-02 12:11:00,933 - player.player - INFO - Playback stopped.
+2026-04-02 12:11:01,936 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 12:11:01] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 12:11:01,938 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 12:11:01] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 12:11:02,023 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 12:11:02] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 12:11:03,353 - player.player - ERROR - PyQt WebEngine open failed: WebEngine control endpoint not ready.
+2026-04-02 12:11:05,355 - player.player - ERROR - WebEngine-only mode is enabled, fallback browser backends are disabled.
+2026-04-02 12:11:13,021 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2026-04-02 12:13:02,342 - apscheduler.scheduler - INFO - Scheduler started
+2026-04-02 12:13:02,585 - player.player - INFO - Using VLC at: C:\Program Files\VideoLAN\VLC\vlc.exe
+2026-04-02 12:13:02,677 - player.player - INFO - VLC player initialized.
+2026-04-02 12:13:02,677 - player.player - INFO - Target screen set to: 0
+2026-04-02 12:13:02,732 - apscheduler.scheduler - INFO - Added job "Controller._finish_schedule" to job store "default"
+2026-04-02 12:13:02,733 - controller.controller - INFO - 已注册时间表任务: 111 (ID=1)
+2026-04-02 12:13:02,733 - controller.controller - INFO - 已加载 1 个有效时间表
+2026-04-02 12:13:02,737 - controller.controller - INFO - 开始执行时间表 [sync]: 111
+2026-04-02 12:13:02,738 - player.player - INFO - Target screen set to: 1
+2026-04-02 12:13:02,739 - player.player - INFO - Playback stopped.
+2026-04-02 12:13:07,474 - player.player - INFO - Web live opened via PyQt WebEngine: https://tv.cctv.com/live/cctv13/
+2026-04-02 12:13:07,477 - security.watchdog - INFO - 看门狗启动成功
+2026-04-02 12:13:07,527 - werkzeug - WARNING -  * Running on all addresses.
+   WARNING: This is a development server. Do not use it in a production deployment.
+2026-04-02 12:13:07,528 - werkzeug - INFO -  * Running on http://192.168.43.24:5000/ (Press CTRL+C to quit)
+2026-04-02 12:13:26,780 - werkzeug - INFO - 192.168.43.24 - - [02/Apr/2026 12:13:26] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 12:13:33,752 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2026-04-02 13:04:11,686 - apscheduler.scheduler - INFO - Scheduler started
+2026-04-02 13:04:11,878 - player.player - INFO - Using VLC at: C:\Program Files\VideoLAN\VLC\vlc.exe
+2026-04-02 13:04:11,949 - player.player - INFO - VLC player initialized.
+2026-04-02 13:04:11,950 - player.player - INFO - Target screen set to: 0
+2026-04-02 13:04:11,996 - apscheduler.scheduler - INFO - Added job "Controller._finish_schedule" to job store "default"
+2026-04-02 13:04:11,996 - controller.controller - INFO - 已注册时间表任务: 111 (ID=1)
+2026-04-02 13:04:11,996 - controller.controller - INFO - 已加载 1 个有效时间表
+2026-04-02 13:04:11,998 - controller.controller - INFO - 开始执行时间表 [sync]: 111
+2026-04-02 13:04:11,999 - player.player - INFO - Target screen set to: 1
+2026-04-02 13:04:11,999 - player.player - INFO - Playback stopped.
+2026-04-02 13:04:12,081 - player.player - ERROR - Electron open failed: [WinError 2] 系统找不到指定的文件。
+2026-04-02 13:04:14,086 - player.player - WARNING - Electron mode failed.
+2026-04-02 13:44:35,732 - apscheduler.scheduler - INFO - Scheduler started
+2026-04-02 13:44:35,905 - player.player - INFO - Using VLC at: C:\Program Files\VideoLAN\VLC\vlc.exe
+2026-04-02 13:44:35,980 - player.player - INFO - VLC player initialized.
+2026-04-02 13:44:35,981 - player.player - INFO - Target screen set to: 0
+2026-04-02 13:44:36,021 - apscheduler.scheduler - INFO - Added job "Controller._finish_schedule" to job store "default"
+2026-04-02 13:44:36,021 - controller.controller - INFO - 已注册时间表任务: 111 (ID=1)
+2026-04-02 13:44:36,022 - controller.controller - INFO - 已加载 1 个有效时间表
+2026-04-02 13:44:36,024 - controller.controller - INFO - 开始执行时间表 [sync]: 111
+2026-04-02 13:44:36,025 - player.player - INFO - Target screen set to: 1
+2026-04-02 13:44:36,026 - player.player - INFO - Playback stopped.
+2026-04-02 13:44:38,356 - player.player - ERROR - Electron open failed: Electron control endpoint not ready.
+2026-04-02 13:44:40,358 - player.player - WARNING - Electron mode failed.
+2026-04-02 13:44:44,772 - player.player - WARNING - WebEngine health endpoint not ready yet; proceeding with optimistic startup.
+2026-04-02 13:44:44,773 - player.player - INFO - Web live opened via PyQt WebEngine: https://tv.cctv.com/live/cctv13/
+2026-04-02 13:44:44,774 - security.watchdog - INFO - 看门狗启动成功
+2026-04-02 13:44:44,786 - werkzeug - WARNING -  * Running on all addresses.
+   WARNING: This is a development server. Do not use it in a production deployment.
+2026-04-02 13:44:44,787 - werkzeug - INFO -  * Running on http://192.168.1.73:5000/ (Press CTRL+C to quit)
+2026-04-02 13:45:15,803 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2026-04-02 13:45:16,054 - security.watchdog - INFO - 看门狗停止成功
+2026-04-02 13:50:22,688 - apscheduler.scheduler - INFO - Scheduler started
+2026-04-02 13:50:22,733 - player.player - INFO - Using VLC at: C:\Program Files\VideoLAN\VLC\vlc.exe
+2026-04-02 13:50:22,810 - player.player - INFO - VLC player initialized.
+2026-04-02 13:50:22,811 - player.player - INFO - Target screen set to: 0
+2026-04-02 13:50:22,856 - apscheduler.scheduler - INFO - Added job "Controller._finish_schedule" to job store "default"
+2026-04-02 13:50:22,857 - controller.controller - INFO - 已注册时间表任务: 111 (ID=1)
+2026-04-02 13:50:22,857 - controller.controller - INFO - 已加载 1 个有效时间表
+2026-04-02 13:50:22,860 - controller.controller - INFO - 开始执行时间表 [sync]: 111
+2026-04-02 13:50:22,861 - player.player - INFO - Target screen set to: 1
+2026-04-02 13:50:22,862 - player.player - INFO - Playback stopped.
+2026-04-02 13:50:22,879 - player.player - ERROR - Electron binary not runnable: [WinError 2] 系统找不到指定的文件。
+2026-04-02 13:50:22,880 - security.watchdog - INFO - 看门狗启动成功
+2026-04-02 13:50:22,885 - controller.controller - INFO - 开始执行时间表 [sync]: 111
+2026-04-02 13:50:22,886 - player.player - INFO - Target screen set to: 1
+2026-04-02 13:50:22,887 - player.player - INFO - Playback stopped.
+2026-04-02 13:50:22,906 - player.player - ERROR - Electron binary not runnable: [WinError 2] 系统找不到指定的文件。
+2026-04-02 13:50:22,907 - werkzeug - WARNING -  * Running on all addresses.
+   WARNING: This is a development server. Do not use it in a production deployment.
+2026-04-02 13:50:22,908 - werkzeug - INFO -  * Running on http://192.168.1.73:5000/ (Press CTRL+C to quit)
+2026-04-02 13:50:37,910 - controller.controller - INFO - 开始执行时间表 [sync]: 111
+2026-04-02 13:50:37,910 - player.player - INFO - Target screen set to: 1
+2026-04-02 13:50:37,910 - player.player - INFO - Playback stopped.
+2026-04-02 13:50:37,924 - player.player - ERROR - Electron binary not runnable: [WinError 2] 系统找不到指定的文件。
+2026-04-02 13:50:50,923 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2026-04-02 13:50:52,925 - security.watchdog - INFO - 看门狗停止成功
+2026-04-02 13:52:20,895 - apscheduler.scheduler - INFO - Scheduler started
+2026-04-02 13:52:20,940 - player.player - INFO - Using VLC at: C:\Program Files\VideoLAN\VLC\vlc.exe
+2026-04-02 13:52:21,024 - player.player - INFO - VLC player initialized.
+2026-04-02 13:52:21,024 - player.player - INFO - Target screen set to: 0
+2026-04-02 13:52:21,074 - apscheduler.scheduler - INFO - Added job "Controller._finish_schedule" to job store "default"
+2026-04-02 13:52:21,074 - controller.controller - INFO - 已注册时间表任务: 111 (ID=1)
+2026-04-02 13:52:21,075 - controller.controller - INFO - 已加载 1 个有效时间表
+2026-04-02 13:52:21,080 - controller.controller - INFO - 开始执行时间表 [sync]: 111
+2026-04-02 13:52:21,080 - player.player - INFO - Target screen set to: 1
+2026-04-02 13:52:21,083 - player.player - INFO - Playback stopped.
+2026-04-02 13:52:21,186 - player.player - ERROR - Electron binary not runnable: [WinError 2] 系统找不到指定的文件。
+2026-04-02 13:52:21,187 - security.watchdog - INFO - 看门狗启动成功
+2026-04-02 13:52:21,193 - controller.controller - INFO - 开始执行时间表 [sync]: 111
+2026-04-02 13:52:21,194 - player.player - INFO - Target screen set to: 1
+2026-04-02 13:52:21,195 - player.player - INFO - Playback stopped.
+2026-04-02 13:52:21,219 - werkzeug - WARNING -  * Running on all addresses.
+   WARNING: This is a development server. Do not use it in a production deployment.
+2026-04-02 13:52:21,220 - werkzeug - INFO -  * Running on http://192.168.1.73:5000/ (Press CTRL+C to quit)
+2026-04-02 13:52:21,276 - player.player - ERROR - Electron binary not runnable: [WinError 2] 系统找不到指定的文件。
+2026-04-02 13:52:23,721 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2026-04-02 15:16:25,038 - apscheduler.scheduler - INFO - Scheduler started
+2026-04-02 15:16:25,094 - player.player - INFO - Using VLC at: C:\Program Files\VideoLAN\VLC\vlc.exe
+2026-04-02 15:16:25,195 - player.player - INFO - VLC player initialized.
+2026-04-02 15:16:25,195 - player.player - INFO - Target screen set to: 0
+2026-04-02 15:16:25,255 - apscheduler.scheduler - INFO - Added job "Controller._finish_schedule" to job store "default"
+2026-04-02 15:16:25,255 - controller.controller - INFO - 已注册时间表任务: 111 (ID=1)
+2026-04-02 15:16:25,256 - controller.controller - INFO - 已加载 1 个有效时间表
+2026-04-02 15:16:25,260 - controller.controller - INFO - 开始执行时间表 [sync]: 111
+2026-04-02 15:16:25,261 - player.player - INFO - Target screen set to: 1
+2026-04-02 15:16:25,262 - player.player - INFO - Playback stopped.
+2026-04-02 15:16:30,928 - player.player - ERROR - Electron open failed: Electron control endpoint not ready.
+2026-04-02 15:16:32,930 - security.watchdog - INFO - 看门狗启动成功
+2026-04-02 15:16:32,932 - controller.controller - INFO - 开始执行时间表 [sync]: 111
+2026-04-02 15:16:32,933 - player.player - INFO - Target screen set to: 1
+2026-04-02 15:16:32,933 - player.player - INFO - Playback stopped.
+2026-04-02 15:16:32,942 - werkzeug - WARNING -  * Running on all addresses.
+   WARNING: This is a development server. Do not use it in a production deployment.
+2026-04-02 15:16:32,943 - werkzeug - INFO -  * Running on http://192.168.1.73:5000/ (Press CTRL+C to quit)
+2026-04-02 15:16:35,547 - player.player - ERROR - Electron open failed: Electron control endpoint not ready.
+2026-04-02 15:16:45,450 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2026-04-02 15:21:22,951 - apscheduler.scheduler - INFO - Scheduler started
+2026-04-02 15:21:22,990 - player.player - INFO - Using VLC at: C:\Program Files\VideoLAN\VLC\vlc.exe
+2026-04-02 15:21:23,052 - player.player - INFO - VLC player initialized.
+2026-04-02 15:21:23,053 - player.player - INFO - Target screen set to: 0
+2026-04-02 15:21:23,089 - apscheduler.scheduler - INFO - Added job "Controller._finish_schedule" to job store "default"
+2026-04-02 15:21:23,089 - controller.controller - INFO - 已注册时间表任务: 111 (ID=1)
+2026-04-02 15:21:23,090 - controller.controller - INFO - 已加载 1 个有效时间表
+2026-04-02 15:21:23,093 - controller.controller - INFO - 开始执行时间表 [sync]: 111
+2026-04-02 15:21:23,093 - player.player - INFO - Target screen set to: 1
+2026-04-02 15:21:23,094 - player.player - INFO - Playback stopped.
+2026-04-02 15:21:25,696 - player.player - ERROR - Electron open failed: Electron control endpoint not ready.
+2026-04-02 15:21:27,698 - security.watchdog - INFO - 看门狗启动成功
+2026-04-02 15:21:27,702 - controller.controller - INFO - 开始执行时间表 [sync]: 111
+2026-04-02 15:21:27,702 - player.player - INFO - Target screen set to: 1
+2026-04-02 15:21:27,703 - player.player - INFO - Playback stopped.
+2026-04-02 15:21:27,715 - werkzeug - WARNING -  * Running on all addresses.
+   WARNING: This is a development server. Do not use it in a production deployment.
+2026-04-02 15:21:27,716 - werkzeug - INFO -  * Running on http://192.168.1.73:5000/ (Press CTRL+C to quit)
+2026-04-02 15:21:30,309 - player.player - ERROR - Electron open failed: Electron control endpoint not ready.
+2026-04-02 15:21:47,312 - controller.controller - INFO - 开始执行时间表 [sync]: 111
+2026-04-02 15:21:47,313 - player.player - INFO - Target screen set to: 1
+2026-04-02 15:21:47,313 - player.player - INFO - Playback stopped.
+2026-04-02 15:21:49,955 - player.player - ERROR - Electron open failed: Electron control endpoint not ready.
+2026-04-02 15:22:06,958 - controller.controller - INFO - 开始执行时间表 [sync]: 111
+2026-04-02 15:22:06,958 - player.player - INFO - Target screen set to: 1
+2026-04-02 15:22:06,959 - player.player - INFO - Playback stopped.
+2026-04-02 15:22:09,587 - player.player - ERROR - Electron open failed: Electron control endpoint not ready.
+2026-04-02 15:22:26,592 - controller.controller - INFO - 开始执行时间表 [sync]: 111
+2026-04-02 15:22:26,592 - player.player - INFO - Target screen set to: 1
+2026-04-02 15:22:26,592 - player.player - INFO - Playback stopped.
+2026-04-02 15:22:29,256 - player.player - ERROR - Electron open failed: Electron control endpoint not ready.
+2026-04-02 15:22:46,259 - controller.controller - INFO - 开始执行时间表 [sync]: 111
+2026-04-02 15:22:46,260 - player.player - INFO - Target screen set to: 1
+2026-04-02 15:22:46,260 - player.player - INFO - Playback stopped.
+2026-04-02 15:22:48,924 - player.player - ERROR - Electron open failed: Electron control endpoint not ready.
+2026-04-02 15:23:05,928 - controller.controller - INFO - 开始执行时间表 [sync]: 111
+2026-04-02 15:23:05,929 - player.player - INFO - Target screen set to: 1
+2026-04-02 15:23:05,929 - player.player - INFO - Playback stopped.
+2026-04-02 15:23:08,618 - player.player - ERROR - Electron open failed: Electron control endpoint not ready.
+2026-04-02 15:23:25,623 - controller.controller - INFO - 开始执行时间表 [sync]: 111
+2026-04-02 15:23:25,624 - player.player - INFO - Target screen set to: 1
+2026-04-02 15:23:25,624 - player.player - INFO - Playback stopped.
+2026-04-02 15:23:28,278 - player.player - ERROR - Electron open failed: Electron control endpoint not ready.
+2026-04-02 15:23:45,281 - controller.controller - INFO - 开始执行时间表 [sync]: 111
+2026-04-02 15:23:45,282 - player.player - INFO - Target screen set to: 1
+2026-04-02 15:23:45,282 - player.player - INFO - Playback stopped.
+2026-04-02 15:23:47,951 - player.player - ERROR - Electron open failed: Electron control endpoint not ready.
+2026-04-02 15:24:04,955 - controller.controller - INFO - 开始执行时间表 [sync]: 111
+2026-04-02 15:24:04,956 - player.player - INFO - Target screen set to: 1
+2026-04-02 15:24:04,956 - player.player - INFO - Playback stopped.
+2026-04-02 15:24:07,546 - player.player - ERROR - Electron open failed: Electron control endpoint not ready.
+2026-04-02 15:24:24,550 - controller.controller - INFO - 开始执行时间表 [sync]: 111
+2026-04-02 15:24:24,551 - player.player - INFO - Target screen set to: 1
+2026-04-02 15:24:24,551 - player.player - INFO - Playback stopped.
+2026-04-02 15:24:27,207 - player.player - ERROR - Electron open failed: Electron control endpoint not ready.
+2026-04-02 15:24:44,212 - controller.controller - INFO - 开始执行时间表 [sync]: 111
+2026-04-02 15:24:44,212 - player.player - INFO - Target screen set to: 1
+2026-04-02 15:24:44,212 - player.player - INFO - Playback stopped.
+2026-04-02 15:24:46,811 - player.player - ERROR - Electron open failed: Electron control endpoint not ready.
+2026-04-02 15:25:03,814 - controller.controller - INFO - 开始执行时间表 [sync]: 111
+2026-04-02 15:25:03,815 - player.player - INFO - Target screen set to: 1
+2026-04-02 15:25:03,815 - player.player - INFO - Playback stopped.
+2026-04-02 15:25:06,423 - player.player - ERROR - Electron open failed: Electron control endpoint not ready.
+2026-04-02 15:25:23,427 - controller.controller - INFO - 开始执行时间表 [sync]: 111
+2026-04-02 15:25:23,428 - player.player - INFO - Target screen set to: 1
+2026-04-02 15:25:23,428 - player.player - INFO - Playback stopped.
+2026-04-02 15:25:26,031 - player.player - ERROR - Electron open failed: Electron control endpoint not ready.
+2026-04-02 15:25:43,035 - controller.controller - INFO - 开始执行时间表 [sync]: 111
+2026-04-02 15:25:43,036 - player.player - INFO - Target screen set to: 1
+2026-04-02 15:25:43,036 - player.player - INFO - Playback stopped.
+2026-04-02 15:25:45,662 - player.player - ERROR - Electron open failed: Electron control endpoint not ready.
+2026-04-02 16:17:04,927 - controller.controller - INFO - 开始执行时间表 [sync]: 111
+2026-04-02 16:17:04,927 - player.player - INFO - Target screen set to: 1
+2026-04-02 16:17:04,928 - player.player - INFO - Playback stopped.
+2026-04-02 16:17:07,664 - player.player - ERROR - Electron open failed: Electron control endpoint not ready.
+2026-04-02 16:17:24,673 - controller.controller - INFO - 开始执行时间表 [sync]: 111
+2026-04-02 16:17:24,673 - player.player - INFO - Target screen set to: 1
+2026-04-02 16:17:24,673 - player.player - INFO - Playback stopped.
+2026-04-02 16:17:27,408 - player.player - ERROR - Electron open failed: Electron control endpoint not ready.
+2026-04-02 16:17:32,393 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2026-04-02 16:27:31,572 - apscheduler.scheduler - INFO - Scheduler started
+2026-04-02 16:27:31,620 - player.player - INFO - Using VLC at: C:\Program Files\VideoLAN\VLC\vlc.exe
+2026-04-02 16:27:31,690 - player.player - INFO - VLC player initialized.
+2026-04-02 16:27:31,690 - player.player - INFO - Target screen set to: 0
+2026-04-02 16:27:31,733 - apscheduler.scheduler - INFO - Added job "Controller._finish_schedule" to job store "default"
+2026-04-02 16:27:31,733 - controller.controller - INFO - 已注册时间表任务: 111 (ID=1)
+2026-04-02 16:27:31,733 - controller.controller - INFO - 已加载 1 个有效时间表
+2026-04-02 16:27:31,736 - controller.controller - INFO - 开始执行时间表 [sync]: 111
+2026-04-02 16:27:31,737 - player.player - INFO - Target screen set to: 1
+2026-04-02 16:27:31,738 - player.player - INFO - Playback stopped.
+2026-04-02 16:27:31,740 - player.player - INFO - Resolved Electron binary: C:\Users\Daniel\Documents\projects\youthPlayer\node_modules\.bin\electron.cmd
+2026-04-02 16:27:32,081 - player.player - INFO - Launching Electron command: ['C:\\Users\\Daniel\\Documents\\projects\\youthPlayer\\node_modules\\.bin\\electron.cmd', 'C:\\Users\\Daniel\\Documents\\projects\\youthPlayer\\player\\electron_runner.js', '--', '--url', 'https://tv.cctv.com/live/cctv13/', '--host', '127.0.0.1', '--port', '18870', '--left', '0', '--top', '0', '--width', '1600', '--height', '1000', '--topmost']
+2026-04-02 16:27:33,111 - player.player - INFO - Web live opened via Electron: https://tv.cctv.com/live/cctv13/
+2026-04-02 16:27:33,113 - security.watchdog - INFO - 看门狗启动成功
+2026-04-02 16:27:33,138 - werkzeug - WARNING -  * Running on all addresses.
+   WARNING: This is a development server. Do not use it in a production deployment.
+2026-04-02 16:27:33,139 - werkzeug - INFO -  * Running on http://192.168.1.73:5000/ (Press CTRL+C to quit)
+2026-04-02 16:27:50,943 - controller.controller - INFO - 开始执行时间表 [sync]: 111
+2026-04-02 16:27:50,944 - player.player - INFO - Target screen set to: 1
+2026-04-02 16:27:52,945 - player.player - INFO - Playback stopped.
+2026-04-02 16:27:52,947 - player.player - INFO - Resolved Electron binary: C:\Users\Daniel\Documents\projects\youthPlayer\node_modules\.bin\electron.cmd
+2026-04-02 16:27:53,388 - player.player - INFO - Launching Electron command: ['C:\\Users\\Daniel\\Documents\\projects\\youthPlayer\\node_modules\\.bin\\electron.cmd', 'C:\\Users\\Daniel\\Documents\\projects\\youthPlayer\\player\\electron_runner.js', '--', '--url', 'https://tv.cctv.com/live/cctv13/', '--host', '127.0.0.1', '--port', '18870', '--left', '0', '--top', '0', '--width', '1600', '--height', '1000', '--topmost']
+2026-04-02 16:27:54,399 - player.player - INFO - Web live opened via Electron: https://tv.cctv.com/live/cctv13/
+2026-04-02 16:28:04,660 - apscheduler.scheduler - INFO - Scheduler has been shut down

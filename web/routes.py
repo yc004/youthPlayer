@@ -31,7 +31,7 @@ def _build_dashboard_context():
         "status": player.get_status(),
         "screens": player.get_available_screens(),
         "schedules": schedules,
-        "active_schedule": controller.get_current_schedule() or controller.sync_active_schedule(force_restart=False),
+        "active_schedule": controller.get_current_schedule() or controller.get_active_schedule_now(),
         "summary": controller.get_runtime_summary(),
     }
 
@@ -174,7 +174,7 @@ def play_schedule_now(schedule_id):
 @main.route("/api/status")
 @login_required
 def api_status():
-    active_schedule = controller.get_current_schedule() or controller.sync_active_schedule(force_restart=False)
+    active_schedule = controller.get_current_schedule() or controller.get_active_schedule_now()
     return jsonify(
         {
             "player": player.get_status(),

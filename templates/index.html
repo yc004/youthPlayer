@@ -79,7 +79,7 @@
         </div>
         <ul class="hint-list">
             <li>视频优先使用 VLC，兼容 MP4 / MKV / AVI / HLS / RTSP 等格式。</li>
-            <li>网页直播优先使用真实浏览器进程而非 WebDriver，降低触发防脚本风险。</li>
+            <li>网页直播使用 Electron 载体并通过本地控制接口执行播放/全屏注入。</li>
             <li>看门狗会自动检测当前应播计划，并在异常中断后尝试恢复。</li>
         </ul>
     </article>

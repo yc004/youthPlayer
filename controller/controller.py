@@ -205,6 +205,18 @@ class Controller:
             return None
         return db.session.get(Schedule, self.current_schedule_id)
 
+    def get_active_schedule_now(self):
+        now = datetime.now()
+        return (
+            Schedule.query.filter(
+                Schedule.is_active.is_(True),
+                Schedule.start_time <= now,
+                Schedule.end_time > now,
+            )
+            .order_by(Schedule.start_time.desc())
+            .first()
+        )
+
     def get_runtime_summary(self):
         now = datetime.now()
         schedules = self.get_schedules()

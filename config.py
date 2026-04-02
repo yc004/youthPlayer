@@ -15,24 +15,14 @@ class Config:
 
     # 播放器配置
     VLC_PATH = os.environ.get("YP_VLC_PATH", r"C:\Program Files\VideoLAN\VLC\vlc.exe")
-    WEB_LIVE_BROWSER_PATH = os.environ.get("YP_BROWSER_PATH", "")
-    WEB_LIVE_BROWSER_PROFILE = os.environ.get(
-        "YP_BROWSER_PROFILE",
-        os.path.join(BASE_DIR, "runtime", "browser-profile"),
-    )
-    WEB_LIVE_BROWSER_ARGS = [
-        "--new-window",
-        "--start-fullscreen",
-        "--disable-notifications",
-        "--disable-session-crashed-bubble",
-        "--disable-infobars",
-        "--autoplay-policy=no-user-gesture-required",
-    ]
-    WEB_LIVE_SCRIPT_INJECTION = os.environ.get("YP_WEB_INJECT", "1") == "1"
-    WEB_LIVE_DRIVER_BROWSER = os.environ.get("YP_WEB_DRIVER_BROWSER", "edge")
-    WEB_LIVE_DRIVER_PATH = os.environ.get("YP_WEB_DRIVER_PATH", "")
-    WEB_LIVE_SCRIPT_RETRY = int(os.environ.get("YP_WEB_SCRIPT_RETRY", 3))
-    WEB_LIVE_SCRIPT_RETRY_INTERVAL = float(os.environ.get("YP_WEB_SCRIPT_RETRY_INTERVAL", 1.2))
+    WEB_USE_ELECTRON = os.environ.get("YP_WEB_USE_ELECTRON", "1") == "1"
+    WEB_ELECTRON_ONLY = os.environ.get("YP_WEB_ELECTRON_ONLY", "1") == "1"
+    # 留空时优先使用项目内 node_modules/.bin/electron(.cmd)
+    ELECTRON_BIN = os.environ.get("YP_ELECTRON_BIN", "")
+    ELECTRON_CONTROL_HOST = os.environ.get("YP_ELECTRON_HOST", "127.0.0.1")
+    ELECTRON_CONTROL_PORT_BASE = int(os.environ.get("YP_ELECTRON_PORT_BASE", 18870))
+    ELECTRON_CONTROL_TIMEOUT = float(os.environ.get("YP_ELECTRON_TIMEOUT", 2.0))
+    ELECTRON_STARTUP_WAIT = float(os.environ.get("YP_ELECTRON_STARTUP_WAIT", 20.0))
 
     # 屏幕配置
     PRIMARY_SCREEN = 0

@@ -7,4 +7,3 @@ python-vlc==3.0.12118
 requests==2.26.0
 SQLAlchemy==1.4.32
 Werkzeug==2.0.1
-selenium==4.10.0

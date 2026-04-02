@@ -1,10 +1,15 @@
-"""Playback engine for VLC and web-live browser control."""
+"""Playback engine: VLC for media streams, Electron for web live pages."""
 
 import logging
 import os
+import socket
 import subprocess
+import threading
 import time
+import urllib.error
+import urllib.request
 from urllib.parse import urlparse
+from shutil import which
 
 from config import Config
 
@@ -15,160 +20,14 @@ except ImportError:  # pragma: no cover
 
 try:  # pragma: no cover
     import win32api
-    import win32con
-    import win32gui
-    import win32process
 except ImportError:  # pragma: no cover
     win32api = None
-    win32con = None
-    win32gui = None
-    win32process = None
-
-try:  # pragma: no cover
-    from selenium import webdriver
-    from selenium.common.exceptions import WebDriverException
-    from selenium.webdriver.chrome.options import Options as ChromeOptions
-    from selenium.webdriver.chrome.service import Service as ChromeService
-    from selenium.webdriver.edge.options import Options as EdgeOptions
-    from selenium.webdriver.edge.service import Service as EdgeService
-except ImportError:  # pragma: no cover
-    webdriver = None
-    WebDriverException = Exception
-    ChromeOptions = None
-    ChromeService = None
-    EdgeOptions = None
-    EdgeService = None
 
 
 logger = logging.getLogger(__name__)
 
 STREAM_SUFFIXES = (".m3u8", ".flv", ".mpd", ".mp4", ".ts", ".rtmp", ".rtsp")
 WEBPAGE_HINTS = ("tv.cctv.com", "live", "webcast", "bilibili.com", "douyin.com")
-
-SCRIPT_PLAY_AND_FULLSCREEN = r"""
-const done = { played: false, fullscreen: false, reason: "" };
-
-function safePlay(video) {
-  if (!video) return false;
-  try {
-    video.muted = false;
-    video.controls = true;
-    const p = video.play();
-    if (p && typeof p.catch === "function") {
-      p.catch(() => {});
-    }
-    return true;
-  } catch (_) {
-    return false;
-  }
-}
-
-function safeFullscreen(node) {
-  if (!node) return false;
-  try {
-    if (document.fullscreenElement) return true;
-    if (node.requestFullscreen) {
-      node.requestFullscreen();
-      return true;
-    }
-    if (node.webkitRequestFullscreen) {
-      node.webkitRequestFullscreen();
-      return true;
-    }
-    if (node.msRequestFullscreen) {
-      node.msRequestFullscreen();
-      return true;
-    }
-  } catch (_) {
-    return false;
-  }
-  return false;
-}
-
-const videos = Array.from(document.querySelectorAll("video"));
-for (const v of videos) {
-  if (safePlay(v)) done.played = true;
-}
-
-const activeVideo = videos.find(v => (v.offsetWidth * v.offsetHeight) > 10000) || videos[0];
-if (safeFullscreen(activeVideo)) done.fullscreen = true;
-
-if (!done.fullscreen) {
-  const root = document.documentElement;
-  if (safeFullscreen(root)) done.fullscreen = true;
-}
-
-if (!done.played || !done.fullscreen) {
-  const selectors = [
-    "[class*='play']",
-    "[class*='btn-play']",
-    "[class*='start']",
-    "[aria-label*='播放']",
-    "[title*='播放']",
-    "[class*='full']",
-    "[class*='screen']",
-    "[aria-label*='全屏']",
-    "[title*='全屏']"
-  ];
-  for (const sel of selectors) {
-    const btn = document.querySelector(sel);
-    if (btn) {
-      try { btn.click(); } catch (_) {}
-    }
-  }
-}
-
-if (!done.fullscreen) {
-  try {
-    const evt = new KeyboardEvent("keydown", { key: "f", code: "KeyF", bubbles: true });
-    document.dispatchEvent(evt);
-  } catch (_) {}
-}
-
-done.reason = `videos=${videos.length}`;
-done;
-"""
-
-SCRIPT_ONLY_PLAY = r"""
-let played = false;
-const videos = Array.from(document.querySelectorAll("video"));
-for (const v of videos) {
-  try {
-    const p = v.play();
-    if (p && typeof p.catch === "function") p.catch(() => {});
-    played = true;
-  } catch (_) {}
-}
-if (!played) {
-  const btn = document.querySelector("[class*='play'], [title*='播放'], [aria-label*='播放']");
-  if (btn) {
-    try { btn.click(); played = true; } catch (_) {}
-  }
-}
-({ played, videos: videos.length });
-"""
-
-SCRIPT_ONLY_FULLSCREEN = r"""
-let ok = false;
-const v = document.querySelector("video");
-function fs(node) {
-  if (!node) return false;
-  try {
-    if (document.fullscreenElement) return true;
-    if (node.requestFullscreen) { node.requestFullscreen(); return true; }
-    if (node.webkitRequestFullscreen) { node.webkitRequestFullscreen(); return true; }
-  } catch (_) {}
-  return false;
-}
-ok = fs(v) || fs(document.documentElement);
-if (!ok) {
-  const btn = document.querySelector("[class*='full'], [title*='全屏'], [aria-label*='全屏']");
-  if (btn) {
-    try { btn.click(); ok = true; } catch (_) {}
-  }
-}
-({ fullscreen: ok });
-"""
 
 
 class Player:
@@ -180,31 +39,35 @@ class Player:
         self.current_backend = "idle"
         self.screen_index = Config.PRIMARY_SCREEN
         self.current_screen = None
-        self.browser_process = None
-        self.browser_driver = None
-        self.browser_detached = False
+
+        self.electron_process = None
+        self.electron_port = None
+        self.electron_log_handle = None
         self.browser_command = []
+
         self.last_error = ""
         self.last_started_at = None
         self.expected_playing = False
+        self._op_lock = threading.RLock()
 
         self._init_vlc()
         self.set_screen(Config.PRIMARY_SCREEN)
+
+    def _build_electron_env(self):
+        """Electron 主进程不能在 ELECTRON_RUN_AS_NODE=1 下启动。"""
+        env = os.environ.copy()
+        if env.get("ELECTRON_RUN_AS_NODE") == "1":
+            env.pop("ELECTRON_RUN_AS_NODE", None)
+        return env
 
     def _init_vlc(self):
         if vlc is None:
             logger.warning("python-vlc not installed, VLC playback unavailable.")
             return
-
         try:
             options = ["--no-video-title-show", "--quiet"]
             if os.path.exists(Config.VLC_PATH):
-                plugin_dir = os.path.join(os.path.dirname(Config.VLC_PATH), "plugins")
-                options.append(f"--plugin-path={plugin_dir}")
                 logger.info("Using VLC at: %s", Config.VLC_PATH)
-            else:
-                logger.info("Configured VLC path not found, trying system VLC.")
-
             self.instance = vlc.Instance(*options)
             self.player = self.instance.media_player_new()
             logger.info("VLC player initialized.")
@@ -232,9 +95,8 @@ class Player:
                             "primary": bool(info.get("Flags", 0) & 1),
                         }
                     )
-            except Exception as exc:  # pragma: no cover
-                logger.warning("Failed to read monitors from Win32 API: %s", exc)
-
+            except Exception as exc:
+                logger.warning("Failed to read monitor info: %s", exc)
         if not screens:
             screens = [
                 dict(item, primary=(item["index"] == Config.PRIMARY_SCREEN))
@@ -253,34 +115,35 @@ class Player:
         return True
 
     def play_local(self, file_path):
-        if not os.path.exists(file_path):
-            self.last_error = f"File not found: {file_path}"
-            logger.error(self.last_error)
-            return False
-        return self._play_vlc_media(file_path, source_type="local")
+        with self._op_lock:
+            if not os.path.exists(file_path):
+                self.last_error = f"File not found: {file_path}"
+                logger.error(self.last_error)
+                return False
+            return self._play_vlc_media(file_path, source_type="local")
 
     def play_nas(self, nas_path):
-        return self._play_vlc_media(nas_path, source_type="nas")
+        with self._op_lock:
+            return self._play_vlc_media(nas_path, source_type="nas")
 
     def play_live(self, live_url):
-        if self._should_use_browser(live_url):
-            return self._open_web_browser(live_url)
-        return self._play_vlc_media(live_url, source_type="stream")
+        with self._op_lock:
+            if self._should_use_browser(live_url):
+                return self._open_web_live_electron(live_url)
+            return self._play_vlc_media(live_url, source_type="stream")
 
     def _play_vlc_media(self, source, source_type="media"):
         if not self.player or not self.instance:
             self.last_error = "VLC player is not initialized."
             logger.error(self.last_error)
             return False
-
         try:
             self.stop()
             media = self.instance.media_new(source)
             self.player.set_media(media)
             result = self.player.play()
             time.sleep(0.5)
-            self._set_fullscreen()
-
+            self.player.set_fullscreen(True)
             self.current_media = media
             self.current_source = source
             self.current_backend = "vlc"
@@ -299,276 +162,223 @@ class Player:
         path = (parsed.path or "").lower()
         if path.endswith(STREAM_SUFFIXES):
             return False
-        return url.startswith(("http://", "https://")) and any(hint in url.lower() for hint in WEBPAGE_HINTS)
+        return url.startswith(("http://", "https://")) and any(h in url.lower() for h in WEBPAGE_HINTS)
 
-    def _open_web_browser(self, url):
+    def _open_web_live_electron(self, url):
         self.stop()
-        os.makedirs(Config.WEB_LIVE_BROWSER_PROFILE, exist_ok=True)
+        runtime_dir = os.path.join(Config.BASE_DIR, "runtime")
+        os.makedirs(runtime_dir, exist_ok=True)
+        self.electron_port = self._reserve_port(Config.ELECTRON_CONTROL_HOST, Config.ELECTRON_CONTROL_PORT_BASE)
+        self.electron_log_handle = open(
+            os.path.join(runtime_dir, "electron_runner.log"),
+            "a",
+            encoding="utf-8",
+        )
 
-        if Config.WEB_LIVE_SCRIPT_INJECTION and webdriver:
-            if self._open_web_browser_with_driver(url):
-                return True
-            logger.warning("Driver mode failed, fallback to native browser process.")
+        electron_bin = self._resolve_electron_bin()
+        logger.info("Resolved Electron binary: %s", electron_bin)
+        if not electron_bin:
+            self.last_error = (
+                "Electron binary not found. "
+                "Please install Electron globally or set YP_ELECTRON_BIN."
+            )
+            logger.error(self.last_error)
+            return False
+        if not self._validate_electron_bin(electron_bin):
+            return False
 
-        return self._open_web_browser_native(url)
+        screen = self.current_screen or {"left": 0, "top": 0, "width": 1920, "height": 1080}
+        runner_path = os.path.join(os.path.dirname(__file__), "electron_runner.js")
+        command = [
+            electron_bin,
+            runner_path,
+            "--",
+            "--url",
+            url,
+            "--host",
+            Config.ELECTRON_CONTROL_HOST,
+            "--port",
+            str(self.electron_port),
+            "--left",
+            str(screen["left"]),
+            "--top",
+            str(screen["top"]),
+            "--width",
+            str(screen["width"]),
+            "--height",
+            str(screen["height"]),
+        ]
+        if Config.WINDOW_TOPMOST:
+            command.append("--topmost")
 
-    def _open_web_browser_with_driver(self, url):
         try:
-            browser = (Config.WEB_LIVE_DRIVER_BROWSER or "edge").lower()
-            if browser == "chrome":
-                options = ChromeOptions()
-                options.binary_location = self._find_browser_executable(prefer="chrome") or ""
-            else:
-                options = EdgeOptions()
-                options.binary_location = self._find_browser_executable(prefer="edge") or ""
-
-            for arg in Config.WEB_LIVE_BROWSER_ARGS:
-                options.add_argument(arg)
-
-            options.add_argument("--disable-blink-features=AutomationControlled")
-            options.add_argument("--no-default-browser-check")
-            options.add_argument("--disable-features=msSmartScreenProtection")
-            options.add_argument(f"--user-data-dir={Config.WEB_LIVE_BROWSER_PROFILE}")
-            options.add_experimental_option("excludeSwitches", ["enable-automation"])
-            options.add_experimental_option("useAutomationExtension", False)
-
-            if browser == "chrome":
-                service = (
-                    ChromeService(executable_path=Config.WEB_LIVE_DRIVER_PATH)
-                    if Config.WEB_LIVE_DRIVER_PATH
-                    else ChromeService()
-                )
-                self.browser_driver = webdriver.Chrome(service=service, options=options)
-            else:
-                service = (
-                    EdgeService(executable_path=Config.WEB_LIVE_DRIVER_PATH)
-                    if Config.WEB_LIVE_DRIVER_PATH
-                    else EdgeService()
-                )
-                self.browser_driver = webdriver.Edge(service=service, options=options)
-
-            self.browser_driver.get(url)
-            self.browser_process = None
-            self.browser_detached = False
-            self.browser_command = ["selenium", browser, url]
-
-            # Try script injection multiple times because many live pages lazy-load video nodes.
-            self._inject_play_and_fullscreen(retry=Config.WEB_LIVE_SCRIPT_RETRY)
-            self._position_driver_window()
-
+            self.electron_process = subprocess.Popen(
+                command,
+                stdout=self.electron_log_handle,
+                stderr=self.electron_log_handle,
+                env=self._build_electron_env(),
+            )
+            logger.info("Launching Electron command: %s", command)
+            self.browser_command = command
+            if not self._wait_electron_ready():
+                exit_code = self.electron_process.poll() if self.electron_process else None
+                logger.error("Electron did not become ready. process_exit=%s", exit_code)
+                raise RuntimeError("Electron control endpoint not ready.")
             self.current_source = url
-            self.current_backend = "browser"
+            self.current_backend = "electron"
             self.expected_playing = True
             self.last_started_at = time.time()
             self.last_error = ""
-            logger.info("Web live opened via Selenium driver: %s", url)
+            logger.info("Web live opened via Electron: %s", url)
             return True
         except Exception as exc:
             self.last_error = str(exc)
-            self._close_driver_only()
-            logger.error("Driver browser open failed: %s", exc)
+            logger.error("Electron open failed: %s", exc)
+            self._stop_electron_process()
             return False
 
-    def _open_web_browser_native(self, url):
+    def _validate_electron_bin(self, electron_bin):
         try:
-            browser_path = self._find_browser_executable()
-            if browser_path:
-                command = [browser_path]
-                command.extend(Config.WEB_LIVE_BROWSER_ARGS)
-                command.append(f"--user-data-dir={Config.WEB_LIVE_BROWSER_PROFILE}")
-                command.append(url)
-                self.browser_process = subprocess.Popen(command)
-                self.browser_detached = False
-                self.browser_command = command
-            else:
-                command = ["cmd", "/c", "start", "", url]
-                self.browser_process = subprocess.Popen(command, shell=False)
-                self.browser_detached = True
-                self.browser_command = command
-                logger.warning("No browser executable found, fallback to system default.")
-
-            self.current_source = url
-            self.current_backend = "browser"
-            self.expected_playing = True
-            self.last_started_at = time.time()
-            self.last_error = ""
-            time.sleep(1)
-            self._position_browser_window()
-            logger.info("Web live opened via native browser process: %s", url)
+            result = subprocess.run(
+                [electron_bin, "--version"],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                timeout=8,
+                check=False,
+                env=self._build_electron_env(),
+            )
+            if result.returncode != 0:
+                msg = (result.stderr or result.stdout or "").strip()
+                self.last_error = f"Electron binary check failed: {msg}"
+                logger.error(self.last_error)
+                return False
             return True
         except Exception as exc:
-            self.last_error = str(exc)
-            logger.error("Native browser open failed: %s", exc)
+            self.last_error = f"Electron binary not runnable: {exc}"
+            logger.error(self.last_error)
             return False
 
-    def _find_browser_executable(self, prefer=None):
-        chrome_paths = [
-            r"C:\Program Files\Google\Chrome\Application\chrome.exe",
-            r"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe",
-        ]
-        edge_paths = [
-            r"C:\Program Files\Microsoft\Edge\Application\msedge.exe",
-            r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe",
-        ]
-        custom = [Config.WEB_LIVE_BROWSER_PATH] if Config.WEB_LIVE_BROWSER_PATH else []
+    def _resolve_electron_bin(self):
+        configured = (Config.ELECTRON_BIN or "").strip()
 
-        if prefer == "chrome":
-            candidates = custom + chrome_paths + edge_paths
-        elif prefer == "edge":
-            candidates = custom + edge_paths + chrome_paths
-        else:
-            candidates = custom + chrome_paths + edge_paths
+        # 1) Explicitly configured binary/path wins.
+        if configured:
+            if os.path.isabs(configured) and os.path.exists(configured):
+                return configured
+            configured_hit = which(configured)
+            if configured_hit:
+                return configured_hit
 
-        for candidate in candidates:
-            if candidate and os.path.exists(candidate):
+        # 2) Prefer project-local Electron.
+        local_candidates = [
+            os.path.join(Config.BASE_DIR, "node_modules", ".bin", "electron.cmd"),
+            os.path.join(Config.BASE_DIR, "node_modules", ".bin", "electron"),
+        ]
+        for candidate in local_candidates:
+            if os.path.exists(candidate):
                 return candidate
-        return None
 
-    def _inject_play_and_fullscreen(self, retry=2):
-        if not self.browser_driver:
-            return False
-        for _ in range(max(1, retry)):
+        # 3) Global PATH fallback.
+        return which("electron")
+
+    def _reserve_port(self, host, base):
+        for port in range(base, base + 50):
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             try:
-                result = self.browser_driver.execute_script(SCRIPT_PLAY_AND_FULLSCREEN)
-                logger.info("Injected play+fullscreen script result: %s", result)
+                sock.bind((host, port))
+                return port
+            except OSError:
+                continue
+            finally:
+                sock.close()
+        raise RuntimeError(f"No available local port for host={host}, base={base}.")
+
+    def _wait_electron_ready(self):
+        start = time.time()
+        while time.time() - start < Config.ELECTRON_STARTUP_WAIT:
+            if not self.electron_process or self.electron_process.poll() is not None:
+                return False
+            if self._electron_request("GET", "/health", ignore_error=True):
                 return True
-            except WebDriverException:
-                time.sleep(Config.WEB_LIVE_SCRIPT_RETRY_INTERVAL)
+            time.sleep(0.3)
         return False
 
-    def inject_web_play(self):
-        if not self.browser_driver:
-            self.last_error = "Web driver unavailable, cannot inject play script."
+    def _electron_request(self, method, path, ignore_error=False):
+        if not self.electron_port:
             return False
+        url = f"http://{Config.ELECTRON_CONTROL_HOST}:{self.electron_port}{path}"
+        req = urllib.request.Request(url=url, method=method)
         try:
-            result = self.browser_driver.execute_script(SCRIPT_ONLY_PLAY)
-            logger.info("Injected play script result: %s", result)
-            self.last_error = ""
-            return True
-        except Exception as exc:
-            self.last_error = str(exc)
-            logger.error("Inject play script failed: %s", exc)
+            with urllib.request.urlopen(req, timeout=Config.ELECTRON_CONTROL_TIMEOUT) as resp:
+                return 200 <= resp.getcode() < 300
+        except (urllib.error.URLError, TimeoutError, ValueError, OSError, ConnectionResetError):
+            if not ignore_error:
+                logger.warning("Electron request failed: %s %s", method, path)
             return False
+
+    def inject_web_play(self):
+        if self.current_backend != "electron":
+            self.last_error = "Current backend is not Electron."
+            return False
+        ok = self._electron_request("POST", "/inject/play")
+        self.last_error = "" if ok else "Electron play injection failed."
+        return ok
 
     def inject_web_fullscreen(self):
-        if not self.browser_driver:
-            self.last_error = "Web driver unavailable, cannot inject fullscreen script."
+        if self.current_backend != "electron":
+            self.last_error = "Current backend is not Electron."
             return False
-        try:
-            result = self.browser_driver.execute_script(SCRIPT_ONLY_FULLSCREEN)
-            logger.info("Injected fullscreen script result: %s", result)
-            self._position_driver_window()
-            self.last_error = ""
-            return True
-        except Exception as exc:
-            self.last_error = str(exc)
-            logger.error("Inject fullscreen script failed: %s", exc)
-            return False
-
-    def _position_driver_window(self):  # pragma: no cover
-        if not self.browser_driver or not self.current_screen:
-            return
-        screen = self.current_screen
-        try:
-            self.browser_driver.set_window_rect(
-                x=screen["left"],
-                y=screen["top"],
-                width=screen["width"],
-                height=screen["height"],
-            )
-            self.browser_driver.fullscreen_window()
-        except Exception as exc:
-            logger.warning("Position driver window failed: %s", exc)
-
-    def _position_browser_window(self):  # pragma: no cover
-        if not (self.browser_process and win32gui and win32process and self.current_screen):
-            return
-
-        screen = self.current_screen
-        for _ in range(20):
-            hwnd = self._find_window_by_pid(self.browser_process.pid)
-            if hwnd:
-                flags = win32con.SWP_SHOWWINDOW
-                z_order = win32con.HWND_TOPMOST if Config.WINDOW_TOPMOST else win32con.HWND_NOTOPMOST
-                win32gui.ShowWindow(hwnd, win32con.SW_RESTORE)
-                win32gui.SetWindowPos(
-                    hwnd,
-                    z_order,
-                    screen["left"],
-                    screen["top"],
-                    screen["width"],
-                    screen["height"],
-                    flags,
-                )
-                return
-            time.sleep(0.5)
-
-    def _find_window_by_pid(self, pid):  # pragma: no cover
-        matched = []
-
-        def callback(hwnd, _):
-            if not win32gui.IsWindowVisible(hwnd):
-                return
-            _, process_id = win32process.GetWindowThreadProcessId(hwnd)
-            if process_id == pid:
-                matched.append(hwnd)
-
-        win32gui.EnumWindows(callback, None)
-        return matched[0] if matched else None
+        ok = self._electron_request("POST", "/inject/fullscreen")
+        self.last_error = "" if ok else "Electron fullscreen injection failed."
+        return ok
 
     def ensure_foreground(self):  # pragma: no cover
-        if self.current_backend != "browser":
-            return
-        if self.browser_driver:
-            self._position_driver_window()
-        else:
-            self._position_browser_window()
+        if self.current_backend == "electron":
+            self._electron_request("POST", "/inject/fullscreen", ignore_error=True)
 
     def stop(self):
+        with self._op_lock:
+            try:
+                if self.player:
+                    self.player.stop()
+                self.current_media = None
+                if self.electron_process:
+                    self._stop_electron_process()
+                self.current_source = None
+                self.current_backend = "idle"
+                self.expected_playing = False
+                logger.info("Playback stopped.")
+                return True
+            except Exception as exc:
+                self.last_error = str(exc)
+                logger.error("Stop playback failed: %s", exc)
+                return False
+
+    def _stop_electron_process(self):
         try:
-            if self.player:
-                self.player.stop()
-            self.current_media = None
-
-            if self.browser_driver:
-                self._close_driver_only()
-
-            if self.browser_process:
-                self._stop_browser_process()
-
-            self.current_source = None
-            self.current_backend = "idle"
-            self.expected_playing = False
-            self.browser_detached = False
-            logger.info("Playback stopped.")
-            return True
-        except Exception as exc:
-            self.last_error = str(exc)
-            logger.error("Stop playback failed: %s", exc)
-            return False
-
-    def _close_driver_only(self):
-        try:
-            if self.browser_driver:
-                self.browser_driver.quit()
+            self._electron_request("POST", "/stop", ignore_error=True)
         except Exception:
             pass
-        finally:
-            self.browser_driver = None
-
-    def _stop_browser_process(self):
         try:
-            if os.name == "nt":
-                subprocess.run(
-                    ["taskkill", "/PID", str(self.browser_process.pid), "/T", "/F"],
-                    stdout=subprocess.DEVNULL,
-                    stderr=subprocess.DEVNULL,
-                    check=False,
-                )
-            else:
-                self.browser_process.terminate()
+            if self.electron_process and self.electron_process.poll() is None:
+                self.electron_process.terminate()
+                self.electron_process.wait(timeout=3)
+        except Exception:
+            try:
+                if self.electron_process and self.electron_process.poll() is None:
+                    self.electron_process.kill()
+            except Exception:
+                pass
         finally:
-            self.browser_process = None
+            self.electron_process = None
+            self.electron_port = None
+            if self.electron_log_handle:
+                try:
+                    self.electron_log_handle.close()
+                except Exception:
+                    pass
+                self.electron_log_handle = None
 
     def pause(self):
         if self.current_backend != "vlc" or not self.player:
@@ -584,7 +394,7 @@ class Player:
             return False
 
     def resume(self):
-        if self.current_backend == "browser":
+        if self.current_backend == "electron":
             self.ensure_foreground()
             return True
         if not self.player:
@@ -599,43 +409,22 @@ class Player:
             logger.error("Resume failed: %s", exc)
             return False
 
-    def _set_fullscreen(self):
-        if not self.player:
-            return
-        try:
-            self.player.set_fullscreen(True)
-        except Exception as exc:
-            logger.warning("Set VLC fullscreen failed: %s", exc)
-
     def is_healthy(self):
         if not self.expected_playing:
             return True
-
-        if self.current_backend == "browser":
-            if self.browser_driver:
-                return self.browser_driver.session_id is not None
-            if self.browser_detached:
-                return True
-            return self.browser_process is not None and self.browser_process.poll() is None
-
+        if self.current_backend == "electron":
+            return self.electron_process is not None and self.electron_process.poll() is None
         if self.current_backend == "vlc" and self.player and vlc is not None:
             state = self.player.get_state()
             return state not in {vlc.State.Error, vlc.State.Ended}
-
         return False
 
     def get_status(self):
         state_label = "Idle"
         is_playing = False
-
-        if self.current_backend == "browser":
-            state_label = "BrowserPlayback"
-            if self.browser_driver:
-                is_playing = self.browser_driver.session_id is not None
-            else:
-                is_playing = self.browser_detached or (
-                    self.browser_process is not None and self.browser_process.poll() is None
-                )
+        if self.current_backend == "electron":
+            state_label = "ElectronPlayback"
+            is_playing = self.electron_process is not None and self.electron_process.poll() is None
         elif self.player and vlc is not None:
             state = self.player.get_state()
             state_label = str(state)
@@ -645,7 +434,7 @@ class Player:
             "state": state_label,
             "is_playing": is_playing,
             "backend": self.current_backend,
-            "web_driver": bool(self.browser_driver),
+            "electron": bool(self.electron_process),
             "current_source": self.current_source,
             "screen_index": self.screen_index,
             "screen_name": self.current_screen["name"] if self.current_screen else f"Screen {self.screen_index}",
