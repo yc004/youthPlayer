@@ -1,194 +1,273 @@
 # 控制模块
 import logging
 from datetime import datetime
-from apscheduler.schedulers.background import BackgroundScheduler
-from apscheduler.triggers.cron import CronTrigger
+
+from apscheduler.jobstores.base import JobLookupError
+from apscheduler.triggers.date import DateTrigger
+
 from models import Schedule, db
+
 
 logger = logging.getLogger(__name__)
 
+
 class Controller:
-    def __init__(self, player, scheduler):
+    def __init__(self, app, player, scheduler):
+        self.app = app
         self.player = player
         self.scheduler = scheduler
         self.scheduled_jobs = {}
-        self._load_schedules()
-    
-    def _load_schedules(self):
-        """加载所有时间表"""
-        try:
-            from main import app
-            with app.app_context():
-                schedules = Schedule.query.filter_by(is_active=True).all()
-                for schedule in schedules:
-                    self._add_schedule_job(schedule)
-                logger.info(f"加载了 {len(schedules)} 个时间表")
-        except Exception as e:
-            logger.error(f"加载时间表失败: {str(e)}")
-    
-    def _add_schedule_job(self, schedule):
-        """添加时间表任务"""
-        try:
-            # 解析开始时间
-            start_time = schedule.start_time
-            trigger = CronTrigger(
-                hour=start_time.hour,
-                minute=start_time.minute,
-                second=start_time.second
+        self.current_schedule_id = None
+
+    def refresh_schedules(self):
+        """重新加载所有时间表。"""
+        self._clear_all_jobs()
+        with self.app.app_context():
+            schedules = (
+                Schedule.query.filter_by(is_active=True)
+                .order_by(Schedule.start_time.asc())
+                .all()
             )
-            
-            # 创建任务
-            job_id = f"schedule_{schedule.id}"
-            job = self.scheduler.add_job(
-                func=self._execute_schedule,
-                trigger=trigger,
-                args=[schedule],
-                id=job_id,
-                replace_existing=True
-            )
-            
-            self.scheduled_jobs[schedule.id] = job
-            logger.info(f"添加时间表任务: {schedule.name} (ID: {schedule.id})")
-        except Exception as e:
-            logger.error(f"添加时间表任务失败: {str(e)}")
-    
-    def _execute_schedule(self, schedule):
-        """执行时间表任务"""
-        try:
-            logger.info(f"执行时间表: {schedule.name}")
-            
-            # 设置屏幕
-            self.player.set_screen(schedule.screen_index)
-            
-            # 根据内容类型播放
-            if schedule.content_type == 'local':
-                self.player.play_local(schedule.content_path)
-            elif schedule.content_type == 'nas':
-                self.player.play_nas(schedule.content_path)
-            elif schedule.content_type == 'live':
-                self.player.play_live(schedule.content_path)
-            
-            # 设置结束时间任务
-            end_trigger = CronTrigger(
-                hour=schedule.end_time.hour,
-                minute=schedule.end_time.minute,
-                second=schedule.end_time.second
-            )
-            
-            end_job_id = f"end_{schedule.id}"
+            for schedule in schedules:
+                self._register_schedule_jobs(schedule)
+            logger.info("已加载 %s 个有效时间表", len(schedules))
+
+    def _clear_all_jobs(self):
+        for schedule_id in list(self.scheduled_jobs.keys()):
+            self._remove_schedule_jobs(schedule_id)
+
+    def _register_schedule_jobs(self, schedule):
+        if not schedule.is_active:
+            return
+
+        now = datetime.now()
+        job_ids = []
+
+        if schedule.start_time > now:
+            start_job_id = f"schedule_start_{schedule.id}"
             self.scheduler.add_job(
-                func=self.player.stop,
-                trigger=end_trigger,
-                id=end_job_id,
-                replace_existing=True
+                func=self._execute_schedule,
+                trigger=DateTrigger(run_date=schedule.start_time),
+                args=[schedule.id],
+                id=start_job_id,
+                replace_existing=True,
+                misfire_grace_time=120,
             )
-            
-        except Exception as e:
-            logger.error(f"执行时间表失败: {str(e)}")
-    
+            job_ids.append(start_job_id)
+
+        if schedule.end_time > now:
+            end_job_id = f"schedule_end_{schedule.id}"
+            self.scheduler.add_job(
+                func=self._finish_schedule,
+                trigger=DateTrigger(run_date=schedule.end_time),
+                args=[schedule.id],
+                id=end_job_id,
+                replace_existing=True,
+                misfire_grace_time=120,
+            )
+            job_ids.append(end_job_id)
+
+        if job_ids:
+            self.scheduled_jobs[schedule.id] = job_ids
+            logger.info("已注册时间表任务: %s (ID=%s)", schedule.name, schedule.id)
+        else:
+            logger.info("跳过过期时间表: %s (ID=%s)", schedule.name, schedule.id)
+
+    def _remove_schedule_jobs(self, schedule_id):
+        job_ids = self.scheduled_jobs.pop(schedule_id, [])
+        for job_id in job_ids:
+            try:
+                self.scheduler.remove_job(job_id)
+            except JobLookupError:
+                continue
+
+    def _execute_schedule(self, schedule_id):
+        with self.app.app_context():
+            schedule = db.session.get(Schedule, schedule_id)
+            if not schedule or not schedule.is_active:
+                logger.warning("执行时间表时未找到有效记录: %s", schedule_id)
+                return False
+            return self._play_schedule(schedule, source="schedule")
+
+    def _finish_schedule(self, schedule_id):
+        if self.current_schedule_id == schedule_id:
+            logger.info("时间表结束，停止播放: %s", schedule_id)
+            self.player.stop()
+            self.current_schedule_id = None
+            return True
+        return False
+
+    def _play_schedule(self, schedule, source="manual"):
+        logger.info("开始执行时间表 [%s]: %s", source, schedule.name)
+        self.player.set_screen(schedule.screen_index)
+
+        if schedule.content_type == "local":
+            success = self.player.play_local(schedule.content_path)
+        elif schedule.content_type == "nas":
+            success = self.player.play_nas(schedule.content_path)
+        elif schedule.content_type == "live":
+            success = self.player.play_live(schedule.content_path)
+        else:
+            logger.error("未知内容类型: %s", schedule.content_type)
+            return False
+
+        if success:
+            self.current_schedule_id = schedule.id
+        return success
+
+    def sync_active_schedule(self, force_restart=False):
+        """在启动或恢复时同步当前应该播放的内容。"""
+        with self.app.app_context():
+            now = datetime.now()
+            active_schedule = (
+                Schedule.query.filter(
+                    Schedule.is_active.is_(True),
+                    Schedule.start_time <= now,
+                    Schedule.end_time > now,
+                )
+                .order_by(Schedule.start_time.desc())
+                .first()
+            )
+
+            if not active_schedule:
+                return None
+
+            if (
+                force_restart
+                or self.current_schedule_id != active_schedule.id
+                or not self.player.is_healthy()
+            ):
+                self._play_schedule(active_schedule, source="sync")
+            return active_schedule
+
     def add_schedule(self, schedule):
-        """添加新的时间表"""
         try:
             db.session.add(schedule)
             db.session.commit()
-            self._add_schedule_job(schedule)
-            logger.info(f"添加新时间表: {schedule.name}")
+            self._register_schedule_jobs(schedule)
+            self.sync_active_schedule(force_restart=False)
+            logger.info("添加新时间表: %s", schedule.name)
             return True
-        except Exception as e:
+        except Exception as exc:
             db.session.rollback()
-            logger.error(f"添加时间表失败: {str(e)}")
+            logger.error("添加时间表失败: %s", exc)
             return False
-    
+
     def update_schedule(self, schedule_id, **kwargs):
-        """更新时间表"""
         try:
-            schedule = Schedule.query.get(schedule_id)
+            schedule = db.session.get(Schedule, schedule_id)
             if not schedule:
-                logger.error(f"时间表不存在: {schedule_id}")
+                logger.error("时间表不存在: %s", schedule_id)
                 return False
-            
-            # 更新字段
+
             for key, value in kwargs.items():
                 if hasattr(schedule, key):
                     setattr(schedule, key, value)
-            
+
             db.session.commit()
-            
-            # 重新添加任务
-            if schedule.id in self.scheduled_jobs:
-                self.scheduler.remove_job(self.scheduled_jobs[schedule.id].id)
-            
-            if schedule.is_active:
-                self._add_schedule_job(schedule)
-            
-            logger.info(f"更新时间表: {schedule.name}")
+            self._remove_schedule_jobs(schedule_id)
+            self._register_schedule_jobs(schedule)
+            self.sync_active_schedule(force_restart=False)
+            logger.info("更新时间表: %s", schedule.name)
             return True
-        except Exception as e:
+        except Exception as exc:
             db.session.rollback()
-            logger.error(f"更新时间表失败: {str(e)}")
+            logger.error("更新时间表失败: %s", exc)
             return False
-    
+
     def delete_schedule(self, schedule_id):
-        """删除时间表"""
         try:
-            schedule = Schedule.query.get(schedule_id)
+            schedule = db.session.get(Schedule, schedule_id)
             if not schedule:
-                logger.error(f"时间表不存在: {schedule_id}")
+                logger.error("时间表不存在: %s", schedule_id)
                 return False
-            
-            # 移除任务
-            if schedule.id in self.scheduled_jobs:
-                self.scheduler.remove_job(self.scheduled_jobs[schedule.id].id)
-                del self.scheduled_jobs[schedule.id]
-            
+
+            self._remove_schedule_jobs(schedule_id)
             db.session.delete(schedule)
             db.session.commit()
-            logger.info(f"删除时间表: {schedule.name}")
+
+            if self.current_schedule_id == schedule_id:
+                self.player.stop()
+                self.current_schedule_id = None
+
+            logger.info("删除时间表: %s", schedule.name)
             return True
-        except Exception as e:
+        except Exception as exc:
             db.session.rollback()
-            logger.error(f"删除时间表失败: {str(e)}")
+            logger.error("删除时间表失败: %s", exc)
             return False
-    
+
     def get_schedules(self):
-        """获取所有时间表"""
+        return Schedule.query.order_by(Schedule.start_time.asc()).all()
+
+    def get_current_schedule(self):
+        if not self.current_schedule_id:
+            return None
+        return db.session.get(Schedule, self.current_schedule_id)
+
+    def get_runtime_summary(self):
+        now = datetime.now()
+        schedules = self.get_schedules()
+        return {
+            "schedule_count": len(schedules),
+            "active_count": sum(1 for item in schedules if item.is_active),
+            "running_count": sum(1 for item in schedules if item.is_running_now),
+            "next_schedule": next(
+                (
+                    {
+                        "id": item.id,
+                        "name": item.name,
+                        "start_time": item.start_time.strftime("%Y-%m-%d %H:%M"),
+                        "screen_index": item.screen_index,
+                    }
+                    for item in schedules
+                    if item.start_time >= now and item.is_active
+                ),
+                None,
+            ),
+        }
+
+    def control_playback(self, action, schedule_id=None):
         try:
-            return Schedule.query.all()
-        except Exception as e:
-            logger.error(f"获取时间表失败: {str(e)}")
-            return []
-    
-    def control_playback(self, action):
-        """控制播放"""
-        try:
-            if action == 'start':
-                # 简单实现：播放第一个激活的时间表内容
-                from main import app
-                with app.app_context():
-                    schedule = Schedule.query.filter_by(is_active=True).first()
-                    if schedule:
-                        # 设置屏幕
-                        self.player.set_screen(schedule.screen_index)
-                        
-                        # 根据内容类型播放
-                        if schedule.content_type == 'local':
-                            return self.player.play_local(schedule.content_path)
-                        elif schedule.content_type == 'nas':
-                            return self.player.play_nas(schedule.content_path)
-                        elif schedule.content_type == 'live':
-                            return self.player.play_live(schedule.content_path)
-                    else:
-                        logger.error("没有找到激活的时间表")
-                        return False
-            elif action == 'stop':
+            if action == "start":
+                if schedule_id:
+                    schedule = db.session.get(Schedule, int(schedule_id))
+                else:
+                    schedule = self.sync_active_schedule(force_restart=False)
+                    if not schedule:
+                        schedule = (
+                            Schedule.query.filter_by(is_active=True)
+                            .order_by(Schedule.start_time.asc())
+                            .first()
+                        )
+                if not schedule:
+                    logger.warning("没有可播放的时间表")
+                    return False
+                return self._play_schedule(schedule, source="manual")
+
+            if action == "stop":
+                self.current_schedule_id = None
                 return self.player.stop()
-            elif action == 'pause':
+
+            if action == "pause":
                 return self.player.pause()
-            elif action == 'resume':
+
+            if action == "resume":
                 return self.player.resume()
-            else:
-                logger.error(f"未知的控制动作: {action}")
-                return False
-        except Exception as e:
-            logger.error(f"控制播放失败: {str(e)}")
+
+            if action == "web_play":
+                return self.player.inject_web_play()
+
+            if action == "web_fullscreen":
+                return self.player.inject_web_fullscreen()
+
+            if action == "web_play_fullscreen":
+                play_ok = self.player.inject_web_play()
+                fullscreen_ok = self.player.inject_web_fullscreen()
+                return play_ok or fullscreen_ok
+
+            logger.error("未知控制动作: %s", action)
+            return False
+        except Exception as exc:
+            logger.error("控制播放失败: %s", exc)
             return False

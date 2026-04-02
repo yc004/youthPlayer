@@ -1,288 +1,654 @@
-# 播放器模块
-import vlc
-import os
-import time
+"""Playback engine for VLC and web-live browser control."""
+
 import logging
+import os
 import subprocess
+import time
+from urllib.parse import urlparse
+
 from config import Config
+
+try:
+    import vlc
+except ImportError:  # pragma: no cover
+    vlc = None
+
+try:  # pragma: no cover
+    import win32api
+    import win32con
+    import win32gui
+    import win32process
+except ImportError:  # pragma: no cover
+    win32api = None
+    win32con = None
+    win32gui = None
+    win32process = None
+
+try:  # pragma: no cover
+    from selenium import webdriver
+    from selenium.common.exceptions import WebDriverException
+    from selenium.webdriver.chrome.options import Options as ChromeOptions
+    from selenium.webdriver.chrome.service import Service as ChromeService
+    from selenium.webdriver.edge.options import Options as EdgeOptions
+    from selenium.webdriver.edge.service import Service as EdgeService
+except ImportError:  # pragma: no cover
+    webdriver = None
+    WebDriverException = Exception
+    ChromeOptions = None
+    ChromeService = None
+    EdgeOptions = None
+    EdgeService = None
+
 
 logger = logging.getLogger(__name__)
 
+STREAM_SUFFIXES = (".m3u8", ".flv", ".mpd", ".mp4", ".ts", ".rtmp", ".rtsp")
+WEBPAGE_HINTS = ("tv.cctv.com", "live", "webcast", "bilibili.com", "douyin.com")
+
+SCRIPT_PLAY_AND_FULLSCREEN = r"""
+const done = { played: false, fullscreen: false, reason: "" };
+
+function safePlay(video) {
+  if (!video) return false;
+  try {
+    video.muted = false;
+    video.controls = true;
+    const p = video.play();
+    if (p && typeof p.catch === "function") {
+      p.catch(() => {});
+    }
+    return true;
+  } catch (_) {
+    return false;
+  }
+}
+
+function safeFullscreen(node) {
+  if (!node) return false;
+  try {
+    if (document.fullscreenElement) return true;
+    if (node.requestFullscreen) {
+      node.requestFullscreen();
+      return true;
+    }
+    if (node.webkitRequestFullscreen) {
+      node.webkitRequestFullscreen();
+      return true;
+    }
+    if (node.msRequestFullscreen) {
+      node.msRequestFullscreen();
+      return true;
+    }
+  } catch (_) {
+    return false;
+  }
+  return false;
+}
+
+const videos = Array.from(document.querySelectorAll("video"));
+for (const v of videos) {
+  if (safePlay(v)) done.played = true;
+}
+
+const activeVideo = videos.find(v => (v.offsetWidth * v.offsetHeight) > 10000) || videos[0];
+if (safeFullscreen(activeVideo)) done.fullscreen = true;
+
+if (!done.fullscreen) {
+  const root = document.documentElement;
+  if (safeFullscreen(root)) done.fullscreen = true;
+}
+
+if (!done.played || !done.fullscreen) {
+  const selectors = [
+    "[class*='play']",
+    "[class*='btn-play']",
+    "[class*='start']",
+    "[aria-label*='播放']",
+    "[title*='播放']",
+    "[class*='full']",
+    "[class*='screen']",
+    "[aria-label*='全屏']",
+    "[title*='全屏']"
+  ];
+  for (const sel of selectors) {
+    const btn = document.querySelector(sel);
+    if (btn) {
+      try { btn.click(); } catch (_) {}
+    }
+  }
+}
+
+if (!done.fullscreen) {
+  try {
+    const evt = new KeyboardEvent("keydown", { key: "f", code: "KeyF", bubbles: true });
+    document.dispatchEvent(evt);
+  } catch (_) {}
+}
+
+done.reason = `videos=${videos.length}`;
+done;
+"""
+
+SCRIPT_ONLY_PLAY = r"""
+let played = false;
+const videos = Array.from(document.querySelectorAll("video"));
+for (const v of videos) {
+  try {
+    const p = v.play();
+    if (p && typeof p.catch === "function") p.catch(() => {});
+    played = true;
+  } catch (_) {}
+}
+if (!played) {
+  const btn = document.querySelector("[class*='play'], [title*='播放'], [aria-label*='播放']");
+  if (btn) {
+    try { btn.click(); played = true; } catch (_) {}
+  }
+}
+({ played, videos: videos.length });
+"""
+
+SCRIPT_ONLY_FULLSCREEN = r"""
+let ok = false;
+const v = document.querySelector("video");
+function fs(node) {
+  if (!node) return false;
+  try {
+    if (document.fullscreenElement) return true;
+    if (node.requestFullscreen) { node.requestFullscreen(); return true; }
+    if (node.webkitRequestFullscreen) { node.webkitRequestFullscreen(); return true; }
+  } catch (_) {}
+  return false;
+}
+ok = fs(v) || fs(document.documentElement);
+if (!ok) {
+  const btn = document.querySelector("[class*='full'], [title*='全屏'], [aria-label*='全屏']");
+  if (btn) {
+    try { btn.click(); ok = true; } catch (_) {}
+  }
+}
+({ fullscreen: ok });
+"""
+
+
 class Player:
     def __init__(self):
+        self.instance = None
+        self.player = None
+        self.current_media = None
+        self.current_source = None
+        self.current_backend = "idle"
+        self.screen_index = Config.PRIMARY_SCREEN
+        self.current_screen = None
+        self.browser_process = None
+        self.browser_driver = None
+        self.browser_detached = False
+        self.browser_command = []
+        self.last_error = ""
+        self.last_started_at = None
+        self.expected_playing = False
+
+        self._init_vlc()
+        self.set_screen(Config.PRIMARY_SCREEN)
+
+    def _init_vlc(self):
+        if vlc is None:
+            logger.warning("python-vlc not installed, VLC playback unavailable.")
+            return
+
         try:
-            # 尝试使用指定的VLC路径
+            options = ["--no-video-title-show", "--quiet"]
             if os.path.exists(Config.VLC_PATH):
-                logger.info(f"使用指定的VLC路径: {Config.VLC_PATH}")
-                self.instance = vlc.Instance(f'--no-xlib --verbose=2 --plugin-path={os.path.dirname(Config.VLC_PATH)}\plugins')
+                plugin_dir = os.path.join(os.path.dirname(Config.VLC_PATH), "plugins")
+                options.append(f"--plugin-path={plugin_dir}")
+                logger.info("Using VLC at: %s", Config.VLC_PATH)
             else:
-                logger.info("使用系统默认的VLC")
-                self.instance = vlc.Instance('--no-xlib --verbose=2')
-            
+                logger.info("Configured VLC path not found, trying system VLC.")
+
+            self.instance = vlc.Instance(*options)
             self.player = self.instance.media_player_new()
-            self.current_media = None
-            self.screen_index = 0
-            self.browser_process = None
-            logger.info("播放器初始化成功")
-        except Exception as e:
-            logger.error(f"播放器初始化失败: {str(e)}")
+            logger.info("VLC player initialized.")
+        except Exception as exc:  # pragma: no cover
             self.instance = None
             self.player = None
-    
-    def play_local(self, file_path):
-        """播放本地视频"""
-        try:
-            if not self.player:
-                logger.error("播放器未初始化")
-                return False
-                
-            if not os.path.exists(file_path):
-                logger.error(f"文件不存在: {file_path}")
-                return False
-            
-            # 停止当前播放
-            self.stop()
-            
-            logger.info(f"准备播放本地视频: {file_path}")
-            media = self.instance.media_new(file_path)
-            logger.info(f"媒体对象创建成功")
-            
-            self.player.set_media(media)
-            logger.info(f"媒体对象设置成功")
-            
-            self._set_fullscreen()
-            logger.info(f"设置全屏成功")
-            
-            result = self.player.play()
-            logger.info(f"播放命令执行结果: {result}")
-            
-            self.current_media = media
-            logger.info(f"开始播放本地视频: {file_path}")
-            
-            # 等待一段时间，检查播放状态
-            time.sleep(1)
-            state = self.player.get_state()
-            logger.info(f"播放状态: {str(state)}")
-            
-            return True
-        except Exception as e:
-            logger.error(f"播放本地视频失败: {str(e)}")
-            return False
-    
-    def play_nas(self, nas_path):
-        """播放NAS视频"""
-        try:
-            # 停止当前播放
-            self.stop()
-            
-            # NAS路径处理，假设是网络共享路径
-            media = self.instance.media_new(nas_path)
-            self.player.set_media(media)
-            self._set_fullscreen()
-            self.player.play()
-            self.current_media = media
-            logger.info(f"开始播放NAS视频: {nas_path}")
-            return True
-        except Exception as e:
-            logger.error(f"播放NAS视频失败: {str(e)}")
-            return False
-    
-    def play_live(self, live_url):
-        """播放网络直播"""
-        try:
-            # 停止当前播放
-            self.stop()
-            
-            # 检查是否是网页URL（更宽松的判断）
-            if live_url.startswith('http') and ('.html' in live_url or 'tv.cctv.com' in live_url or 'live' in live_url):
-                # 使用默认浏览器打开网页直播
-                logger.info(f"识别为网页直播URL: {live_url}")
-                self._open_web_browser(live_url)
-                logger.info(f"开始播放网页直播: {live_url}")
-            else:
-                # 使用VLC播放网络流
-                logger.info(f"识别为网络流URL: {live_url}")
-                media = self.instance.media_new(live_url)
-                self.player.set_media(media)
-                self._set_fullscreen()
-                result = self.player.play()
-                logger.info(f"播放命令执行结果: {result}")
-                self.current_media = media
-                logger.info(f"开始播放网络直播流: {live_url}")
-                
-                # 等待一段时间，检查播放状态
-                time.sleep(1)
-                state = self.player.get_state()
-                logger.info(f"播放状态: {str(state)}")
-            return True
-        except Exception as e:
-            logger.error(f"播放网络直播失败: {str(e)}")
-            return False
-    
-    def _open_web_browser(self, url):
-        """打开网页浏览器播放直播"""
-        try:
-            # 使用默认浏览器打开URL，在服务器端执行
-            logger.info(f"在服务器端打开浏览器播放: {url}")
-            
-            # 尝试使用Selenium控制浏览器
+            self.last_error = str(exc)
+            logger.error("VLC init failed: %s", exc)
+
+    def get_available_screens(self):
+        screens = []
+        if win32api:
             try:
-                from selenium import webdriver
-                from selenium.webdriver.edge.options import Options
-                from selenium.webdriver.common.by import By
-                from selenium.webdriver.support.ui import WebDriverWait
-                from selenium.webdriver.support import expected_conditions as EC
-                import time
-                
-                # 配置Edge浏览器选项
-                edge_options = Options()
-                edge_options.add_argument('--start-fullscreen')
-                edge_options.add_argument('--disable-notifications')
-                edge_options.add_argument('--mute-audio')  # 可选：静音
-                
-                # 初始化浏览器驱动
-                edge_path = r'C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe'
-                if os.path.exists(edge_path):
-                    # 使用Edge浏览器
-                    logger.info("使用Selenium打开Edge浏览器")
-                    self.browser_driver = webdriver.Edge(options=edge_options)
-                    self.browser_driver.get(url)
-                    logger.info("浏览器打开成功，正在等待页面加载...")
-                    
-                    # 等待页面加载完成
-                    time.sleep(3)
-                    
-                    # 尝试点击播放按钮（针对央视网）
-                    try:
-                        # 央视网直播页面的播放按钮
-                        play_button = WebDriverWait(self.browser_driver, 10).until(
-                            EC.element_to_be_clickable((By.CSS_SELECTOR, 'button.play-btn'))
-                        )
-                        play_button.click()
-                        logger.info("点击播放按钮成功")
-                    except Exception as e:
-                        logger.warning(f"未找到播放按钮或点击失败: {str(e)}")
-                    
-                    # 尝试进入全屏
-                    try:
-                        # 查找全屏按钮并点击
-                        fullscreen_button = WebDriverWait(self.browser_driver, 10).until(
-                            EC.element_to_be_clickable((By.CSS_SELECTOR, 'button.fullscreen-btn'))
-                        )
-                        fullscreen_button.click()
-                        logger.info("点击全屏按钮成功")
-                    except Exception as e:
-                        logger.warning(f"未找到全屏按钮或点击失败: {str(e)}")
-                        # 尝试使用键盘快捷键进入全屏
-                        try:
-                            from selenium.webdriver.common.keys import Keys
-                            self.browser_driver.find_element(By.TAG_NAME, 'body').send_keys(Keys.F11)
-                            logger.info("使用F11键进入全屏成功")
-                        except Exception as e:
-                            logger.warning(f"使用F11键进入全屏失败: {str(e)}")
-                    
-                    logger.info("浏览器操作完成")
-                else:
-                    # 回退到使用start命令
-                    self.browser_process = subprocess.Popen(['start', url], shell=True)
-                    logger.info("默认浏览器打开成功")
-            except ImportError:
-                logger.warning("Selenium未安装，使用默认方式打开浏览器")
-                # 回退到使用start命令
-                self.browser_process = subprocess.Popen(['start', url], shell=True)
-                logger.info("默认浏览器打开成功")
-        except Exception as e:
-            logger.error(f"打开网页浏览器失败: {str(e)}")
-    
-    def stop(self):
-        """停止播放"""
+                for index, monitor in enumerate(win32api.EnumDisplayMonitors()):
+                    info = win32api.GetMonitorInfo(monitor[0])
+                    left, top, right, bottom = info["Monitor"]
+                    screens.append(
+                        {
+                            "index": index,
+                            "name": info.get("Device", f"Screen {index + 1}"),
+                            "left": left,
+                            "top": top,
+                            "width": right - left,
+                            "height": bottom - top,
+                            "primary": bool(info.get("Flags", 0) & 1),
+                        }
+                    )
+            except Exception as exc:  # pragma: no cover
+                logger.warning("Failed to read monitors from Win32 API: %s", exc)
+
+        if not screens:
+            screens = [
+                dict(item, primary=(item["index"] == Config.PRIMARY_SCREEN))
+                for item in Config.SCREEN_FALLBACKS
+            ]
+        return screens
+
+    def set_screen(self, screen_index):
+        self.screen_index = int(screen_index)
+        screens = self.get_available_screens()
+        self.current_screen = next(
+            (item for item in screens if item["index"] == self.screen_index),
+            screens[0] if screens else None,
+        )
+        logger.info("Target screen set to: %s", self.screen_index)
+        return True
+
+    def play_local(self, file_path):
+        if not os.path.exists(file_path):
+            self.last_error = f"File not found: {file_path}"
+            logger.error(self.last_error)
+            return False
+        return self._play_vlc_media(file_path, source_type="local")
+
+    def play_nas(self, nas_path):
+        return self._play_vlc_media(nas_path, source_type="nas")
+
+    def play_live(self, live_url):
+        if self._should_use_browser(live_url):
+            return self._open_web_browser(live_url)
+        return self._play_vlc_media(live_url, source_type="stream")
+
+    def _play_vlc_media(self, source, source_type="media"):
+        if not self.player or not self.instance:
+            self.last_error = "VLC player is not initialized."
+            logger.error(self.last_error)
+            return False
+
         try:
-            # 停止VLC播放器
+            self.stop()
+            media = self.instance.media_new(source)
+            self.player.set_media(media)
+            result = self.player.play()
+            time.sleep(0.5)
+            self._set_fullscreen()
+
+            self.current_media = media
+            self.current_source = source
+            self.current_backend = "vlc"
+            self.expected_playing = True
+            self.last_started_at = time.time()
+            self.last_error = ""
+            logger.info("Play %s started: %s (result=%s)", source_type, source, result)
+            return result != -1
+        except Exception as exc:
+            self.last_error = str(exc)
+            logger.error("VLC playback failed: %s", exc)
+            return False
+
+    def _should_use_browser(self, url):
+        parsed = urlparse(url)
+        path = (parsed.path or "").lower()
+        if path.endswith(STREAM_SUFFIXES):
+            return False
+        return url.startswith(("http://", "https://")) and any(hint in url.lower() for hint in WEBPAGE_HINTS)
+
+    def _open_web_browser(self, url):
+        self.stop()
+        os.makedirs(Config.WEB_LIVE_BROWSER_PROFILE, exist_ok=True)
+
+        if Config.WEB_LIVE_SCRIPT_INJECTION and webdriver:
+            if self._open_web_browser_with_driver(url):
+                return True
+            logger.warning("Driver mode failed, fallback to native browser process.")
+
+        return self._open_web_browser_native(url)
+
+    def _open_web_browser_with_driver(self, url):
+        try:
+            browser = (Config.WEB_LIVE_DRIVER_BROWSER or "edge").lower()
+            if browser == "chrome":
+                options = ChromeOptions()
+                options.binary_location = self._find_browser_executable(prefer="chrome") or ""
+            else:
+                options = EdgeOptions()
+                options.binary_location = self._find_browser_executable(prefer="edge") or ""
+
+            for arg in Config.WEB_LIVE_BROWSER_ARGS:
+                options.add_argument(arg)
+
+            options.add_argument("--disable-blink-features=AutomationControlled")
+            options.add_argument("--no-default-browser-check")
+            options.add_argument("--disable-features=msSmartScreenProtection")
+            options.add_argument(f"--user-data-dir={Config.WEB_LIVE_BROWSER_PROFILE}")
+            options.add_experimental_option("excludeSwitches", ["enable-automation"])
+            options.add_experimental_option("useAutomationExtension", False)
+
+            if browser == "chrome":
+                service = (
+                    ChromeService(executable_path=Config.WEB_LIVE_DRIVER_PATH)
+                    if Config.WEB_LIVE_DRIVER_PATH
+                    else ChromeService()
+                )
+                self.browser_driver = webdriver.Chrome(service=service, options=options)
+            else:
+                service = (
+                    EdgeService(executable_path=Config.WEB_LIVE_DRIVER_PATH)
+                    if Config.WEB_LIVE_DRIVER_PATH
+                    else EdgeService()
+                )
+                self.browser_driver = webdriver.Edge(service=service, options=options)
+
+            self.browser_driver.get(url)
+            self.browser_process = None
+            self.browser_detached = False
+            self.browser_command = ["selenium", browser, url]
+
+            # Try script injection multiple times because many live pages lazy-load video nodes.
+            self._inject_play_and_fullscreen(retry=Config.WEB_LIVE_SCRIPT_RETRY)
+            self._position_driver_window()
+
+            self.current_source = url
+            self.current_backend = "browser"
+            self.expected_playing = True
+            self.last_started_at = time.time()
+            self.last_error = ""
+            logger.info("Web live opened via Selenium driver: %s", url)
+            return True
+        except Exception as exc:
+            self.last_error = str(exc)
+            self._close_driver_only()
+            logger.error("Driver browser open failed: %s", exc)
+            return False
+
+    def _open_web_browser_native(self, url):
+        try:
+            browser_path = self._find_browser_executable()
+            if browser_path:
+                command = [browser_path]
+                command.extend(Config.WEB_LIVE_BROWSER_ARGS)
+                command.append(f"--user-data-dir={Config.WEB_LIVE_BROWSER_PROFILE}")
+                command.append(url)
+                self.browser_process = subprocess.Popen(command)
+                self.browser_detached = False
+                self.browser_command = command
+            else:
+                command = ["cmd", "/c", "start", "", url]
+                self.browser_process = subprocess.Popen(command, shell=False)
+                self.browser_detached = True
+                self.browser_command = command
+                logger.warning("No browser executable found, fallback to system default.")
+
+            self.current_source = url
+            self.current_backend = "browser"
+            self.expected_playing = True
+            self.last_started_at = time.time()
+            self.last_error = ""
+            time.sleep(1)
+            self._position_browser_window()
+            logger.info("Web live opened via native browser process: %s", url)
+            return True
+        except Exception as exc:
+            self.last_error = str(exc)
+            logger.error("Native browser open failed: %s", exc)
+            return False
+
+    def _find_browser_executable(self, prefer=None):
+        chrome_paths = [
+            r"C:\Program Files\Google\Chrome\Application\chrome.exe",
+            r"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe",
+        ]
+        edge_paths = [
+            r"C:\Program Files\Microsoft\Edge\Application\msedge.exe",
+            r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe",
+        ]
+        custom = [Config.WEB_LIVE_BROWSER_PATH] if Config.WEB_LIVE_BROWSER_PATH else []
+
+        if prefer == "chrome":
+            candidates = custom + chrome_paths + edge_paths
+        elif prefer == "edge":
+            candidates = custom + edge_paths + chrome_paths
+        else:
+            candidates = custom + chrome_paths + edge_paths
+
+        for candidate in candidates:
+            if candidate and os.path.exists(candidate):
+                return candidate
+        return None
+
+    def _inject_play_and_fullscreen(self, retry=2):
+        if not self.browser_driver:
+            return False
+        for _ in range(max(1, retry)):
+            try:
+                result = self.browser_driver.execute_script(SCRIPT_PLAY_AND_FULLSCREEN)
+                logger.info("Injected play+fullscreen script result: %s", result)
+                return True
+            except WebDriverException:
+                time.sleep(Config.WEB_LIVE_SCRIPT_RETRY_INTERVAL)
+        return False
+
+    def inject_web_play(self):
+        if not self.browser_driver:
+            self.last_error = "Web driver unavailable, cannot inject play script."
+            return False
+        try:
+            result = self.browser_driver.execute_script(SCRIPT_ONLY_PLAY)
+            logger.info("Injected play script result: %s", result)
+            self.last_error = ""
+            return True
+        except Exception as exc:
+            self.last_error = str(exc)
+            logger.error("Inject play script failed: %s", exc)
+            return False
+
+    def inject_web_fullscreen(self):
+        if not self.browser_driver:
+            self.last_error = "Web driver unavailable, cannot inject fullscreen script."
+            return False
+        try:
+            result = self.browser_driver.execute_script(SCRIPT_ONLY_FULLSCREEN)
+            logger.info("Injected fullscreen script result: %s", result)
+            self._position_driver_window()
+            self.last_error = ""
+            return True
+        except Exception as exc:
+            self.last_error = str(exc)
+            logger.error("Inject fullscreen script failed: %s", exc)
+            return False
+
+    def _position_driver_window(self):  # pragma: no cover
+        if not self.browser_driver or not self.current_screen:
+            return
+        screen = self.current_screen
+        try:
+            self.browser_driver.set_window_rect(
+                x=screen["left"],
+                y=screen["top"],
+                width=screen["width"],
+                height=screen["height"],
+            )
+            self.browser_driver.fullscreen_window()
+        except Exception as exc:
+            logger.warning("Position driver window failed: %s", exc)
+
+    def _position_browser_window(self):  # pragma: no cover
+        if not (self.browser_process and win32gui and win32process and self.current_screen):
+            return
+
+        screen = self.current_screen
+        for _ in range(20):
+            hwnd = self._find_window_by_pid(self.browser_process.pid)
+            if hwnd:
+                flags = win32con.SWP_SHOWWINDOW
+                z_order = win32con.HWND_TOPMOST if Config.WINDOW_TOPMOST else win32con.HWND_NOTOPMOST
+                win32gui.ShowWindow(hwnd, win32con.SW_RESTORE)
+                win32gui.SetWindowPos(
+                    hwnd,
+                    z_order,
+                    screen["left"],
+                    screen["top"],
+                    screen["width"],
+                    screen["height"],
+                    flags,
+                )
+                return
+            time.sleep(0.5)
+
+    def _find_window_by_pid(self, pid):  # pragma: no cover
+        matched = []
+
+        def callback(hwnd, _):
+            if not win32gui.IsWindowVisible(hwnd):
+                return
+            _, process_id = win32process.GetWindowThreadProcessId(hwnd)
+            if process_id == pid:
+                matched.append(hwnd)
+
+        win32gui.EnumWindows(callback, None)
+        return matched[0] if matched else None
+
+    def ensure_foreground(self):  # pragma: no cover
+        if self.current_backend != "browser":
+            return
+        if self.browser_driver:
+            self._position_driver_window()
+        else:
+            self._position_browser_window()
+
+    def stop(self):
+        try:
             if self.player:
                 self.player.stop()
-                self.current_media = None
-            
-            # 停止Selenium浏览器驱动
-            if hasattr(self, 'browser_driver') and self.browser_driver:
-                try:
-                    logger.info("尝试关闭Selenium浏览器驱动")
-                    self.browser_driver.quit()
-                    logger.info("Selenium浏览器驱动关闭成功")
-                    self.browser_driver = None
-                except Exception as e:
-                    logger.error(f"关闭Selenium浏览器驱动失败: {str(e)}")
-            
-            # 停止浏览器进程
+            self.current_media = None
+
+            if self.browser_driver:
+                self._close_driver_only()
+
             if self.browser_process:
-                try:
-                    logger.info("尝试停止浏览器进程")
-                    # 尝试终止浏览器进程
-                    self.browser_process.terminate()
-                    # 等待进程结束
-                    try:
-                        self.browser_process.wait(timeout=5)
-                        logger.info("浏览器进程已成功终止")
-                    except subprocess.TimeoutExpired:
-                        # 如果超时，强制杀死进程
-                        logger.warning("浏览器进程终止超时，尝试强制杀死")
-                        self.browser_process.kill()
-                        logger.info("浏览器进程已强制杀死")
-                except Exception as e:
-                    logger.error(f"停止浏览器进程失败: {str(e)}")
-                finally:
-                    self.browser_process = None
-            
-            logger.info("停止播放")
+                self._stop_browser_process()
+
+            self.current_source = None
+            self.current_backend = "idle"
+            self.expected_playing = False
+            self.browser_detached = False
+            logger.info("Playback stopped.")
             return True
-        except Exception as e:
-            logger.error(f"停止播放失败: {str(e)}")
+        except Exception as exc:
+            self.last_error = str(exc)
+            logger.error("Stop playback failed: %s", exc)
             return False
-    
+
+    def _close_driver_only(self):
+        try:
+            if self.browser_driver:
+                self.browser_driver.quit()
+        except Exception:
+            pass
+        finally:
+            self.browser_driver = None
+
+    def _stop_browser_process(self):
+        try:
+            if os.name == "nt":
+                subprocess.run(
+                    ["taskkill", "/PID", str(self.browser_process.pid), "/T", "/F"],
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                    check=False,
+                )
+            else:
+                self.browser_process.terminate()
+        finally:
+            self.browser_process = None
+
     def pause(self):
-        """暂停播放"""
+        if self.current_backend != "vlc" or not self.player:
+            self.last_error = "Pause is only available for VLC playback."
+            return False
         try:
             self.player.pause()
-            logger.info("暂停播放")
+            logger.info("Playback paused.")
             return True
-        except Exception as e:
-            logger.error(f"暂停播放失败: {str(e)}")
+        except Exception as exc:
+            self.last_error = str(exc)
+            logger.error("Pause failed: %s", exc)
             return False
-    
+
     def resume(self):
-        """恢复播放"""
+        if self.current_backend == "browser":
+            self.ensure_foreground()
+            return True
+        if not self.player:
+            self.last_error = "VLC player is not initialized."
+            return False
         try:
             self.player.play()
-            logger.info("恢复播放")
+            logger.info("Playback resumed.")
             return True
-        except Exception as e:
-            logger.error(f"恢复播放失败: {str(e)}")
+        except Exception as exc:
+            self.last_error = str(exc)
+            logger.error("Resume failed: %s", exc)
             return False
-    
-    def set_screen(self, screen_index):
-        """设置播放屏幕"""
-        try:
-            self.screen_index = screen_index
-            logger.info(f"设置播放屏幕: {screen_index}")
-            return True
-        except Exception as e:
-            logger.error(f"设置屏幕失败: {str(e)}")
-            return False
-    
+
     def _set_fullscreen(self):
-        """设置全屏"""
+        if not self.player:
+            return
         try:
             self.player.set_fullscreen(True)
-        except Exception as e:
-            logger.error(f"设置全屏失败: {str(e)}")
-    
-    def get_status(self):
-        """获取播放状态"""
-        try:
+        except Exception as exc:
+            logger.warning("Set VLC fullscreen failed: %s", exc)
+
+    def is_healthy(self):
+        if not self.expected_playing:
+            return True
+
+        if self.current_backend == "browser":
+            if self.browser_driver:
+                return self.browser_driver.session_id is not None
+            if self.browser_detached:
+                return True
+            return self.browser_process is not None and self.browser_process.poll() is None
+
+        if self.current_backend == "vlc" and self.player and vlc is not None:
             state = self.player.get_state()
-            return {
-                'state': str(state),
-                'is_playing': state == vlc.State.Playing
-            }
-        except Exception as e:
-            logger.error(f"获取播放状态失败: {str(e)}")
-            return {'state': 'Error', 'is_playing': False}
+            return state not in {vlc.State.Error, vlc.State.Ended}
+
+        return False
+
+    def get_status(self):
+        state_label = "Idle"
+        is_playing = False
+
+        if self.current_backend == "browser":
+            state_label = "BrowserPlayback"
+            if self.browser_driver:
+                is_playing = self.browser_driver.session_id is not None
+            else:
+                is_playing = self.browser_detached or (
+                    self.browser_process is not None and self.browser_process.poll() is None
+                )
+        elif self.player and vlc is not None:
+            state = self.player.get_state()
+            state_label = str(state)
+            is_playing = state == vlc.State.Playing
+
+        return {
+            "state": state_label,
+            "is_playing": is_playing,
+            "backend": self.current_backend,
+            "web_driver": bool(self.browser_driver),
+            "current_source": self.current_source,
+            "screen_index": self.screen_index,
+            "screen_name": self.current_screen["name"] if self.current_screen else f"Screen {self.screen_index}",
+            "last_error": self.last_error,
+            "last_started_at": self.last_started_at,
+        }

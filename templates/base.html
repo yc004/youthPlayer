@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>校园电视播放系统 - {% block title %}{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body class="{% block body_class %}{% endblock %}">
+    {% if current_user.is_authenticated %}
+    <header class="topbar">
+        <div class="brand">
+            <span class="brand-mark">YT</span>
+            <div>
+                <strong>校园电视播放系统</strong>
+                <small>远程播控 / 定时编排 / 稳定恢复</small>
+            </div>
+        </div>
+        <nav class="nav-links">
+            <a href="{{ url_for('main.index') }}">总览</a>
+            {% if current_user.is_admin %}
+            <a href="{{ url_for('main.manage_users') }}">用户管理</a>
+            {% endif %}
+            <a href="{{ url_for('main.logout') }}">退出</a>
+        </nav>
+    </header>
+    {% endif %}
+
+    <main class="page-shell">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            <div class="flash-stack">
+                {% for category, message in messages %}
+                <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        {% endwith %}
+        {% block content %}{% endblock %}
+    </main>
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

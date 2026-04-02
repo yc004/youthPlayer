@@ -1,489 +1,220 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>校园电视播放系统 - 主页</title>
-    <style>
-        :root {
-            --primary-color: #3b82f6;
-            --secondary-color: #10b981;
-            --accent-color: #6366f1;
-            --background-color: #f8fafc;
-            --card-background: #ffffff;
-            --text-primary: #1e293b;
-            --text-secondary: #64748b;
-            --border-color: #e2e8f0;
-            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            --success-color: #10b981;
-            --warning-color: #f59e0b;
-            --danger-color: #ef4444;
-        }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background-color: var(--background-color);
-            color: var(--text-primary);
-            line-height: 1.6;
-        }
-        
-        .header {
-            background: var(--card-background);
-            box-shadow: var(--shadow);
-            padding: 16px 24px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-        
-        .header h1 {
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--primary-color);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        
-        .header nav {
-            display: flex;
-            gap: 24px;
-        }
-        
-        .header a {
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-weight: 500;
-            transition: color 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        
-        .header a:hover {
-            color: var(--primary-color);
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 24px;
-        }
-        
-        .dashboard {
-            display: grid;
-            grid-template-columns: 1fr 3fr;
-            gap: 24px;
-            margin-bottom: 32px;
-        }
-        
-        .status-card {
-            background: var(--card-background);
-            border-radius: 12px;
-            box-shadow: var(--shadow);
-            padding: 24px;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        
-        .status-card:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-lg);
-        }
-        
-        .status-card h2 {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 16px;
-            color: var(--text-primary);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .status-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 0;
-            border-bottom: 1px solid var(--border-color);
-        }
-        
-        .status-item:last-child {
-            border-bottom: none;
-        }
-        
-        .status-item label {
-            color: var(--text-secondary);
-            font-size: 14px;
-            font-weight: 500;
-        }
-        
-        .status-item .value {
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-        
-        .status-item .status-badge {
-            padding: 4px 12px;
-            border-radius: 16px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-        
-        .status-badge.playing {
-            background-color: rgba(16, 185, 129, 0.1);
-            color: var(--success-color);
-        }
-        
-        .status-badge.stopped {
-            background-color: rgba(239, 68, 68, 0.1);
-            color: var(--danger-color);
-        }
-        
-        .control-buttons {
-            display: flex;
-            gap: 12px;
-            margin-top: 24px;
-        }
-        
-        .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
-            color: white;
-        }
-        
-        .btn-secondary {
-            background-color: var(--background-color);
-            color: var(--text-primary);
-            border: 1px solid var(--border-color);
-        }
-        
-        .btn-danger {
-            background-color: var(--danger-color);
-            color: white;
-        }
-        
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        }
-        
-        .schedule-section {
-            background: var(--card-background);
-            border-radius: 12px;
-            box-shadow: var(--shadow);
-            padding: 24px;
-        }
-        
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 24px;
-        }
-        
-        .section-header h2 {
-            font-size: 20px;
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-        
-        .add-schedule-form {
-            background-color: var(--background-color);
-            border-radius: 8px;
-            padding: 24px;
-            margin-bottom: 32px;
-        }
-        
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 16px;
-            margin-bottom: 24px;
-        }
-        
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-        
-        .form-group label {
-            font-size: 14px;
-            font-weight: 500;
-            color: var(--text-primary);
-        }
-        
-        .form-group input,
-        .form-group select {
-            padding: 10px 12px;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            font-size: 14px;
-            transition: border-color 0.3s ease;
-        }
-        
-        .form-group input:focus,
-        .form-group select:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-        }
-        
-        .form-actions {
-            display: flex;
-            gap: 12px;
-            justify-content: flex-end;
-        }
-        
-        .schedule-list {
-            margin-top: 24px;
-        }
-        
-        .schedule-item {
-            background-color: var(--background-color);
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-        
-        .schedule-item:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow);
-        }
-        
-        .schedule-info {
-            flex: 1;
-        }
-        
-        .schedule-info h3 {
-            font-size: 16px;
-            font-weight: 600;
-            color: var(--text-primary);
-            margin-bottom: 8px;
-        }
-        
-        .schedule-details {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 12px;
-            margin-top: 12px;
-        }
-        
-        .schedule-detail {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-        
-        .schedule-detail label {
-            font-size: 12px;
-            color: var(--text-secondary);
-            font-weight: 500;
-        }
-        
-        .schedule-detail .value {
-            font-size: 14px;
-            color: var(--text-primary);
-            font-weight: 500;
-        }
-        
-        .schedule-actions {
-            display: flex;
-            gap: 8px;
-        }
-        
-        .action-btn {
-            padding: 6px 12px;
-            border: none;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-        
-        .action-btn.edit {
-            background-color: var(--primary-color);
-            color: white;
-        }
-        
-        .action-btn.delete {
-            background-color: var(--danger-color);
-            color: white;
-        }
-        
-        @media (max-width: 768px) {
-            .dashboard {
-                grid-template-columns: 1fr;
-            }
-            
-            .header {
-                flex-direction: column;
-                gap: 12px;
-                padding: 12px;
-            }
-            
-            .header nav {
-                width: 100%;
-                justify-content: space-around;
-            }
-            
-            .container {
-                padding: 16px;
-            }
-            
-            .control-buttons {
-                flex-wrap: wrap;
-            }
-            
-            .form-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
-</head>
-<body>
-    <header class="header">
-        <h1>校园电视播放系统</h1>
-        <nav>
-            <a href="/">主页</a>
-            {% if current_user.is_admin %}
-            <a href="/users">用户管理</a>
-            {% endif %}
-            <a href="/logout">登出</a>
-        </nav>
-    </header>
-    
-    <div class="container">
-        <div class="dashboard">
-            <div class="status-card">
-                <h2>播放状态</h2>
-                <div class="status-item">
-                    <label>当前状态</label>
-                    <span class="status-badge {% if status.is_playing %}playing{% else %}stopped{% endif %}">
-                        {{ '播放中' if status.is_playing else '已停止' }}
-                    </span>
-                </div>
-                <div class="status-item">
-                    <label>详细状态</label>
-                    <span class="value">{{ status.state }}</span>
-                </div>
-                <form method="post" action="/control" class="control-buttons">
-                    <button type="submit" name="action" value="start" class="btn btn-primary">开始</button>
-                    <button type="submit" name="action" value="stop" class="btn btn-danger">停止</button>
-                    <button type="submit" name="action" value="pause" class="btn btn-secondary">暂停</button>
-                    <button type="submit" name="action" value="resume" class="btn btn-secondary">恢复</button>
-                </form>
-            </div>
-        </div>
-        
-        <div class="schedule-section">
-            <div class="section-header">
-                <h2>时间表管理</h2>
-            </div>
-            
-            <div class="add-schedule-form">
-                <h3>添加新时间表</h3>
-                <form method="post" action="/schedule/add">
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label for="name">名称</label>
-                            <input type="text" id="name" name="name" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="start_time">开始时间</label>
-                            <input type="datetime-local" id="start_time" name="start_time" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="end_time">结束时间</label>
-                            <input type="datetime-local" id="end_time" name="end_time" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="content_type">内容类型</label>
-                            <select id="content_type" name="content_type" required>
-                                <option value="local">本地视频</option>
-                                <option value="nas">NAS视频</option>
-                                <option value="live">网络直播</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="content_path">内容路径</label>
-                            <input type="text" id="content_path" name="content_path" required placeholder="本地路径/NAS路径/直播URL">
-                        </div>
-                        <div class="form-group">
-                            <label for="screen_index">播放屏幕</label>
-                            <select id="screen_index" name="screen_index" required>
-                                <option value="0">主屏幕</option>
-                                <option value="1">副屏幕</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-actions">
-                        <button type="submit" class="btn btn-primary">添加</button>
-                    </div>
-                </form>
-            </div>
-            
-            <div class="schedule-list">
-                <h3>现有时间表</h3>
-                {% for schedule in schedules %}
-                <div class="schedule-item">
-                    <div class="schedule-info">
-                        <h3>{{ schedule.name }}</h3>
-                        <div class="schedule-details">
-                            <div class="schedule-detail">
-                                <label>时间</label>
-                                <span class="value">{{ schedule.start_time.strftime('%Y-%m-%d %H:%M') }} - {{ schedule.end_time.strftime('%Y-%m-%d %H:%M') }}</span>
-                            </div>
-                            <div class="schedule-detail">
-                                <label>类型</label>
-                                <span class="value">{{ schedule.content_type }}</span>
-                            </div>
-                            <div class="schedule-detail">
-                                <label>屏幕</label>
-                                <span class="value">{{ '主屏幕' if schedule.screen_index == 0 else '副屏幕' }}</span>
-                            </div>
-                            <div class="schedule-detail">
-                                <label>状态</label>
-                                <span class="value">{{ '启用' if schedule.is_active else '禁用' }}</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="schedule-actions">
-                        <button class="action-btn edit">编辑</button>
-                        <a href="/schedule/delete/{{ schedule.id }}" class="action-btn delete">删除</a>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
+{% extends "base.html" %}
+
+{% block title %}播控总览{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div>
+        <span class="eyebrow">Dashboard</span>
+        <h1>播控总览</h1>
+        <p>实时查看播放状态、播出计划与多屏幕配置。</p>
     </div>
-</body>
-</html>
+    <div class="page-actions">
+        <span class="soft-badge">{{ summary.schedule_count }} 条计划</span>
+        <span class="soft-badge" data-role="server-time">--</span>
+    </div>
+</section>
+
+<section class="stats-grid">
+    <article class="stat-card">
+        <span class="stat-label">当前状态</span>
+        <strong class="stat-value" data-role="player-state">{{ "播放中" if status.is_playing else "空闲" }}</strong>
+        <p>{{ status.backend|upper }} / <span data-role="screen-name">{{ status.screen_name }}</span></p>
+    </article>
+    <article class="stat-card">
+        <span class="stat-label">当前内容</span>
+        <strong class="stat-value small" data-role="current-source">{{ status.current_source or "暂无播放内容" }}</strong>
+        <p>支持本地、NAS、流媒体、网页直播</p>
+    </article>
+    <article class="stat-card">
+        <span class="stat-label">正在生效计划</span>
+        <strong class="stat-value" data-role="active-schedule">{{ active_schedule.name if active_schedule else "无" }}</strong>
+        <p>{{ active_schedule.start_time.strftime('%m-%d %H:%M') ~ " - " ~ active_schedule.end_time.strftime('%m-%d %H:%M') if active_schedule else "等待人工控制或定时触发" }}</p>
+    </article>
+    <article class="stat-card">
+        <span class="stat-label">下一条计划</span>
+        <strong class="stat-value">{{ summary.next_schedule.name if summary.next_schedule else "无" }}</strong>
+        <p>{{ summary.next_schedule.start_time if summary.next_schedule else "当前没有未来计划" }}</p>
+    </article>
+</section>
+
+<section class="layout-grid">
+    <article class="panel">
+        <div class="panel-head">
+            <h2>播放控制</h2>
+            <span class="chip {{ 'success' if status.is_playing else 'muted' }}" data-role="play-badge">
+                {{ "播放中" if status.is_playing else "待机" }}
+            </span>
+        </div>
+        <div class="kv-list">
+            <div><span>详细状态</span><strong data-role="state-detail">{{ status.state }}</strong></div>
+            <div><span>播放后端</span><strong data-role="backend">{{ status.backend }}</strong></div>
+            <div><span>目标屏幕</span><strong>{{ status.screen_name }}</strong></div>
+            <div><span>最近错误</span><strong data-role="last-error">{{ status.last_error or "无" }}</strong></div>
+        </div>
+        <form method="post" action="{{ url_for('main.control') }}" class="button-row">
+            <button class="btn btn-primary" type="submit" name="action" value="start">开始</button>
+            <button class="btn btn-danger" type="submit" name="action" value="stop">停止</button>
+            <button class="btn btn-secondary" type="submit" name="action" value="pause">暂停</button>
+            <button class="btn btn-secondary" type="submit" name="action" value="resume">恢复</button>
+            <button class="btn btn-secondary" type="submit" name="action" value="web_play">网页注入播放</button>
+            <button class="btn btn-secondary" type="submit" name="action" value="web_fullscreen">网页注入全屏</button>
+            <button class="btn btn-secondary" type="submit" name="action" value="web_play_fullscreen">网页注入播放+全屏</button>
+        </form>
+    </article>
+
+    <article class="panel">
+        <div class="panel-head">
+            <h2>屏幕与兼容策略</h2>
+            <span class="chip info">{{ screens|length }} 块屏幕</span>
+        </div>
+        <div class="screen-list">
+            {% for screen in screens %}
+            <div class="screen-card {{ 'active' if screen.index == status.screen_index else '' }}">
+                <strong>{{ screen.name }}</strong>
+                <span>#{{ screen.index }}{% if screen.primary %} · 主屏{% endif %}</span>
+                <small>{{ screen.width }} × {{ screen.height }} / {{ screen.left }}, {{ screen.top }}</small>
+            </div>
+            {% endfor %}
+        </div>
+        <ul class="hint-list">
+            <li>视频优先使用 VLC，兼容 MP4 / MKV / AVI / HLS / RTSP 等格式。</li>
+            <li>网页直播优先使用真实浏览器进程而非 WebDriver，降低触发防脚本风险。</li>
+            <li>看门狗会自动检测当前应播计划，并在异常中断后尝试恢复。</li>
+        </ul>
+    </article>
+</section>
+
+<section class="panel">
+    <div class="panel-head">
+        <h2>新建播放计划</h2>
+        <span class="chip info">支持定时与手动插播</span>
+    </div>
+    <form method="post" action="{{ url_for('main.add_schedule') }}" class="schedule-form">
+        <label class="field">
+            <span>计划名称</span>
+            <input type="text" name="name" required placeholder="例如：午间新闻">
+        </label>
+        <label class="field">
+            <span>开始时间</span>
+            <input type="datetime-local" name="start_time" required>
+        </label>
+        <label class="field">
+            <span>结束时间</span>
+            <input type="datetime-local" name="end_time" required>
+        </label>
+        <label class="field">
+            <span>内容类型</span>
+            <select name="content_type" required>
+                <option value="local">本地视频</option>
+                <option value="nas">NAS 素材</option>
+                <option value="live">网络直播 / 直播页</option>
+            </select>
+        </label>
+        <label class="field field-wide">
+            <span>内容地址</span>
+            <input type="text" name="content_path" required placeholder="D:\video\promo.mp4 / \\nas\share\video.mp4 / https://...">
+        </label>
+        <label class="field">
+            <span>播放屏幕</span>
+            <select name="screen_index" required>
+                {% for screen in screens %}
+                <option value="{{ screen.index }}">{{ screen.name }}（#{{ screen.index }}）</option>
+                {% endfor %}
+            </select>
+        </label>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">保存计划</button>
+        </div>
+    </form>
+</section>
+
+<section class="panel">
+    <div class="panel-head">
+        <h2>播放计划列表</h2>
+        <span class="chip">{{ summary.active_count }} 条已启用</span>
+    </div>
+    <div class="schedule-stack">
+        {% for schedule in schedules %}
+        <details class="schedule-card" {% if active_schedule and active_schedule.id == schedule.id %}open{% endif %}>
+            <summary>
+                <div>
+                    <strong>{{ schedule.name }}</strong>
+                    <p>{{ schedule.start_time.strftime('%Y-%m-%d %H:%M') }} → {{ schedule.end_time.strftime('%Y-%m-%d %H:%M') }}</p>
+                </div>
+                <div class="summary-meta">
+                    <span class="chip {{ 'success' if schedule.is_active else 'muted' }}">{{ "启用" if schedule.is_active else "停用" }}</span>
+                    <span class="chip info">{{ "网页直播" if schedule.content_type == 'live' else ("NAS" if schedule.content_type == 'nas' else "本地") }}</span>
+                    <span class="chip">屏幕 {{ schedule.screen_index }}</span>
+                </div>
+            </summary>
+
+            <div class="schedule-body">
+                <div class="schedule-meta">
+                    <div><span>内容路径</span><strong>{{ schedule.content_path }}</strong></div>
+                    <div><span>当前状态</span><strong>{{ "正在播放" if schedule.is_running_now else "等待/已结束" }}</strong></div>
+                </div>
+
+                <div class="button-row compact">
+                    <form method="post" action="{{ url_for('main.play_schedule_now', schedule_id=schedule.id) }}">
+                        <button class="btn btn-primary" type="submit">立即播放</button>
+                    </form>
+                    <form method="post" action="{{ url_for('main.toggle_schedule', schedule_id=schedule.id) }}">
+                        <button class="btn btn-secondary" type="submit">{{ "停用" if schedule.is_active else "启用" }}</button>
+                    </form>
+                    <form method="post" action="{{ url_for('main.delete_schedule', schedule_id=schedule.id) }}" onsubmit="return confirm('确认删除该计划吗？');">
+                        <button class="btn btn-danger" type="submit">删除</button>
+                    </form>
+                </div>
+
+                <form method="post" action="{{ url_for('main.update_schedule', schedule_id=schedule.id) }}" class="schedule-form embedded">
+                    <label class="field">
+                        <span>计划名称</span>
+                        <input type="text" name="name" value="{{ schedule.name }}" required>
+                    </label>
+                    <label class="field">
+                        <span>开始时间</span>
+                        <input type="datetime-local" name="start_time" value="{{ schedule.start_time.strftime('%Y-%m-%dT%H:%M') }}" required>
+                    </label>
+                    <label class="field">
+                        <span>结束时间</span>
+                        <input type="datetime-local" name="end_time" value="{{ schedule.end_time.strftime('%Y-%m-%dT%H:%M') }}" required>
+                    </label>
+                    <label class="field">
+                        <span>内容类型</span>
+                        <select name="content_type" required>
+                            <option value="local" {% if schedule.content_type == 'local' %}selected{% endif %}>本地视频</option>
+                            <option value="nas" {% if schedule.content_type == 'nas' %}selected{% endif %}>NAS 素材</option>
+                            <option value="live" {% if schedule.content_type == 'live' %}selected{% endif %}>网络直播 / 直播页</option>
+                        </select>
+                    </label>
+                    <label class="field field-wide">
+                        <span>内容地址</span>
+                        <input type="text" name="content_path" value="{{ schedule.content_path }}" required>
+                    </label>
+                    <label class="field">
+                        <span>播放屏幕</span>
+                        <select name="screen_index" required>
+                            {% for screen in screens %}
+                            <option value="{{ screen.index }}" {% if screen.index == schedule.screen_index %}selected{% endif %}>
+                                {{ screen.name }}（#{{ screen.index }}）
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                    <label class="check-field">
+                        <input type="checkbox" name="is_active" {% if schedule.is_active %}checked{% endif %}>
+                        <span>启用此计划</span>
+                    </label>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-secondary">保存修改</button>
+                    </div>
+                </form>
+            </div>
+        </details>
+        {% else %}
+        <div class="empty-state">还没有播放计划，先创建第一条吧。</div>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

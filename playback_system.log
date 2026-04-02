@@ -360,3 +360,243 @@ WHERE schedule.is_active = 1]
 2026-04-02 00:07:18,986 - werkzeug - INFO - 192.168.1.24 - - [02/Apr/2026 00:07:18] "GET / HTTP/1.1" 200 -
 2026-04-02 00:07:40,000 - apscheduler.scheduler - INFO - Scheduler has been shut down
 2026-04-02 00:07:45,002 - security.watchdog - INFO - ���Ź�ֹͣ�ɹ�
+2026-04-02 00:11:50,587 - player.player - INFO - ʹ��ָ����VLC·��: C:\Program Files\VideoLAN\VLC\vlc.exe
+2026-04-02 00:11:50,956 - player.player - INFO - ��������ʼ���ɹ�
+2026-04-02 00:11:50,968 - apscheduler.scheduler - INFO - Scheduler started
+2026-04-02 00:11:50,970 - player.player - INFO - ʹ��ָ����VLC·��: C:\Program Files\VideoLAN\VLC\vlc.exe
+2026-04-02 00:11:51,461 - player.player - INFO - ��������ʼ���ɹ�
+2026-04-02 00:11:51,495 - apscheduler.scheduler - INFO - Added job "Controller._execute_schedule" to job store "default"
+2026-04-02 00:11:51,495 - controller.controller - INFO - ����ʱ�������: 111 (ID: 1)
+2026-04-02 00:11:51,495 - controller.controller - INFO - ������ 1 ��ʱ���
+2026-04-02 00:11:51,514 - apscheduler.scheduler - INFO - Added job "Controller._execute_schedule" to job store "default"
+2026-04-02 00:11:51,514 - controller.controller - INFO - ����ʱ�������: 111 (ID: 1)
+2026-04-02 00:11:51,515 - controller.controller - INFO - ������ 1 ��ʱ���
+2026-04-02 00:11:51,526 - security.watchdog - INFO - ���Ź������ɹ�
+2026-04-02 00:11:51,544 - werkzeug - WARNING -  * Running on all addresses.
+   WARNING: This is a development server. Do not use it in a production deployment.
+2026-04-02 00:11:51,545 - werkzeug - INFO -  * Running on http://192.168.1.73:5000/ (Press CTRL+C to quit)
+2026-04-02 00:11:58,024 - werkzeug - INFO - 192.168.1.24 - - [02/Apr/2026 00:11:58] "GET / HTTP/1.1" 200 -
+2026-04-02 00:12:00,479 - werkzeug - INFO - 192.168.1.24 - - [02/Apr/2026 00:12:00] "GET / HTTP/1.1" 200 -
+2026-04-02 00:12:02,405 - player.player - INFO - ���ò�����Ļ: 1
+2026-04-02 00:12:02,409 - player.player - INFO - ֹͣ����
+2026-04-02 00:12:02,409 - player.player - INFO - ʶ��Ϊ��ҳֱ��URL: https://tv.cctv.com/live/cctv13/
+2026-04-02 00:12:02,409 - player.player - INFO - �ڷ������˴����������: https://tv.cctv.com/live/cctv13/
+2026-04-02 00:12:02,502 - player.player - INFO - ʹ��Selenium��Edge�����
+2026-04-02 00:12:04,641 - player.player - ERROR - ����ҳ�����ʧ��: Message: Unable to obtain msedgedriver using Selenium Manager; Message: Unsuccessful command executed: C:\Users\Daniel\.conda\envs\youthplayer\lib\site-packages\selenium\webdriver\common\windows\selenium-manager.exe --browser MicrosoftEdge --output json.
+error sending request for url (https://msedgedriver.azureedge.net/LATEST_RELEASE_147_WINDOWS): error trying to connect: dns error: ��֪�������������� (os error 11001)
+; For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors/driver_location
+
+2026-04-02 00:12:04,641 - player.player - INFO - ��ʼ������ҳֱ��: https://tv.cctv.com/live/cctv13/
+2026-04-02 00:12:04,642 - werkzeug - INFO - 192.168.1.24 - - [02/Apr/2026 00:12:04] "[32mPOST /control HTTP/1.1[0m" 302 -
+2026-04-02 00:12:04,774 - werkzeug - INFO - 192.168.1.24 - - [02/Apr/2026 00:12:04] "GET / HTTP/1.1" 200 -
+2026-04-02 09:44:17,291 - apscheduler.scheduler - INFO - Scheduler started
+2026-04-02 09:44:17,436 - player.player - INFO - 使用指定的 VLC 路径: C:\Program Files\VideoLAN\VLC\vlc.exe
+2026-04-02 09:44:17,606 - player.player - INFO - 播放器初始化成功
+2026-04-02 09:44:17,606 - player.player - INFO - 设置播放屏幕: 0
+2026-04-02 09:44:17,675 - apscheduler.scheduler - INFO - Added job "Controller._finish_schedule" to job store "default"
+2026-04-02 09:44:17,675 - controller.controller - INFO - 已注册时间表任务: 111 (ID=1)
+2026-04-02 09:44:17,676 - controller.controller - INFO - 已加载 1 个有效时间表
+2026-04-02 09:44:17,680 - controller.controller - INFO - 开始执行时间表 [sync]: 111
+2026-04-02 09:44:17,681 - player.player - INFO - 设置播放屏幕: 1
+2026-04-02 09:44:17,682 - player.player - INFO - 停止播放
+2026-04-02 09:44:17,699 - player.player - INFO - 使用浏览器播放网页直播: C:\Program Files\Google\Chrome\Application\chrome.exe --new-window --start-fullscreen --disable-notifications --disable-session-crashed-bubble --disable-infobars --autoplay-policy=no-user-gesture-required --user-data-dir=C:\Users\Daniel\Documents\projects\youthPlayer\runtime\browser-profile https://tv.cctv.com/live/cctv13/
+2026-04-02 09:44:18,731 - security.watchdog - INFO - 看门狗启动成功
+2026-04-02 09:44:18,778 - werkzeug - WARNING -  * Running on all addresses.
+   WARNING: This is a development server. Do not use it in a production deployment.
+2026-04-02 09:44:18,779 - werkzeug - INFO -  * Running on http://192.168.43.24:5000/ (Press CTRL+C to quit)
+2026-04-02 09:44:43,687 - werkzeug - INFO - 192.168.43.24 - - [02/Apr/2026 09:44:43] "[32mGET / HTTP/1.1[0m" 302 -
+2026-04-02 09:44:43,813 - werkzeug - INFO - 192.168.43.24 - - [02/Apr/2026 09:44:43] "GET /login?next=%2F HTTP/1.1" 200 -
+2026-04-02 09:44:43,887 - werkzeug - INFO - 192.168.43.24 - - [02/Apr/2026 09:44:43] "GET /static/styles.css HTTP/1.1" 200 -
+2026-04-02 09:44:43,893 - werkzeug - INFO - 192.168.43.24 - - [02/Apr/2026 09:44:43] "GET /static/app.js HTTP/1.1" 200 -
+2026-04-02 09:44:44,249 - werkzeug - INFO - 192.168.43.24 - - [02/Apr/2026 09:44:44] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-04-02 09:45:23,299 - werkzeug - INFO - 192.168.43.24 - - [02/Apr/2026 09:45:23] "[32mPOST /login?next=%2F HTTP/1.1[0m" 302 -
+2026-04-02 09:45:23,586 - werkzeug - INFO - 192.168.43.24 - - [02/Apr/2026 09:45:23] "GET / HTTP/1.1" 200 -
+2026-04-02 09:45:23,736 - werkzeug - INFO - 192.168.43.24 - - [02/Apr/2026 09:45:23] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-02 09:45:23,740 - werkzeug - INFO - 192.168.43.24 - - [02/Apr/2026 09:45:23] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-02 09:45:23,863 - werkzeug - INFO - 192.168.43.24 - - [02/Apr/2026 09:45:23] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 09:45:33,870 - werkzeug - INFO - 192.168.43.24 - - [02/Apr/2026 09:45:33] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 09:45:43,875 - werkzeug - INFO - 192.168.43.24 - - [02/Apr/2026 09:45:43] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 09:45:44,240 - controller.controller - INFO - 开始执行时间表 [sync]: 111
+2026-04-02 09:45:44,248 - player.player - INFO - 设置播放屏幕: 1
+2026-04-02 09:45:46,165 - player.player - INFO - 停止播放
+2026-04-02 09:45:46,225 - player.player - INFO - 使用浏览器播放网页直播: C:\Program Files\Google\Chrome\Application\chrome.exe --new-window --start-fullscreen --disable-notifications --disable-session-crashed-bubble --disable-infobars --autoplay-policy=no-user-gesture-required --user-data-dir=C:\Users\Daniel\Documents\projects\youthPlayer\runtime\browser-profile https://tv.cctv.com/live/cctv13/
+2026-04-02 09:45:54,835 - werkzeug - INFO - 192.168.43.24 - - [02/Apr/2026 09:45:54] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 09:46:04,805 - werkzeug - INFO - 192.168.43.24 - - [02/Apr/2026 09:46:04] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 09:46:14,847 - werkzeug - INFO - 192.168.43.24 - - [02/Apr/2026 09:46:14] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 09:46:24,800 - werkzeug - INFO - 192.168.43.24 - - [02/Apr/2026 09:46:24] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 09:46:34,273 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2026-04-02 09:47:58,059 - apscheduler.scheduler - INFO - Scheduler started
+2026-04-02 09:47:58,130 - player.player - INFO - 使用指定的 VLC 路径: C:\Program Files\VideoLAN\VLC\vlc.exe
+2026-04-02 09:47:58,246 - player.player - INFO - 播放器初始化成功
+2026-04-02 09:47:58,247 - player.player - INFO - 设置播放屏幕: 0
+2026-04-02 09:47:58,300 - apscheduler.scheduler - INFO - Added job "Controller._finish_schedule" to job store "default"
+2026-04-02 09:47:58,300 - controller.controller - INFO - 已注册时间表任务: 111 (ID=1)
+2026-04-02 09:47:58,301 - controller.controller - INFO - 已加载 1 个有效时间表
+2026-04-02 09:47:58,304 - controller.controller - INFO - 开始执行时间表 [sync]: 111
+2026-04-02 09:47:58,305 - player.player - INFO - 设置播放屏幕: 1
+2026-04-02 09:47:58,307 - player.player - INFO - 停止播放
+2026-04-02 09:47:58,327 - player.player - INFO - 使用浏览器播放网页直播: C:\Program Files\Google\Chrome\Application\chrome.exe --new-window --start-fullscreen --disable-notifications --disable-session-crashed-bubble --disable-infobars --autoplay-policy=no-user-gesture-required --user-data-dir=C:\Users\Daniel\Documents\projects\youthPlayer\runtime\browser-profile https://tv.cctv.com/live/cctv13/
+2026-04-02 09:47:59,352 - security.watchdog - INFO - 看门狗启动成功
+2026-04-02 09:47:59,390 - werkzeug - WARNING -  * Running on all addresses.
+   WARNING: This is a development server. Do not use it in a production deployment.
+2026-04-02 09:47:59,392 - werkzeug - INFO -  * Running on http://192.168.43.24:5000/ (Press CTRL+C to quit)
+2026-04-02 09:48:02,965 - werkzeug - INFO - 192.168.43.24 - - [02/Apr/2026 09:48:02] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 09:48:04,774 - werkzeug - INFO - 192.168.43.24 - - [02/Apr/2026 09:48:04] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 09:48:14,773 - werkzeug - INFO - 192.168.43.24 - - [02/Apr/2026 09:48:14] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 09:48:24,772 - werkzeug - INFO - 192.168.43.24 - - [02/Apr/2026 09:48:24] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 09:48:29,158 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:48:29] "[32mGET / HTTP/1.1[0m" 302 -
+2026-04-02 09:48:29,222 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:48:29] "GET /login?next=%2F HTTP/1.1" 200 -
+2026-04-02 09:48:29,280 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:48:29] "GET /static/styles.css HTTP/1.1" 200 -
+2026-04-02 09:48:29,283 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:48:29] "GET /static/app.js HTTP/1.1" 200 -
+2026-04-02 09:48:29,388 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:48:29] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-04-02 09:48:29,408 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:48:29] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-04-02 09:48:34,771 - werkzeug - INFO - 192.168.43.24 - - [02/Apr/2026 09:48:34] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 09:48:37,346 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:48:37] "[32mPOST /login?next=%2F HTTP/1.1[0m" 302 -
+2026-04-02 09:48:37,471 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:48:37] "GET / HTTP/1.1" 200 -
+2026-04-02 09:48:37,545 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:48:37] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-02 09:48:37,551 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:48:37] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-02 09:48:37,674 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:48:37] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 09:48:44,774 - werkzeug - INFO - 192.168.43.24 - - [02/Apr/2026 09:48:44] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 09:48:47,682 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:48:47] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 09:48:54,782 - werkzeug - INFO - 192.168.43.24 - - [02/Apr/2026 09:48:54] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 09:48:57,702 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:48:57] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 09:49:07,688 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:49:07] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 09:49:09,041 - werkzeug - INFO - 192.168.43.24 - - [02/Apr/2026 09:49:09] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 09:49:17,682 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:49:17] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 09:49:23,162 - apscheduler.scheduler - INFO - Removed job schedule_end_1
+2026-04-02 09:49:23,180 - controller.controller - INFO - 更新时间表: 111
+2026-04-02 09:49:23,185 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:49:23] "[32mPOST /schedule/toggle/1 HTTP/1.1[0m" 302 -
+2026-04-02 09:49:23,239 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:49:23] "GET / HTTP/1.1" 200 -
+2026-04-02 09:49:23,303 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:49:23] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-02 09:49:23,307 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:49:23] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-02 09:49:23,354 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:49:23] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 09:49:26,780 - werkzeug - INFO - 192.168.43.24 - - [02/Apr/2026 09:49:26] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 09:49:30,037 - player.player - INFO - 停止播放
+2026-04-02 09:49:30,041 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:49:30] "[32mPOST /control HTTP/1.1[0m" 302 -
+2026-04-02 09:49:30,117 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:49:30] "GET / HTTP/1.1" 200 -
+2026-04-02 09:49:30,196 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:49:30] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-02 09:49:30,205 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:49:30] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-02 09:49:30,304 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:49:30] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 09:49:34,245 - player.player - INFO - 恢复播放
+2026-04-02 09:49:34,251 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:49:34] "[32mPOST /control HTTP/1.1[0m" 302 -
+2026-04-02 09:49:34,304 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:49:34] "GET / HTTP/1.1" 200 -
+2026-04-02 09:49:34,374 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:49:34] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-02 09:49:34,377 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:49:34] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-02 09:49:34,428 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:49:34] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 09:49:44,429 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:49:44] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 09:49:52,852 - controller.controller - INFO - 开始执行时间表 [manual]: 111
+2026-04-02 09:49:52,855 - player.player - INFO - 设置播放屏幕: 1
+2026-04-02 09:49:52,856 - player.player - INFO - 停止播放
+2026-04-02 09:49:52,906 - player.player - INFO - 使用浏览器播放网页直播: C:\Program Files\Google\Chrome\Application\chrome.exe --new-window --start-fullscreen --disable-notifications --disable-session-crashed-bubble --disable-infobars --autoplay-policy=no-user-gesture-required --user-data-dir=C:\Users\Daniel\Documents\projects\youthPlayer\runtime\browser-profile https://tv.cctv.com/live/cctv13/
+2026-04-02 09:49:54,609 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:49:54] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 09:49:55,086 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:49:55] "[32mPOST /schedule/play/1 HTTP/1.1[0m" 302 -
+2026-04-02 09:49:55,146 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:49:55] "GET / HTTP/1.1" 200 -
+2026-04-02 09:49:55,242 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:49:55] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-02 09:49:55,247 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:49:55] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-02 09:49:55,345 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:49:55] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 09:49:58,546 - apscheduler.scheduler - INFO - Added job "Controller._finish_schedule" to job store "default"
+2026-04-02 09:49:58,547 - controller.controller - INFO - 已注册时间表任务: 111 (ID=1)
+2026-04-02 09:49:58,553 - controller.controller - INFO - 更新时间表: 111
+2026-04-02 09:49:58,557 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:49:58] "[32mPOST /schedule/toggle/1 HTTP/1.1[0m" 302 -
+2026-04-02 09:49:58,615 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:49:58] "GET / HTTP/1.1" 200 -
+2026-04-02 09:49:58,692 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:49:58] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-02 09:49:58,697 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:49:58] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-02 09:49:58,779 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:49:58] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 09:50:08,784 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:50:08] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 09:50:11,760 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:50:11] "GET /users HTTP/1.1" 200 -
+2026-04-02 09:50:11,805 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:50:11] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-02 09:50:11,809 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:50:11] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-02 09:50:18,780 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:50:18] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 09:50:26,780 - werkzeug - INFO - 192.168.43.24 - - [02/Apr/2026 09:50:26] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 09:50:29,293 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:50:29] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 09:50:38,793 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:50:38] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 09:50:48,781 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:50:48] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 09:50:59,247 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:50:59] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 09:51:08,792 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:51:08] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 09:51:11,418 - player.player - INFO - 停止播放
+2026-04-02 09:51:11,425 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:51:11] "[32mPOST /control HTTP/1.1[0m" 302 -
+2026-04-02 09:51:11,499 - controller.controller - INFO - 开始执行时间表 [sync]: 111
+2026-04-02 09:51:11,502 - player.player - INFO - 设置播放屏幕: 1
+2026-04-02 09:51:11,503 - player.player - INFO - 停止播放
+2026-04-02 09:51:11,542 - player.player - INFO - 使用浏览器播放网页直播: C:\Program Files\Google\Chrome\Application\chrome.exe --new-window --start-fullscreen --disable-notifications --disable-session-crashed-bubble --disable-infobars --autoplay-policy=no-user-gesture-required --user-data-dir=C:\Users\Daniel\Documents\projects\youthPlayer\runtime\browser-profile https://tv.cctv.com/live/cctv13/
+2026-04-02 09:51:13,815 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:51:13] "GET / HTTP/1.1" 200 -
+2026-04-02 09:51:13,903 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:51:13] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-02 09:51:13,907 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:51:13] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-02 09:51:14,056 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:51:14] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 09:51:16,779 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:51:16] "GET / HTTP/1.1" 200 -
+2026-04-02 09:51:16,819 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:51:16] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-02 09:51:16,823 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:51:16] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-02 09:51:16,868 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:51:16] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 09:51:20,705 - player.player - INFO - 停止播放
+2026-04-02 09:51:20,713 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:51:20] "[32mPOST /control HTTP/1.1[0m" 302 -
+2026-04-02 09:51:20,795 - controller.controller - INFO - 开始执行时间表 [sync]: 111
+2026-04-02 09:51:20,798 - player.player - INFO - 设置播放屏幕: 1
+2026-04-02 09:51:20,799 - player.player - INFO - 停止播放
+2026-04-02 09:51:20,855 - player.player - INFO - 使用浏览器播放网页直播: C:\Program Files\Google\Chrome\Application\chrome.exe --new-window --start-fullscreen --disable-notifications --disable-session-crashed-bubble --disable-infobars --autoplay-policy=no-user-gesture-required --user-data-dir=C:\Users\Daniel\Documents\projects\youthPlayer\runtime\browser-profile https://tv.cctv.com/live/cctv13/
+2026-04-02 09:51:22,989 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:51:22] "GET / HTTP/1.1" 200 -
+2026-04-02 09:51:23,084 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:51:23] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-02 09:51:23,088 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:51:23] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-02 09:51:23,136 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:51:23] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 09:51:26,477 - apscheduler.scheduler - INFO - Removed job schedule_end_1
+2026-04-02 09:51:26,495 - controller.controller - INFO - 更新时间表: 111
+2026-04-02 09:51:26,499 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:51:26] "[32mPOST /schedule/toggle/1 HTTP/1.1[0m" 302 -
+2026-04-02 09:51:26,549 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:51:26] "GET / HTTP/1.1" 200 -
+2026-04-02 09:51:26,630 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:51:26] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-02 09:51:26,636 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:51:26] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-02 09:51:26,738 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:51:26] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 09:51:26,812 - werkzeug - INFO - 192.168.43.24 - - [02/Apr/2026 09:51:26] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 09:51:31,369 - player.player - INFO - 停止播放
+2026-04-02 09:51:31,374 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:51:31] "[32mPOST /control HTTP/1.1[0m" 302 -
+2026-04-02 09:51:31,454 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:51:31] "GET / HTTP/1.1" 200 -
+2026-04-02 09:51:31,560 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:51:31] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-02 09:51:31,565 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:51:31] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-02 09:51:31,618 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:51:31] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 09:51:41,633 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:51:41] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 09:51:44,623 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2026-04-02 09:57:34,161 - apscheduler.scheduler - INFO - Scheduler started
+2026-04-02 09:57:34,500 - player.player - INFO - Using VLC at: C:\Program Files\VideoLAN\VLC\vlc.exe
+2026-04-02 09:57:34,611 - player.player - INFO - VLC player initialized.
+2026-04-02 09:57:34,612 - player.player - INFO - Target screen set to: 0
+2026-04-02 09:57:34,671 - controller.controller - INFO - 已加载 0 个有效时间表
+2026-04-02 09:57:34,679 - security.watchdog - INFO - 看门狗启动成功
+2026-04-02 09:57:34,705 - werkzeug - WARNING -  * Running on all addresses.
+   WARNING: This is a development server. Do not use it in a production deployment.
+2026-04-02 09:57:34,706 - werkzeug - INFO -  * Running on http://192.168.43.24:5000/ (Press CTRL+C to quit)
+2026-04-02 09:57:46,802 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:57:46] "GET / HTTP/1.1" 200 -
+2026-04-02 09:57:47,086 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:57:47] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-02 09:57:47,087 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:57:47] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-02 09:57:47,149 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:57:47] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 09:57:49,526 - controller.controller - WARNING - 没有可播放的时间表
+2026-04-02 09:57:49,529 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:57:49] "[32mPOST /control HTTP/1.1[0m" 302 -
+2026-04-02 09:57:49,553 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:57:49] "GET / HTTP/1.1" 200 -
+2026-04-02 09:57:49,614 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:57:49] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-02 09:57:49,619 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:57:49] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-02 09:57:49,646 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:57:49] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 09:57:59,212 - controller.controller - INFO - 开始执行时间表 [manual]: 111
+2026-04-02 09:57:59,213 - player.player - INFO - Target screen set to: 1
+2026-04-02 09:57:59,215 - player.player - INFO - Playback stopped.
+2026-04-02 09:57:59,655 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:57:59] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 09:57:59,681 - player.player - ERROR - Driver browser open failed: Message: Unable to obtain msedgedriver using Selenium Manager; Message: Unsuccessful command executed: C:\Users\Daniel\.conda\envs\youthplayer\lib\site-packages\selenium\webdriver\common\windows\selenium-manager.exe --browser MicrosoftEdge --output json --browser-path C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe.
+error sending request for url (https://msedgedriver.azureedge.net/LATEST_STABLE): error trying to connect: dns error: 不知道这样的主机。 (os error 11001)
+; For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors/driver_location
+
+2026-04-02 09:57:59,682 - player.player - WARNING - Driver mode failed, fallback to native browser process.
+2026-04-02 09:58:00,708 - player.player - INFO - Web live opened via native browser process: https://tv.cctv.com/live/cctv13/
+2026-04-02 09:58:00,711 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:58:00] "[32mPOST /schedule/play/1 HTTP/1.1[0m" 302 -
+2026-04-02 09:58:00,756 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:58:00] "GET / HTTP/1.1" 200 -
+2026-04-02 09:58:00,837 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:58:00] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-02 09:58:00,839 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:58:00] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-02 09:58:00,930 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:58:00] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 09:58:10,912 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:58:10] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 09:58:20,916 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:58:20] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 09:58:26,765 - werkzeug - INFO - 192.168.43.24 - - [02/Apr/2026 09:58:26] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 09:58:30,922 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:58:30] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 09:58:40,909 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:58:40] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 09:58:50,923 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:58:50] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 09:58:51,401 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:58:51] "[32mPOST /control HTTP/1.1[0m" 302 -
+2026-04-02 09:58:51,444 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:58:51] "GET / HTTP/1.1" 200 -
+2026-04-02 09:58:51,515 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:58:51] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-02 09:58:51,528 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:58:51] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-02 09:58:51,622 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:58:51] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 09:59:01,603 - werkzeug - INFO - 192.168.43.1 - - [02/Apr/2026 09:59:01] "GET /api/status HTTP/1.1" 200 -
+2026-04-02 09:59:05,092 - apscheduler.scheduler - INFO - Scheduler has been shut down

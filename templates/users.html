@@ -1,361 +1,76 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>校园电视播放系统 - 用户管理</title>
-    <style>
-        :root {
-            --primary-color: #3b82f6;
-            --secondary-color: #10b981;
-            --accent-color: #6366f1;
-            --background-color: #f8fafc;
-            --card-background: #ffffff;
-            --text-primary: #1e293b;
-            --text-secondary: #64748b;
-            --border-color: #e2e8f0;
-            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            --success-color: #10b981;
-            --warning-color: #f59e0b;
-            --danger-color: #ef4444;
-        }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background-color: var(--background-color);
-            color: var(--text-primary);
-            line-height: 1.6;
-        }
-        
-        .header {
-            background: var(--card-background);
-            box-shadow: var(--shadow);
-            padding: 16px 24px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-        
-        .header h1 {
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--primary-color);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        
-        .header nav {
-            display: flex;
-            gap: 24px;
-        }
-        
-        .header a {
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-weight: 500;
-            transition: color 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        
-        .header a:hover {
-            color: var(--primary-color);
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 24px;
-        }
-        
-        .user-section {
-            background: var(--card-background);
-            border-radius: 12px;
-            box-shadow: var(--shadow);
-            padding: 24px;
-        }
-        
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 24px;
-        }
-        
-        .section-header h2 {
-            font-size: 20px;
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-        
-        .add-user-form {
-            background-color: var(--background-color);
-            border-radius: 8px;
-            padding: 24px;
-            margin-bottom: 32px;
-        }
-        
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 16px;
-            margin-bottom: 24px;
-        }
-        
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-        
-        .form-group label {
-            font-size: 14px;
-            font-weight: 500;
-            color: var(--text-primary);
-        }
-        
-        .form-group input {
-            padding: 10px 12px;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            font-size: 14px;
-            transition: border-color 0.3s ease;
-        }
-        
-        .form-group input:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-        }
-        
-        .form-group.checkbox {
-            flex-direction: row;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .form-group.checkbox input {
-            width: auto;
-        }
-        
-        .form-actions {
-            display: flex;
-            gap: 12px;
-            justify-content: flex-end;
-        }
-        
-        .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
-            color: white;
-        }
-        
-        .btn-secondary {
-            background-color: var(--background-color);
-            color: var(--text-primary);
-            border: 1px solid var(--border-color);
-        }
-        
-        .btn-danger {
-            background-color: var(--danger-color);
-            color: white;
-        }
-        
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        }
-        
-        .user-list {
-            margin-top: 24px;
-        }
-        
-        .user-item {
-            background-color: var(--background-color);
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-        
-        .user-item:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow);
-        }
-        
-        .user-info {
-            flex: 1;
-        }
-        
-        .user-info h3 {
-            font-size: 16px;
-            font-weight: 600;
-            color: var(--text-primary);
-            margin-bottom: 4px;
-        }
-        
-        .user-info p {
-            font-size: 14px;
-            color: var(--text-secondary);
-        }
-        
-        .user-role {
-            padding: 4px 12px;
-            border-radius: 16px;
-            font-size: 12px;
-            font-weight: 600;
-            margin-left: 12px;
-        }
-        
-        .role-admin {
-            background-color: rgba(99, 102, 241, 0.1);
-            color: var(--accent-color);
-        }
-        
-        .role-user {
-            background-color: rgba(16, 185, 129, 0.1);
-            color: var(--success-color);
-        }
-        
-        .user-actions {
-            display: flex;
-            gap: 8px;
-        }
-        
-        .action-btn {
-            padding: 6px 12px;
-            border: none;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-        
-        .action-btn.delete {
-            background-color: var(--danger-color);
-            color: white;
-        }
-        
-        @media (max-width: 768px) {
-            .header {
-                flex-direction: column;
-                gap: 12px;
-                padding: 12px;
-            }
-            
-            .header nav {
-                width: 100%;
-                justify-content: space-around;
-            }
-            
-            .container {
-                padding: 16px;
-            }
-            
-            .form-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .user-item {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 12px;
-            }
-            
-            .user-actions {
-                align-self: flex-end;
-            }
-        }
-    </style>
-</head>
-<body>
-    <header class="header">
-        <h1>校园电视播放系统</h1>
-        <nav>
-            <a href="/">主页</a>
-            <a href="/users">用户管理</a>
-            <a href="/logout">登出</a>
-        </nav>
-    </header>
-    
-    <div class="container">
-        <div class="user-section">
-            <div class="section-header">
-                <h2>用户管理</h2>
-            </div>
-            
-            <div class="add-user-form">
-                <h3>添加新用户</h3>
-                <form method="post" action="/user/add">
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label for="username">用户名</label>
-                            <input type="text" id="username" name="username" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="password">密码</label>
-                            <input type="password" id="password" name="password" required>
-                        </div>
-                        <div class="form-group checkbox">
-                            <input type="checkbox" id="is_admin" name="is_admin">
-                            <label for="is_admin">管理员权限</label>
-                        </div>
-                    </div>
-                    <div class="form-actions">
-                        <button type="submit" class="btn btn-primary">添加</button>
-                    </div>
-                </form>
-            </div>
-            
-            <div class="user-list">
-                <h3>现有用户</h3>
-                {% for user in users %}
-                <div class="user-item">
-                    <div class="user-info">
-                        <div style="display: flex; align-items: center;">
-                            <h3>{{ user.username }}</h3>
-                            <span class="user-role {% if user.is_admin %}role-admin{% else %}role-user{% endif %}">
-                                {{ '管理员' if user.is_admin else '普通用户' }}
-                            </span>
-                        </div>
-                    </div>
-                    <div class="user-actions">
-                        {% if user.id != current_user.id %}
-                        <a href="/user/delete/{{ user.id }}" class="action-btn delete">删除</a>
-                        {% endif %}
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
+{% extends "base.html" %}
+
+{% block title %}用户管理{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div>
+        <span class="eyebrow">Accounts</span>
+        <h1>用户管理</h1>
+        <p>为值班老师、技术人员、编辑团队分配独立账户与权限。</p>
     </div>
-</body>
-</html>
+    <div class="page-actions">
+        <span class="soft-badge">{{ users|length }} 个账户</span>
+    </div>
+</section>
+
+<section class="panel">
+    <div class="panel-head">
+        <h2>新增账户</h2>
+        <span class="chip info">多账户协作</span>
+    </div>
+    <form method="post" action="{{ url_for('main.add_user') }}" class="schedule-form">
+        <label class="field">
+            <span>用户名</span>
+            <input type="text" name="username" required>
+        </label>
+        <label class="field">
+            <span>密码</span>
+            <input type="password" name="password" required>
+        </label>
+        <label class="check-field">
+            <input type="checkbox" name="is_admin">
+            <span>授予管理员权限</span>
+        </label>
+        <label class="check-field">
+            <input type="checkbox" name="is_active" checked>
+            <span>创建后立即启用</span>
+        </label>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">创建用户</button>
+        </div>
+    </form>
+</section>
+
+<section class="panel">
+    <div class="panel-head">
+        <h2>账户列表</h2>
+    </div>
+    <div class="user-grid">
+        {% for user in users %}
+        <article class="user-card">
+            <div>
+                <h3>{{ user.username }}</h3>
+                <p>{{ user.role_name }}</p>
+            </div>
+            <div class="summary-meta">
+                <span class="chip {{ 'success' if user.is_active else 'muted' }}">{{ "启用中" if user.is_active else "已停用" }}</span>
+                <span class="chip info">{{ "管理员" if user.is_admin else "普通用户" }}</span>
+            </div>
+            <div class="button-row compact">
+                {% if user.id != current_user.id %}
+                <form method="post" action="{{ url_for('main.toggle_user', user_id=user.id) }}">
+                    <button class="btn btn-secondary" type="submit">{{ "停用" if user.is_active else "启用" }}</button>
+                </form>
+                <form method="post" action="{{ url_for('main.delete_user', user_id=user.id) }}" onsubmit="return confirm('确认删除该用户吗？');">
+                    <button class="btn btn-danger" type="submit">删除</button>
+                </form>
+                {% else %}
+                <span class="self-tip">当前登录账户</span>
+                {% endif %}
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}
