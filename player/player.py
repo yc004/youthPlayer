@@ -171,7 +171,7 @@ class Player:
                 return False
             if (
                 self.current_backend == "electron"
-                and self.current_source == self.screensaver_url
+                and (self.current_source or "").startswith(self.screensaver_url)
                 and self.electron_process
                 and self.electron_process.poll() is None
             ):
@@ -645,7 +645,10 @@ class Player:
 
         runtime_dir = os.path.join(Config.BASE_DIR, "runtime")
         os.makedirs(runtime_dir, exist_ok=True)
-        target_path = os.path.join(runtime_dir, "monitor_latest.bmp")
+        frames_dir = os.path.join(runtime_dir, "monitor_frames")
+        os.makedirs(frames_dir, exist_ok=True)
+        ts = int(time.time() * 1000)
+        target_path = os.path.join(frames_dir, f"monitor_{ts}.bmp")
 
         hdesktop = None
         desktop_dc = None
@@ -664,6 +667,19 @@ class Player:
             screenshot.SaveBitmapFile(mem_dc, target_path)
             self.monitor_last_capture_at = time.strftime("%Y-%m-%d %H:%M:%S")
             self.monitor_last_capture_path = target_path
+            # 清理旧截图，避免磁盘累积；保留最近 20 张
+            try:
+                files = sorted(
+                    [os.path.join(frames_dir, x) for x in os.listdir(frames_dir) if x.lower().endswith(".bmp")],
+                    key=lambda p: os.path.getmtime(p),
+                )
+                for old in files[:-20]:
+                    try:
+                        os.remove(old)
+                    except Exception:
+                        pass
+            except Exception:
+                pass
             return True, target_path
         except Exception as exc:
             logger.warning("Capture monitor snapshot failed: %s", exc)
