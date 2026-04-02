@@ -1,4 +1,3 @@
-# 主程序文件
 import logging
 import os
 
@@ -7,7 +6,7 @@ from flask import Flask
 from flask_login import LoginManager
 
 from config import Config
-from models import User, db
+from models import SystemSetting, User, db
 
 
 app = Flask(__name__)
@@ -19,7 +18,6 @@ def configure_logging():
     root_logger = logging.getLogger()
     if root_logger.handlers:
         return
-
     logging.basicConfig(
         level=getattr(logging, app.config["LOG_LEVEL"], logging.INFO),
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
@@ -37,13 +35,11 @@ logger = logging.getLogger(__name__)
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "main.login"
-login_manager.login_message = "请先登录后再访问管理界面。"
+login_manager.login_message = "请先登录后再访问管理页面。"
 
 
 scheduler = BackgroundScheduler()
 scheduler.start()
-
-
 db.init_app(app)
 
 
@@ -72,6 +68,22 @@ app.register_blueprint(main_blueprint)
 def init_db():
     with app.app_context():
         db.create_all()
+        # 轻量迁移：为旧版 SQLite 的 schedule 表补充周循环字段
+        if app.config["SQLALCHEMY_DATABASE_URI"].startswith("sqlite:///"):
+            with db.engine.begin() as conn:
+                columns = {
+                    row[1]
+                    for row in conn.exec_driver_sql("PRAGMA table_info(schedule)").fetchall()
+                }
+                if "is_weekly" not in columns:
+                    conn.exec_driver_sql(
+                        "ALTER TABLE schedule ADD COLUMN is_weekly BOOLEAN NOT NULL DEFAULT 0"
+                    )
+                if "weekly_days" not in columns:
+                    conn.exec_driver_sql(
+                        "ALTER TABLE schedule ADD COLUMN weekly_days VARCHAR(20) NOT NULL DEFAULT ''"
+                    )
+
         admin = User.query.filter_by(username="admin").first()
         if not admin:
             admin = User(username="admin", is_admin=True, is_active=True)
@@ -81,8 +93,22 @@ def init_db():
             logger.info("已创建默认管理员账户：admin / admin123")
 
 
+def load_runtime_settings():
+    with app.app_context():
+        item = db.session.get(SystemSetting, "all_play_via_electron")
+        if item:
+            Config.ALL_PLAY_VIA_ELECTRON = str(item.value).strip().lower() in {
+                "1",
+                "true",
+                "yes",
+                "on",
+            }
+            logger.info("Loaded setting all_play_via_electron=%s", Config.ALL_PLAY_VIA_ELECTRON)
+
+
 def bootstrap():
     init_db()
+    load_runtime_settings()
     controller.refresh_schedules()
     controller.sync_active_schedule(force_restart=False)
 

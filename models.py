@@ -43,11 +43,50 @@ class Schedule(db.Model):
     content_path = db.Column(db.String(500), nullable=False)
     screen_index = db.Column(db.Integer, default=0)
     is_active = db.Column(db.Boolean, default=True)
+    is_weekly = db.Column(db.Boolean, default=False, nullable=False)
+    weekly_days = db.Column(db.String(20), default="", nullable=False)  # "0,1,2" => Mon,Tue,Wed
 
     def __repr__(self):
         return f"<Schedule {self.name}>"
 
     @property
+    def weekly_day_set(self):
+        if not self.weekly_days:
+            return set()
+        out = set()
+        for token in self.weekly_days.split(","):
+            token = token.strip()
+            if token.isdigit():
+                day = int(token)
+                if 0 <= day <= 6:
+                    out.add(day)
+        return out
+
+    def is_running_at(self, now):
+        if not self.is_active:
+            return False
+        if self.is_weekly:
+            day_set = self.weekly_day_set
+            if not day_set:
+                return False
+            if now.weekday() not in day_set:
+                return False
+            now_minutes = now.hour * 60 + now.minute
+            start_minutes = self.start_time.hour * 60 + self.start_time.minute
+            end_minutes = self.end_time.hour * 60 + self.end_time.minute
+            return start_minutes <= now_minutes < end_minutes
+        return self.start_time <= now < self.end_time
+
+    @property
     def is_running_now(self):
-        now = datetime.now()
-        return self.is_active and self.start_time <= now < self.end_time
+        return self.is_running_at(datetime.now())
+
+
+class SystemSetting(db.Model):
+    __tablename__ = "system_setting"
+
+    key = db.Column(db.String(100), primary_key=True)
+    value = db.Column(db.String(500), nullable=False, default="")
+
+    def __repr__(self):
+        return f"<SystemSetting {self.key}={self.value}>"

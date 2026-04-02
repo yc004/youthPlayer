@@ -1,8 +1,8 @@
-# 控制模块
 import logging
 from datetime import datetime
 
 from apscheduler.jobstores.base import JobLookupError
+from apscheduler.triggers.cron import CronTrigger
 from apscheduler.triggers.date import DateTrigger
 
 from models import Schedule, db
@@ -20,7 +20,6 @@ class Controller:
         self.current_schedule_id = None
 
     def refresh_schedules(self):
-        """重新加载所有时间表。"""
         self._clear_all_jobs()
         with self.app.app_context():
             schedules = (
@@ -43,29 +42,65 @@ class Controller:
         now = datetime.now()
         job_ids = []
 
-        if schedule.start_time > now:
-            start_job_id = f"schedule_start_{schedule.id}"
+        if schedule.is_weekly:
+            day_set = sorted(schedule.weekly_day_set)
+            if not day_set:
+                logger.info("跳过周循环时间表(未选择星期): %s (ID=%s)", schedule.name, schedule.id)
+                return
+
+            cron_days = ",".join(str(day) for day in day_set)
+            start_job_id = f"schedule_weekly_start_{schedule.id}"
+            end_job_id = f"schedule_weekly_end_{schedule.id}"
+
             self.scheduler.add_job(
                 func=self._execute_schedule,
-                trigger=DateTrigger(run_date=schedule.start_time),
+                trigger=CronTrigger(
+                    day_of_week=cron_days,
+                    hour=schedule.start_time.hour,
+                    minute=schedule.start_time.minute,
+                ),
                 args=[schedule.id],
                 id=start_job_id,
                 replace_existing=True,
                 misfire_grace_time=120,
             )
-            job_ids.append(start_job_id)
-
-        if schedule.end_time > now:
-            end_job_id = f"schedule_end_{schedule.id}"
             self.scheduler.add_job(
                 func=self._finish_schedule,
-                trigger=DateTrigger(run_date=schedule.end_time),
+                trigger=CronTrigger(
+                    day_of_week=cron_days,
+                    hour=schedule.end_time.hour,
+                    minute=schedule.end_time.minute,
+                ),
                 args=[schedule.id],
                 id=end_job_id,
                 replace_existing=True,
                 misfire_grace_time=120,
             )
-            job_ids.append(end_job_id)
+            job_ids.extend([start_job_id, end_job_id])
+        else:
+            if schedule.start_time > now:
+                start_job_id = f"schedule_start_{schedule.id}"
+                self.scheduler.add_job(
+                    func=self._execute_schedule,
+                    trigger=DateTrigger(run_date=schedule.start_time),
+                    args=[schedule.id],
+                    id=start_job_id,
+                    replace_existing=True,
+                    misfire_grace_time=120,
+                )
+                job_ids.append(start_job_id)
+
+            if schedule.end_time > now:
+                end_job_id = f"schedule_end_{schedule.id}"
+                self.scheduler.add_job(
+                    func=self._finish_schedule,
+                    trigger=DateTrigger(run_date=schedule.end_time),
+                    args=[schedule.id],
+                    id=end_job_id,
+                    replace_existing=True,
+                    misfire_grace_time=120,
+                )
+                job_ids.append(end_job_id)
 
         if job_ids:
             self.scheduled_jobs[schedule.id] = job_ids
@@ -115,20 +150,17 @@ class Controller:
             self.current_schedule_id = schedule.id
         return success
 
-    def sync_active_schedule(self, force_restart=False):
-        """在启动或恢复时同步当前应该播放的内容。"""
-        with self.app.app_context():
-            now = datetime.now()
-            active_schedule = (
-                Schedule.query.filter(
-                    Schedule.is_active.is_(True),
-                    Schedule.start_time <= now,
-                    Schedule.end_time > now,
-                )
-                .order_by(Schedule.start_time.desc())
-                .first()
-            )
+    def _find_active_schedule(self, now):
+        schedules = (
+            Schedule.query.filter(Schedule.is_active.is_(True))
+            .order_by(Schedule.start_time.desc())
+            .all()
+        )
+        return next((item for item in schedules if item.is_running_at(now)), None)
 
+    def sync_active_schedule(self, force_restart=False):
+        with self.app.app_context():
+            active_schedule = self._find_active_schedule(datetime.now())
             if not active_schedule:
                 return None
 
@@ -206,16 +238,8 @@ class Controller:
         return db.session.get(Schedule, self.current_schedule_id)
 
     def get_active_schedule_now(self):
-        now = datetime.now()
-        return (
-            Schedule.query.filter(
-                Schedule.is_active.is_(True),
-                Schedule.start_time <= now,
-                Schedule.end_time > now,
-            )
-            .order_by(Schedule.start_time.desc())
-            .first()
-        )
+        with self.app.app_context():
+            return self._find_active_schedule(datetime.now())
 
     def get_runtime_summary(self):
         now = datetime.now()
@@ -233,7 +257,7 @@ class Controller:
                         "screen_index": item.screen_index,
                     }
                     for item in schedules
-                    if item.start_time >= now and item.is_active
+                    if (item.is_weekly and item.is_active) or (item.start_time >= now and item.is_active)
                 ),
                 None,
             ),

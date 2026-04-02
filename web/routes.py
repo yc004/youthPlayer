@@ -1,10 +1,11 @@
-# Web 路由
+import os
 from datetime import datetime
 
 from flask import Blueprint, flash, jsonify, redirect, render_template, request, url_for
 from flask_login import current_user, login_required, login_user, logout_user
 
-from models import Schedule, User, db
+from config import Config
+from models import Schedule, SystemSetting, User, db
 
 
 main = Blueprint("main", __name__)
@@ -12,6 +13,9 @@ main = Blueprint("main", __name__)
 player = None
 controller = None
 watchdog = None
+
+WEEKDAY_LABELS = ["周一", "周二", "周三", "周四", "周五", "周六", "周日"]
+SETTING_KEY_ALL_ELECTRON = "all_play_via_electron"
 
 
 def init_routes(player_instance, controller_instance, watchdog_instance):
@@ -25,6 +29,36 @@ def _parse_datetime(value):
     return datetime.strptime(value, "%Y-%m-%dT%H:%M")
 
 
+def _parse_weekdays(form):
+    days = []
+    for value in form.getlist("weekdays"):
+        if value.isdigit():
+            day = int(value)
+            if 0 <= day <= 6:
+                days.append(day)
+    return sorted(set(days))
+
+
+def _build_timeline_payload(schedules):
+    out = []
+    for item in schedules:
+        out.append(
+            {
+                "id": item.id,
+                "name": item.name,
+                "is_active": item.is_active,
+                "is_weekly": bool(item.is_weekly),
+                "weekly_days": sorted(item.weekly_day_set),
+                "start_weekday": item.start_time.weekday(),
+                "start_minutes": item.start_time.hour * 60 + item.start_time.minute,
+                "end_minutes": item.end_time.hour * 60 + item.end_time.minute,
+                "screen_index": item.screen_index,
+                "content_type": item.content_type,
+            }
+        )
+    return out
+
+
 def _build_dashboard_context():
     schedules = controller.get_schedules()
     return {
@@ -33,7 +67,35 @@ def _build_dashboard_context():
         "schedules": schedules,
         "active_schedule": controller.get_current_schedule() or controller.get_active_schedule_now(),
         "summary": controller.get_runtime_summary(),
+        "weekday_labels": WEEKDAY_LABELS,
+        "timeline_payload": _build_timeline_payload(schedules),
     }
+
+
+def _list_windows_roots():
+    roots = []
+    for code in range(ord("A"), ord("Z") + 1):
+        drive = f"{chr(code)}:\\"
+        if os.path.exists(drive):
+            roots.append(drive)
+    return roots
+
+
+def _get_setting_bool(key, default=False):
+    item = db.session.get(SystemSetting, key)
+    if not item:
+        return default
+    return str(item.value).strip().lower() in {"1", "true", "yes", "on"}
+
+
+def _set_setting_bool(key, value):
+    item = db.session.get(SystemSetting, key)
+    if not item:
+        item = SystemSetting(key=key, value="1" if value else "0")
+        db.session.add(item)
+    else:
+        item.value = "1" if value else "0"
+    db.session.commit()
 
 
 @main.route("/login", methods=["GET", "POST"])
@@ -92,14 +154,30 @@ def control():
     return redirect(url_for("main.index"))
 
 
+def _validate_schedule_form(form):
+    start_time = _parse_datetime(form["start_time"])
+    end_time = _parse_datetime(form["end_time"])
+    is_weekly = "is_weekly" in form
+    weekdays = _parse_weekdays(form)
+
+    if is_weekly:
+        if not weekdays:
+            raise ValueError("周循环任务至少需要选择一个星期。")
+        start_minutes = start_time.hour * 60 + start_time.minute
+        end_minutes = end_time.hour * 60 + end_time.minute
+        if end_minutes <= start_minutes:
+            raise ValueError("周循环任务要求结束时间晚于开始时间（同一天内）。")
+    elif end_time <= start_time:
+        raise ValueError("结束时间必须晚于开始时间。")
+
+    return start_time, end_time, is_weekly, ",".join(str(day) for day in weekdays)
+
+
 @main.route("/schedule/add", methods=["POST"])
 @login_required
 def add_schedule():
     try:
-        start_time = _parse_datetime(request.form["start_time"])
-        end_time = _parse_datetime(request.form["end_time"])
-        if end_time <= start_time:
-            raise ValueError("结束时间必须晚于开始时间")
+        start_time, end_time, is_weekly, weekly_days = _validate_schedule_form(request.form)
 
         schedule = Schedule(
             name=request.form["name"].strip(),
@@ -109,6 +187,8 @@ def add_schedule():
             content_path=request.form["content_path"].strip(),
             screen_index=int(request.form["screen_index"]),
             is_active=True,
+            is_weekly=is_weekly,
+            weekly_days=weekly_days,
         )
         success = controller.add_schedule(schedule)
         flash("时间表添加成功。" if success else "时间表添加失败。", "success" if success else "error")
@@ -121,10 +201,7 @@ def add_schedule():
 @login_required
 def update_schedule(schedule_id):
     try:
-        start_time = _parse_datetime(request.form["start_time"])
-        end_time = _parse_datetime(request.form["end_time"])
-        if end_time <= start_time:
-            raise ValueError("结束时间必须晚于开始时间")
+        start_time, end_time, is_weekly, weekly_days = _validate_schedule_form(request.form)
 
         kwargs = {
             "name": request.form["name"].strip(),
@@ -134,6 +211,8 @@ def update_schedule(schedule_id):
             "content_path": request.form["content_path"].strip(),
             "screen_index": int(request.form["screen_index"]),
             "is_active": "is_active" in request.form,
+            "is_weekly": is_weekly,
+            "weekly_days": weekly_days,
         }
         success = controller.update_schedule(schedule_id, **kwargs)
         flash("时间表更新成功。" if success else "时间表更新失败。", "success" if success else "error")
@@ -187,6 +266,8 @@ def api_status():
                     "screen_index": active_schedule.screen_index,
                     "start_time": active_schedule.start_time.isoformat(timespec="minutes"),
                     "end_time": active_schedule.end_time.isoformat(timespec="minutes"),
+                    "is_weekly": active_schedule.is_weekly,
+                    "weekly_days": sorted(active_schedule.weekly_day_set),
                 }
                 if active_schedule
                 else None
@@ -194,6 +275,58 @@ def api_status():
             "server_time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         }
     )
+
+
+@main.route("/api/browse")
+@login_required
+def api_browse():
+    raw_path = (request.args.get("path") or "").strip().strip('"')
+
+    # 不传路径时返回系统盘符根列表
+    if not raw_path:
+        roots = _list_windows_roots()
+        return jsonify(
+            {
+                "ok": True,
+                "cwd": "",
+                "parent": "",
+                "entries": [{"name": root, "path": root, "is_dir": True} for root in roots],
+            }
+        )
+
+    target = os.path.abspath(os.path.expanduser(raw_path))
+    if os.path.isfile(target):
+        target = os.path.dirname(target)
+
+    if not os.path.exists(target):
+        return jsonify({"ok": False, "error": "路径不存在"}), 404
+
+    if not os.path.isdir(target):
+        return jsonify({"ok": False, "error": "不是目录"}), 400
+
+    entries = []
+    try:
+        with os.scandir(target) as it:
+            for item in it:
+                try:
+                    entries.append(
+                        {
+                            "name": item.name,
+                            "path": item.path,
+                            "is_dir": item.is_dir(follow_symlinks=False),
+                        }
+                    )
+                except PermissionError:
+                    continue
+    except PermissionError:
+        return jsonify({"ok": False, "error": "无权限访问该目录"}), 403
+
+    entries.sort(key=lambda x: (not x["is_dir"], x["name"].lower()))
+    parent = os.path.dirname(target.rstrip("\\/")) if target else ""
+    if parent == target:
+        parent = ""
+
+    return jsonify({"ok": True, "cwd": target, "parent": parent, "entries": entries})
 
 
 @main.route("/status")
@@ -210,6 +343,24 @@ def manage_users():
         return redirect(url_for("main.index"))
     users = User.query.order_by(User.username.asc()).all()
     return render_template("users.html", users=users)
+
+
+@main.route("/settings", methods=["GET", "POST"])
+@login_required
+def settings():
+    if not current_user.is_admin:
+        flash("只有管理员可以访问系统设置。", "error")
+        return redirect(url_for("main.index"))
+
+    if request.method == "POST":
+        enable_all_electron = "all_play_via_electron" in request.form
+        _set_setting_bool(SETTING_KEY_ALL_ELECTRON, enable_all_electron)
+        Config.ALL_PLAY_VIA_ELECTRON = enable_all_electron
+        flash("系统设置已保存。", "success")
+        return redirect(url_for("main.settings"))
+
+    all_play_via_electron = _get_setting_bool(SETTING_KEY_ALL_ELECTRON, Config.ALL_PLAY_VIA_ELECTRON)
+    return render_template("settings.html", all_play_via_electron=all_play_via_electron)
 
 
 @main.route("/user/add", methods=["POST"])

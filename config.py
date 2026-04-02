@@ -17,6 +17,8 @@ class Config:
     VLC_PATH = os.environ.get("YP_VLC_PATH", r"C:\Program Files\VideoLAN\VLC\vlc.exe")
     WEB_USE_ELECTRON = os.environ.get("YP_WEB_USE_ELECTRON", "1") == "1"
     WEB_ELECTRON_ONLY = os.environ.get("YP_WEB_ELECTRON_ONLY", "1") == "1"
+    # 设为 1 时，local/nas/live 全部优先走 Electron，避免 VLC/Electron 来回切换。
+    ALL_PLAY_VIA_ELECTRON = os.environ.get("YP_ALL_PLAY_VIA_ELECTRON", "0") == "1"
     # 留空时优先使用项目内 node_modules/.bin/electron(.cmd)
     ELECTRON_BIN = os.environ.get("YP_ELECTRON_BIN", "")
     ELECTRON_CONTROL_HOST = os.environ.get("YP_ELECTRON_HOST", "127.0.0.1")

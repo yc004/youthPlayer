@@ -8,6 +8,7 @@ import threading
 import time
 import urllib.error
 import urllib.request
+from pathlib import Path
 from urllib.parse import urlparse
 from shutil import which
 
@@ -120,17 +121,43 @@ class Player:
                 self.last_error = f"File not found: {file_path}"
                 logger.error(self.last_error)
                 return False
+            if Config.ALL_PLAY_VIA_ELECTRON:
+                return self._open_via_electron(file_path, source_type="local")
             return self._play_vlc_media(file_path, source_type="local")
 
     def play_nas(self, nas_path):
         with self._op_lock:
+            if Config.ALL_PLAY_VIA_ELECTRON:
+                return self._open_via_electron(nas_path, source_type="nas")
             return self._play_vlc_media(nas_path, source_type="nas")
 
     def play_live(self, live_url):
         with self._op_lock:
+            if Config.ALL_PLAY_VIA_ELECTRON:
+                return self._open_via_electron(live_url, source_type="live")
             if self._should_use_browser(live_url):
                 return self._open_web_live_electron(live_url)
             return self._play_vlc_media(live_url, source_type="stream")
+
+    def _to_electron_url(self, source):
+        if source.startswith(("http://", "https://", "file://")):
+            return source
+        # UNC: \\server\share\path -> file://server/share/path
+        if source.startswith("\\\\"):
+            return "file://" + source.lstrip("\\").replace("\\", "/")
+        try:
+            return Path(source).resolve().as_uri()
+        except Exception:
+            return source
+
+    def _open_via_electron(self, source, source_type="media"):
+        parsed = urlparse(str(source))
+        if parsed.scheme in {"rtsp", "rtmp"}:
+            logger.warning("Electron 对 %s 协议支持有限，回退 VLC: %s", parsed.scheme, source)
+            return self._play_vlc_media(source, source_type=source_type)
+        target_url = self._to_electron_url(source)
+        logger.info("Using Electron for %s source: %s -> %s", source_type, source, target_url)
+        return self._open_web_live_electron(target_url)
 
     def _play_vlc_media(self, source, source_type="media"):
         if not self.player or not self.instance:

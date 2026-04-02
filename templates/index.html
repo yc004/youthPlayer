@@ -7,7 +7,7 @@
     <div>
         <span class="eyebrow">Dashboard</span>
         <h1>播控总览</h1>
-        <p>实时查看播放状态、播出计划与多屏幕配置。</p>
+        <p>实时查看播放状态、播出计划与多屏配置。</p>
     </div>
     <div class="page-actions">
         <span class="soft-badge">{{ summary.schedule_count }} 条计划</span>
@@ -27,15 +27,38 @@
         <p>支持本地、NAS、流媒体、网页直播</p>
     </article>
     <article class="stat-card">
-        <span class="stat-label">正在生效计划</span>
+        <span class="stat-label">生效计划</span>
         <strong class="stat-value" data-role="active-schedule">{{ active_schedule.name if active_schedule else "无" }}</strong>
-        <p>{{ active_schedule.start_time.strftime('%m-%d %H:%M') ~ " - " ~ active_schedule.end_time.strftime('%m-%d %H:%M') if active_schedule else "等待人工控制或定时触发" }}</p>
+        <p>
+            {% if active_schedule %}
+                {% if active_schedule.is_weekly %}
+                    每周循环 {{ active_schedule.start_time.strftime('%H:%M') }} - {{ active_schedule.end_time.strftime('%H:%M') }}
+                {% else %}
+                    {{ active_schedule.start_time.strftime('%m-%d %H:%M') }} - {{ active_schedule.end_time.strftime('%m-%d %H:%M') }}
+                {% endif %}
+            {% else %}
+                等待手动控制或定时触发
+            {% endif %}
+        </p>
     </article>
     <article class="stat-card">
         <span class="stat-label">下一条计划</span>
         <strong class="stat-value">{{ summary.next_schedule.name if summary.next_schedule else "无" }}</strong>
         <p>{{ summary.next_schedule.start_time if summary.next_schedule else "当前没有未来计划" }}</p>
     </article>
+</section>
+
+<section class="panel">
+    <div class="panel-head">
+        <h2>周计划甘特视图</h2>
+        <span class="chip info">按周查看播放任务分布</span>
+    </div>
+    <div class="gantt-tabs" data-role="gantt-tabs">
+        {% for label in weekday_labels %}
+        <button class="gantt-tab {% if loop.first %}active{% endif %}" type="button" data-day="{{ loop.index0 }}">{{ label }}</button>
+        {% endfor %}
+    </div>
+    <div class="gantt-board" data-role="gantt-board"></div>
 </section>
 
 <section class="layout-grid">
@@ -79,7 +102,7 @@
         </div>
         <ul class="hint-list">
             <li>视频优先使用 VLC，兼容 MP4 / MKV / AVI / HLS / RTSP 等格式。</li>
-            <li>网页直播使用 Electron 载体并通过本地控制接口执行播放/全屏注入。</li>
+            <li>网页直播使用 Electron 并通过本地控制接口执行播放/全屏注入。</li>
             <li>看门狗会自动检测当前应播计划，并在异常中断后尝试恢复。</li>
         </ul>
     </article>
@@ -88,7 +111,7 @@
 <section class="panel">
     <div class="panel-head">
         <h2>新建播放计划</h2>
-        <span class="chip info">支持定时与手动插播</span>
+        <span class="chip info">支持单次任务与每周循环</span>
     </div>
     <form method="post" action="{{ url_for('main.add_schedule') }}" class="schedule-form">
         <label class="field">
@@ -103,6 +126,18 @@
             <span>结束时间</span>
             <input type="datetime-local" name="end_time" required>
         </label>
+        <label class="check-field check-field-alone">
+            <input type="checkbox" name="is_weekly" value="1">
+            <span>每周循环</span>
+        </label>
+        <div class="field field-weekdays field-wide">
+            <span>循环星期（仅周循环生效）</span>
+            <div class="weekday-group">
+                {% for label in weekday_labels %}
+                <label><input type="checkbox" name="weekdays" value="{{ loop.index0 }}"> {{ label }}</label>
+                {% endfor %}
+            </div>
+        </div>
         <label class="field">
             <span>内容类型</span>
             <select name="content_type" required>
@@ -113,13 +148,16 @@
         </label>
         <label class="field field-wide">
             <span>内容地址</span>
-            <input type="text" name="content_path" required placeholder="D:\video\promo.mp4 / \\nas\share\video.mp4 / https://...">
+            <div class="path-picker">
+                <input type="text" name="content_path" class="content-path-input" required placeholder="D:\video\promo.mp4 / \\nas\share\video.mp4 / https://...">
+                <button type="button" class="btn btn-secondary btn-path-browse">浏览...</button>
+            </div>
         </label>
         <label class="field">
             <span>播放屏幕</span>
             <select name="screen_index" required>
                 {% for screen in screens %}
-                <option value="{{ screen.index }}">{{ screen.name }}（#{{ screen.index }}）</option>
+                <option value="{{ screen.index }}">{{ screen.name }}（{{ screen.index }}）</option>
                 {% endfor %}
             </select>
         </label>
@@ -140,12 +178,25 @@
             <summary>
                 <div>
                     <strong>{{ schedule.name }}</strong>
-                    <p>{{ schedule.start_time.strftime('%Y-%m-%d %H:%M') }} → {{ schedule.end_time.strftime('%Y-%m-%d %H:%M') }}</p>
+                    <p>
+                        {% if schedule.is_weekly %}
+                            每周循环
+                            {% for day in range(7) %}
+                                {% if day in schedule.weekly_day_set %}
+                                    {{ weekday_labels[day] }}
+                                {% endif %}
+                            {% endfor %}
+                            {{ schedule.start_time.strftime('%H:%M') }} - {{ schedule.end_time.strftime('%H:%M') }}
+                        {% else %}
+                            {{ schedule.start_time.strftime('%Y-%m-%d %H:%M') }} → {{ schedule.end_time.strftime('%Y-%m-%d %H:%M') }}
+                        {% endif %}
+                    </p>
                 </div>
                 <div class="summary-meta">
                     <span class="chip {{ 'success' if schedule.is_active else 'muted' }}">{{ "启用" if schedule.is_active else "停用" }}</span>
                     <span class="chip info">{{ "网页直播" if schedule.content_type == 'live' else ("NAS" if schedule.content_type == 'nas' else "本地") }}</span>
                     <span class="chip">屏幕 {{ schedule.screen_index }}</span>
+                    {% if schedule.is_weekly %}<span class="chip info">周循环</span>{% endif %}
                 </div>
             </summary>
 
@@ -180,6 +231,21 @@
                         <span>结束时间</span>
                         <input type="datetime-local" name="end_time" value="{{ schedule.end_time.strftime('%Y-%m-%dT%H:%M') }}" required>
                     </label>
+                    <label class="check-field check-field-alone">
+                        <input type="checkbox" name="is_weekly" value="1" {% if schedule.is_weekly %}checked{% endif %}>
+                        <span>每周循环</span>
+                    </label>
+                    <div class="field field-weekdays field-wide">
+                        <span>循环星期</span>
+                        <div class="weekday-group">
+                            {% for label in weekday_labels %}
+                            <label>
+                                <input type="checkbox" name="weekdays" value="{{ loop.index0 }}" {% if loop.index0 in schedule.weekly_day_set %}checked{% endif %}>
+                                {{ label }}
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
                     <label class="field">
                         <span>内容类型</span>
                         <select name="content_type" required>
@@ -190,14 +256,17 @@
                     </label>
                     <label class="field field-wide">
                         <span>内容地址</span>
-                        <input type="text" name="content_path" value="{{ schedule.content_path }}" required>
+                        <div class="path-picker">
+                            <input type="text" name="content_path" class="content-path-input" value="{{ schedule.content_path }}" required>
+                            <button type="button" class="btn btn-secondary btn-path-browse">浏览...</button>
+                        </div>
                     </label>
                     <label class="field">
                         <span>播放屏幕</span>
                         <select name="screen_index" required>
                             {% for screen in screens %}
                             <option value="{{ screen.index }}" {% if screen.index == schedule.screen_index %}selected{% endif %}>
-                                {{ screen.name }}（#{{ screen.index }}）
+                                {{ screen.name }}（{{ screen.index }}）
                             </option>
                             {% endfor %}
                         </select>
@@ -217,4 +286,26 @@
         {% endfor %}
     </div>
 </section>
+
+<script id="timeline-data" type="application/json">{{ timeline_payload|tojson }}</script>
+
+<div class="file-browser-backdrop" data-role="file-browser-backdrop" hidden>
+    <div class="file-browser-modal">
+        <div class="file-browser-head">
+            <strong>选择播放文件</strong>
+            <button type="button" class="btn btn-secondary" data-role="fb-close">关闭</button>
+        </div>
+        <div class="file-browser-toolbar">
+            <button type="button" class="btn btn-secondary" data-role="fb-roots">盘符</button>
+            <button type="button" class="btn btn-secondary" data-role="fb-up">上级</button>
+            <button type="button" class="btn btn-secondary" data-role="fb-use-dir">使用当前目录</button>
+        </div>
+        <div class="file-browser-path">
+            <input type="text" data-role="fb-path-input" placeholder="输入路径并回车">
+            <button type="button" class="btn btn-primary" data-role="fb-go">进入</button>
+        </div>
+        <div class="file-browser-cwd" data-role="fb-cwd">当前位置：/</div>
+        <div class="file-browser-list" data-role="fb-list"></div>
+    </div>
+</div>
 {% endblock %}
