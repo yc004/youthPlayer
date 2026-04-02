@@ -33,6 +33,43 @@
 
 <section class="panel">
     <div class="panel-head">
+        <h2>操作审计日志</h2>
+        <span class="chip info">最近 100 条（播放/删除等）</span>
+    </div>
+    <div class="table-wrap">
+        <table class="audit-table">
+            <thead>
+                <tr>
+                    <th>时间</th>
+                    <th>操作人</th>
+                    <th>动作</th>
+                    <th>目标</th>
+                    <th>结果</th>
+                    <th>详情</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in operation_logs %}
+                <tr>
+                    <td>{{ item.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                    <td>{{ item.operator_username or ('UID:' ~ item.operator_user_id) }}</td>
+                    <td>{{ item.action }}</td>
+                    <td>{{ item.target_type }} / {{ item.target_id or '-' }}</td>
+                    <td>{{ '成功' if item.success else '失败' }}</td>
+                    <td title="{{ item.user_agent }}">{{ item.detail or item.remote_addr }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6" class="empty-cell">暂无操作审计日志</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<section class="panel">
+    <div class="panel-head">
         <h2>设置操作审计日志</h2>
         <span class="chip info">最近 50 条</span>
     </div>

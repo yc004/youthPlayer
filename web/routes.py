@@ -5,7 +5,7 @@ from flask import Blueprint, flash, jsonify, redirect, render_template, request,
 from flask_login import current_user, login_required, login_user, logout_user
 
 from config import Config
-from models import Schedule, SettingAuditLog, SystemSetting, User, db
+from models import OperationAuditLog, Schedule, SettingAuditLog, SystemSetting, User, db
 
 
 main = Blueprint("main", __name__)
@@ -121,6 +121,25 @@ def _append_setting_audit_log(setting_key, old_value, new_value):
         db.session.rollback()
 
 
+def _append_operation_audit_log(action, success=True, target_type="system", target_id="", detail=""):
+    try:
+        log = OperationAuditLog(
+            action=action,
+            target_type=target_type,
+            target_id=str(target_id or ""),
+            success=bool(success),
+            detail=(detail or "")[:500],
+            operator_user_id=getattr(current_user, "id", None),
+            operator_username=getattr(current_user, "username", "") or "",
+            remote_addr=request.remote_addr or "",
+            user_agent=(request.headers.get("User-Agent", "") or "")[:500],
+        )
+        db.session.add(log)
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+
+
 @main.route("/login", methods=["GET", "POST"])
 def login():
     if current_user.is_authenticated:
@@ -170,6 +189,13 @@ def control():
     action = request.form.get("action", "")
     schedule_id = request.form.get("schedule_id")
     success = controller.control_playback(action, schedule_id=schedule_id)
+    _append_operation_audit_log(
+        action=f"playback_{action}",
+        success=success,
+        target_type="schedule" if schedule_id else "player",
+        target_id=schedule_id or "",
+        detail=player.get_status().get("last_error") or "",
+    )
     flash(
         "操作成功。" if success else f"操作失败：{player.get_status().get('last_error') or '请检查日志'}",
         "success" if success else "error",
@@ -287,6 +313,12 @@ def update_schedule(schedule_id):
 @login_required
 def delete_schedule(schedule_id):
     success = controller.delete_schedule(schedule_id)
+    _append_operation_audit_log(
+        action="schedule_delete",
+        success=success,
+        target_type="schedule",
+        target_id=str(schedule_id),
+    )
     flash("时间表已删除。" if success else "删除失败。", "success" if success else "error")
     return redirect(url_for("main.index"))
 
@@ -308,6 +340,13 @@ def toggle_schedule(schedule_id):
 @login_required
 def play_schedule_now(schedule_id):
     success = controller.control_playback("start", schedule_id=schedule_id)
+    _append_operation_audit_log(
+        action="schedule_play_now",
+        success=success,
+        target_type="schedule",
+        target_id=str(schedule_id),
+        detail=player.get_status().get("last_error") or "",
+    )
     flash("已开始播放指定内容。" if success else "播放失败。", "success" if success else "error")
     return redirect(url_for("main.index"))
 
@@ -431,10 +470,16 @@ def settings():
         .limit(50)
         .all()
     )
+    operation_logs = (
+        OperationAuditLog.query.order_by(OperationAuditLog.created_at.desc(), OperationAuditLog.id.desc())
+        .limit(100)
+        .all()
+    )
     return render_template(
         "settings.html",
         all_play_via_electron=all_play_via_electron,
         audit_logs=audit_logs,
+        operation_logs=operation_logs,
     )
 
 

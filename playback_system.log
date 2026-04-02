@@ -1701,3 +1701,253 @@ error sending request for url (https://msedgedriver.azureedge.net/LATEST_STABLE)
 2026-04-03 00:13:56,393 - player.player - INFO - Launching Electron command: ['C:\\Users\\Daniel\\Documents\\projects\\youthPlayer\\node_modules\\.bin\\electron.cmd', 'C:\\Users\\Daniel\\Documents\\projects\\youthPlayer\\player\\electron_runner.js', '--', '--url', 'file:///D:/Desktop/%E6%B4%BB%E5%8A%9B/%E5%87%A4%E5%87%B0%E5%8D%AB%E8%A7%86/%E5%87%A4%E5%87%B0%E5%8D%AB%E8%A7%86.mp4', '--host', '127.0.0.1', '--port', '18870', '--left', '0', '--top', '0', '--width', '1600', '--height', '1000', '--topmost']
 2026-04-03 00:13:56,927 - player.player - INFO - Web live opened via Electron: file:///D:/Desktop/%E6%B4%BB%E5%8A%9B/%E5%87%A4%E5%87%B0%E5%8D%AB%E8%A7%86/%E5%87%A4%E5%87%B0%E5%8D%AB%E8%A7%86.mp4
 2026-04-03 00:14:03,246 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2026-04-03 00:19:58,728 - apscheduler.scheduler - INFO - Scheduler started
+2026-04-03 00:19:58,779 - player.player - INFO - Using VLC at: C:\Program Files\VideoLAN\VLC\vlc.exe
+2026-04-03 00:19:58,840 - player.player - INFO - VLC player initialized.
+2026-04-03 00:19:58,840 - player.player - INFO - Target screen set to: 0
+2026-04-03 00:19:58,909 - __main__ - INFO - Loaded setting all_play_via_electron=True
+2026-04-03 00:19:58,913 - apscheduler.scheduler - INFO - Added job "Controller._execute_schedule" to job store "default"
+2026-04-03 00:19:58,913 - apscheduler.scheduler - INFO - Added job "Controller._finish_schedule" to job store "default"
+2026-04-03 00:19:58,914 - controller.controller - INFO - 已注册时间表任务: 111 (ID=1)
+2026-04-03 00:19:58,915 - apscheduler.scheduler - INFO - Added job "Controller._execute_schedule" to job store "default"
+2026-04-03 00:19:58,915 - apscheduler.scheduler - INFO - Added job "Controller._finish_schedule" to job store "default"
+2026-04-03 00:19:58,915 - controller.controller - INFO - 已注册时间表任务: test (ID=2)
+2026-04-03 00:19:58,915 - controller.controller - INFO - 已加载 2 个有效时间表
+2026-04-03 00:19:58,918 - controller.controller - INFO - 开始执行时间表 [sync]: test
+2026-04-03 00:19:58,919 - player.player - INFO - Target screen set to: 0
+2026-04-03 00:19:58,920 - player.player - INFO - Using Electron for local source: D:\Desktop\活力\凤凰卫视\凤凰卫视.mp4 -> file:///D:/Desktop/%E6%B4%BB%E5%8A%9B/%E5%87%A4%E5%87%B0%E5%8D%AB%E8%A7%86/%E5%87%A4%E5%87%B0%E5%8D%AB%E8%A7%86.mp4
+2026-04-03 00:19:58,921 - player.player - INFO - Playback stopped.
+2026-04-03 00:19:58,922 - player.player - INFO - Resolved Electron binary: C:\Users\Daniel\Documents\projects\youthPlayer\node_modules\.bin\electron.cmd
+2026-04-03 00:19:59,244 - player.player - INFO - Launching Electron command: ['C:\\Users\\Daniel\\Documents\\projects\\youthPlayer\\node_modules\\.bin\\electron.cmd', 'C:\\Users\\Daniel\\Documents\\projects\\youthPlayer\\player\\electron_runner.js', '--', '--url', 'file:///D:/Desktop/%E6%B4%BB%E5%8A%9B/%E5%87%A4%E5%87%B0%E5%8D%AB%E8%A7%86/%E5%87%A4%E5%87%B0%E5%8D%AB%E8%A7%86.mp4', '--host', '127.0.0.1', '--port', '18870', '--left', '0', '--top', '0', '--width', '1600', '--height', '1000', '--topmost']
+2026-04-03 00:19:59,768 - player.player - INFO - Web live opened via Electron: file:///D:/Desktop/%E6%B4%BB%E5%8A%9B/%E5%87%A4%E5%87%B0%E5%8D%AB%E8%A7%86/%E5%87%A4%E5%87%B0%E5%8D%AB%E8%A7%86.mp4
+2026-04-03 00:19:59,770 - security.watchdog - INFO - 看门狗启动成功
+2026-04-03 00:19:59,787 - werkzeug - WARNING -  * Running on all addresses.
+   WARNING: This is a development server. Do not use it in a production deployment.
+2026-04-03 00:19:59,787 - werkzeug - INFO -  * Running on http://192.168.1.73:5000/ (Press CTRL+C to quit)
+2026-04-03 00:20:13,232 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:20:13] "GET /api/status HTTP/1.1" 200 -
+2026-04-03 00:20:14,998 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:20:14] "GET / HTTP/1.1" 200 -
+2026-04-03 00:20:15,146 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:20:15] "GET /static/styles.css HTTP/1.1" 200 -
+2026-04-03 00:20:15,147 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:20:15] "GET /static/app.js HTTP/1.1" 200 -
+2026-04-03 00:20:15,205 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:20:15] "GET /api/status HTTP/1.1" 200 -
+2026-04-03 00:20:19,749 - werkzeug - INFO - 192.168.1.73 - - [03/Apr/2026 00:20:19] "GET /api/status HTTP/1.1" 200 -
+2026-04-03 00:20:21,438 - player.player - INFO - Playback stopped.
+2026-04-03 00:20:21,443 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:20:21] "[32mPOST /control HTTP/1.1[0m" 302 -
+2026-04-03 00:20:21,515 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:20:21] "GET / HTTP/1.1" 200 -
+2026-04-03 00:20:21,587 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:20:21] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-03 00:20:21,593 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:20:21] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-03 00:20:21,626 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:20:21] "GET /api/status HTTP/1.1" 200 -
+2026-04-03 00:20:30,458 - controller.controller - INFO - 开始执行时间表 [sync]: test
+2026-04-03 00:20:30,459 - player.player - INFO - Target screen set to: 0
+2026-04-03 00:20:30,460 - player.player - INFO - Using Electron for local source: D:\Desktop\活力\凤凰卫视\凤凰卫视.mp4 -> file:///D:/Desktop/%E6%B4%BB%E5%8A%9B/%E5%87%A4%E5%87%B0%E5%8D%AB%E8%A7%86/%E5%87%A4%E5%87%B0%E5%8D%AB%E8%A7%86.mp4
+2026-04-03 00:20:30,460 - player.player - INFO - Playback stopped.
+2026-04-03 00:20:30,461 - player.player - INFO - Resolved Electron binary: C:\Users\Daniel\Documents\projects\youthPlayer\node_modules\.bin\electron.cmd
+2026-04-03 00:20:30,781 - player.player - INFO - Launching Electron command: ['C:\\Users\\Daniel\\Documents\\projects\\youthPlayer\\node_modules\\.bin\\electron.cmd', 'C:\\Users\\Daniel\\Documents\\projects\\youthPlayer\\player\\electron_runner.js', '--', '--url', 'file:///D:/Desktop/%E6%B4%BB%E5%8A%9B/%E5%87%A4%E5%87%B0%E5%8D%AB%E8%A7%86/%E5%87%A4%E5%87%B0%E5%8D%AB%E8%A7%86.mp4', '--host', '127.0.0.1', '--port', '18870', '--left', '0', '--top', '0', '--width', '1600', '--height', '1000', '--topmost']
+2026-04-03 00:20:31,287 - player.player - INFO - Web live opened via Electron: file:///D:/Desktop/%E6%B4%BB%E5%8A%9B/%E5%87%A4%E5%87%B0%E5%8D%AB%E8%A7%86/%E5%87%A4%E5%87%B0%E5%8D%AB%E8%A7%86.mp4
+2026-04-03 00:20:31,634 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:20:31] "GET /api/status HTTP/1.1" 200 -
+2026-04-03 00:20:41,661 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:20:41] "GET /api/status HTTP/1.1" 200 -
+2026-04-03 00:20:51,652 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:20:51] "GET /api/status HTTP/1.1" 200 -
+2026-04-03 00:20:55,485 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:20:55] "GET /settings HTTP/1.1" 200 -
+2026-04-03 00:20:55,532 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:20:55] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-03 00:20:55,536 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:20:55] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-03 00:20:58,618 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:20:58] "GET / HTTP/1.1" 200 -
+2026-04-03 00:20:58,666 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:20:58] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-03 00:20:58,678 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:20:58] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-03 00:20:58,752 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:20:58] "GET /api/status HTTP/1.1" 200 -
+2026-04-03 00:20:59,991 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:20:59] "GET /settings HTTP/1.1" 200 -
+2026-04-03 00:21:00,043 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:21:00] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-03 00:21:00,049 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:21:00] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-03 00:21:04,352 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:21:04] "GET / HTTP/1.1" 200 -
+2026-04-03 00:21:04,402 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:21:04] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-03 00:21:04,405 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:21:04] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-03 00:21:04,445 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:21:04] "GET /api/status HTTP/1.1" 200 -
+2026-04-03 00:21:10,916 - apscheduler.scheduler - INFO - Removed job schedule_weekly_start_2
+2026-04-03 00:21:10,917 - apscheduler.scheduler - INFO - Removed job schedule_weekly_end_2
+2026-04-03 00:21:10,956 - player.player - INFO - Playback stopped.
+2026-04-03 00:21:10,958 - controller.controller - INFO - 删除时间表: test
+2026-04-03 00:21:10,960 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:21:10] "[32mPOST /schedule/delete/2 HTTP/1.1[0m" 302 -
+2026-04-03 00:21:11,016 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:21:11] "GET / HTTP/1.1" 200 -
+2026-04-03 00:21:11,080 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:21:11] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-03 00:21:11,081 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:21:11] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-03 00:21:11,120 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:21:11] "GET /api/status HTTP/1.1" 200 -
+2026-04-03 00:21:12,392 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:21:12] "GET /settings HTTP/1.1" 200 -
+2026-04-03 00:21:12,440 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:21:12] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-03 00:21:12,444 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:21:12] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-03 00:21:14,487 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:21:14] "GET /settings HTTP/1.1" 200 -
+2026-04-03 00:21:14,560 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:21:14] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-03 00:21:14,571 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:21:14] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-03 00:21:17,396 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:21:17] "GET /settings HTTP/1.1" 200 -
+2026-04-03 00:21:17,442 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:21:17] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-03 00:21:17,445 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:21:17] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-03 00:21:19,749 - werkzeug - INFO - 192.168.1.73 - - [03/Apr/2026 00:21:19] "GET /api/status HTTP/1.1" 200 -
+2026-04-03 00:21:22,832 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:21:22] "GET /users HTTP/1.1" 200 -
+2026-04-03 00:21:22,872 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:21:22] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-03 00:21:22,875 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:21:22] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-03 00:21:38,204 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:21:38] "[32mPOST /user/add HTTP/1.1[0m" 302 -
+2026-04-03 00:21:38,243 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:21:38] "GET /users HTTP/1.1" 200 -
+2026-04-03 00:21:38,296 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:21:38] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-03 00:21:38,300 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:21:38] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-03 00:22:19,748 - werkzeug - INFO - 192.168.1.73 - - [03/Apr/2026 00:22:19] "GET /api/status HTTP/1.1" 200 -
+2026-04-03 00:23:19,747 - werkzeug - INFO - 192.168.1.73 - - [03/Apr/2026 00:23:19] "GET /api/status HTTP/1.1" 200 -
+2026-04-03 00:24:12,277 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2026-04-03 00:24:29,448 - apscheduler.scheduler - INFO - Scheduler started
+2026-04-03 00:24:29,501 - player.player - INFO - Using VLC at: C:\Program Files\VideoLAN\VLC\vlc.exe
+2026-04-03 00:24:29,563 - player.player - INFO - VLC player initialized.
+2026-04-03 00:24:29,563 - player.player - INFO - Target screen set to: 0
+2026-04-03 00:24:29,642 - __main__ - INFO - Loaded setting all_play_via_electron=True
+2026-04-03 00:24:29,646 - apscheduler.scheduler - INFO - Added job "Controller._execute_schedule" to job store "default"
+2026-04-03 00:24:29,646 - apscheduler.scheduler - INFO - Added job "Controller._finish_schedule" to job store "default"
+2026-04-03 00:24:29,647 - controller.controller - INFO - 已注册时间表任务: 111 (ID=1)
+2026-04-03 00:24:29,647 - controller.controller - INFO - 已加载 1 个有效时间表
+2026-04-03 00:24:29,650 - security.watchdog - INFO - 看门狗启动成功
+2026-04-03 00:24:29,666 - werkzeug - WARNING -  * Running on all addresses.
+   WARNING: This is a development server. Do not use it in a production deployment.
+2026-04-03 00:24:29,667 - werkzeug - INFO -  * Running on http://192.168.1.73:5000/ (Press CTRL+C to quit)
+2026-04-03 00:24:34,731 - werkzeug - INFO - 192.168.1.73 - - [03/Apr/2026 00:24:34] "GET /api/status HTTP/1.1" 200 -
+2026-04-03 00:24:35,449 - werkzeug - INFO - 192.168.1.73 - - [03/Apr/2026 00:24:35] "GET /api/status HTTP/1.1" 200 -
+2026-04-03 00:24:39,458 - werkzeug - INFO - 192.168.1.73 - - [03/Apr/2026 00:24:39] "GET / HTTP/1.1" 200 -
+2026-04-03 00:24:39,495 - werkzeug - INFO - 192.168.1.73 - - [03/Apr/2026 00:24:39] "GET /static/styles.css HTTP/1.1" 200 -
+2026-04-03 00:24:39,496 - werkzeug - INFO - 192.168.1.73 - - [03/Apr/2026 00:24:39] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-03 00:24:39,577 - werkzeug - INFO - 192.168.1.73 - - [03/Apr/2026 00:24:39] "GET /api/status HTTP/1.1" 200 -
+2026-04-03 00:24:44,458 - werkzeug - INFO - 192.168.1.73 - - [03/Apr/2026 00:24:44] "GET /settings HTTP/1.1" 200 -
+2026-04-03 00:24:44,486 - werkzeug - INFO - 192.168.1.73 - - [03/Apr/2026 00:24:44] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-03 00:24:44,488 - werkzeug - INFO - 192.168.1.73 - - [03/Apr/2026 00:24:44] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-03 00:24:52,703 - werkzeug - INFO - 192.168.1.73 - - [03/Apr/2026 00:24:52] "[32mPOST /settings HTTP/1.1[0m" 302 -
+2026-04-03 00:24:52,721 - werkzeug - INFO - 192.168.1.73 - - [03/Apr/2026 00:24:52] "GET /settings HTTP/1.1" 200 -
+2026-04-03 00:24:52,768 - werkzeug - INFO - 192.168.1.73 - - [03/Apr/2026 00:24:52] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-03 00:24:52,770 - werkzeug - INFO - 192.168.1.73 - - [03/Apr/2026 00:24:52] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-03 00:24:55,547 - werkzeug - INFO - 192.168.1.73 - - [03/Apr/2026 00:24:55] "GET / HTTP/1.1" 200 -
+2026-04-03 00:24:55,578 - werkzeug - INFO - 192.168.1.73 - - [03/Apr/2026 00:24:55] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-03 00:24:55,579 - werkzeug - INFO - 192.168.1.73 - - [03/Apr/2026 00:24:55] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-03 00:24:55,607 - werkzeug - INFO - 192.168.1.73 - - [03/Apr/2026 00:24:55] "GET /api/status HTTP/1.1" 200 -
+2026-04-03 00:25:05,606 - werkzeug - INFO - 192.168.1.73 - - [03/Apr/2026 00:25:05] "GET /api/status HTTP/1.1" 200 -
+2026-04-03 00:25:15,607 - werkzeug - INFO - 192.168.1.73 - - [03/Apr/2026 00:25:15] "GET /api/status HTTP/1.1" 200 -
+2026-04-03 00:25:25,227 - werkzeug - INFO - 192.168.1.73 - - [03/Apr/2026 00:25:25] "GET /api/browse HTTP/1.1" 200 -
+2026-04-03 00:25:25,234 - werkzeug - INFO - 192.168.1.73 - - [03/Apr/2026 00:25:25] "GET /api/browse HTTP/1.1" 200 -
+2026-04-03 00:25:25,603 - werkzeug - INFO - 192.168.1.73 - - [03/Apr/2026 00:25:25] "GET /api/status HTTP/1.1" 200 -
+2026-04-03 00:25:28,018 - werkzeug - INFO - 192.168.1.73 - - [03/Apr/2026 00:25:28] "GET /api/browse?path=D%3A%5C HTTP/1.1" 200 -
+2026-04-03 00:25:31,969 - werkzeug - INFO - 192.168.1.73 - - [03/Apr/2026 00:25:31] "GET /api/browse?path=D%3A%5CDesktop HTTP/1.1" 200 -
+2026-04-03 00:25:35,606 - werkzeug - INFO - 192.168.1.73 - - [03/Apr/2026 00:25:35] "GET /api/status HTTP/1.1" 200 -
+2026-04-03 00:25:36,223 - werkzeug - INFO - 192.168.1.73 - - [03/Apr/2026 00:25:36] "GET /api/browse?path=D%3A%5CDesktop%5C活力 HTTP/1.1" 200 -
+2026-04-03 00:25:38,792 - werkzeug - INFO - 192.168.1.73 - - [03/Apr/2026 00:25:38] "GET /api/browse?path=D%3A%5CDesktop%5C活力%5C凤凰卫视 HTTP/1.1" 200 -
+2026-04-03 00:25:43,656 - apscheduler.scheduler - INFO - Added job "Controller._finish_schedule" to job store "default"
+2026-04-03 00:25:43,656 - controller.controller - INFO - 已注册时间表任务: test (ID=2)
+2026-04-03 00:25:43,658 - controller.controller - INFO - 开始执行时间表 [sync]: test
+2026-04-03 00:25:43,659 - player.player - INFO - Target screen set to: 0
+2026-04-03 00:25:43,660 - player.player - INFO - Using Electron for local source: D:\Desktop\活力\凤凰卫视\凤凰卫视.mp4 -> file:///D:/Desktop/%E6%B4%BB%E5%8A%9B/%E5%87%A4%E5%87%B0%E5%8D%AB%E8%A7%86/%E5%87%A4%E5%87%B0%E5%8D%AB%E8%A7%86.mp4
+2026-04-03 00:25:43,662 - player.player - INFO - Playback stopped.
+2026-04-03 00:25:43,665 - player.player - INFO - Resolved Electron binary: C:\Users\Daniel\Documents\projects\youthPlayer\node_modules\.bin\electron.cmd
+2026-04-03 00:25:44,112 - player.player - INFO - Launching Electron command: ['C:\\Users\\Daniel\\Documents\\projects\\youthPlayer\\node_modules\\.bin\\electron.cmd', 'C:\\Users\\Daniel\\Documents\\projects\\youthPlayer\\player\\electron_runner.js', '--', '--url', 'file:///D:/Desktop/%E6%B4%BB%E5%8A%9B/%E5%87%A4%E5%87%B0%E5%8D%AB%E8%A7%86/%E5%87%A4%E5%87%B0%E5%8D%AB%E8%A7%86.mp4', '--host', '127.0.0.1', '--port', '18870', '--left', '0', '--top', '0', '--width', '1600', '--height', '1000', '--topmost']
+2026-04-03 00:25:44,669 - controller.controller - INFO - 开始执行时间表 [sync]: test
+2026-04-03 00:25:44,671 - player.player - INFO - Target screen set to: 0
+2026-04-03 00:25:45,133 - player.player - INFO - Web live opened via Electron: file:///D:/Desktop/%E6%B4%BB%E5%8A%9B/%E5%87%A4%E5%87%B0%E5%8D%AB%E8%A7%86/%E5%87%A4%E5%87%B0%E5%8D%AB%E8%A7%86.mp4
+2026-04-03 00:25:45,133 - controller.controller - INFO - 添加新时间表: test
+2026-04-03 00:25:45,134 - player.player - INFO - Using Electron for local source: D:\Desktop\活力\凤凰卫视\凤凰卫视.mp4 -> file:///D:/Desktop/%E6%B4%BB%E5%8A%9B/%E5%87%A4%E5%87%B0%E5%8D%AB%E8%A7%86/%E5%87%A4%E5%87%B0%E5%8D%AB%E8%A7%86.mp4
+2026-04-03 00:25:45,135 - werkzeug - INFO - 192.168.1.73 - - [03/Apr/2026 00:25:45] "[32mPOST /schedule/add HTTP/1.1[0m" 302 -
+2026-04-03 00:25:45,144 - player.player - INFO - Playback stopped.
+2026-04-03 00:25:45,153 - werkzeug - INFO - 192.168.1.73 - - [03/Apr/2026 00:25:45] "GET / HTTP/1.1" 200 -
+2026-04-03 00:25:45,154 - player.player - INFO - Resolved Electron binary: C:\Users\Daniel\Documents\projects\youthPlayer\node_modules\.bin\electron.cmd
+2026-04-03 00:25:45,243 - werkzeug - INFO - 192.168.1.73 - - [03/Apr/2026 00:25:45] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-03 00:25:45,249 - werkzeug - INFO - 192.168.1.73 - - [03/Apr/2026 00:25:45] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-03 00:25:45,294 - werkzeug - INFO - 192.168.1.73 - - [03/Apr/2026 00:25:45] "GET /api/status HTTP/1.1" 200 -
+2026-04-03 00:25:45,696 - player.player - INFO - Launching Electron command: ['C:\\Users\\Daniel\\Documents\\projects\\youthPlayer\\node_modules\\.bin\\electron.cmd', 'C:\\Users\\Daniel\\Documents\\projects\\youthPlayer\\player\\electron_runner.js', '--', '--url', 'file:///D:/Desktop/%E6%B4%BB%E5%8A%9B/%E5%87%A4%E5%87%B0%E5%8D%AB%E8%A7%86/%E5%87%A4%E5%87%B0%E5%8D%AB%E8%A7%86.mp4', '--host', '127.0.0.1', '--port', '18871', '--left', '0', '--top', '0', '--width', '1600', '--height', '1000', '--topmost']
+2026-04-03 00:25:46,706 - player.player - INFO - Web live opened via Electron: file:///D:/Desktop/%E6%B4%BB%E5%8A%9B/%E5%87%A4%E5%87%B0%E5%8D%AB%E8%A7%86/%E5%87%A4%E5%87%B0%E5%8D%AB%E8%A7%86.mp4
+2026-04-03 00:25:47,824 - werkzeug - INFO - 192.168.1.73 - - [03/Apr/2026 00:25:47] "GET /settings HTTP/1.1" 200 -
+2026-04-03 00:25:47,877 - werkzeug - INFO - 192.168.1.73 - - [03/Apr/2026 00:25:47] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-03 00:25:47,889 - werkzeug - INFO - 192.168.1.73 - - [03/Apr/2026 00:25:47] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-03 00:25:50,355 - werkzeug - INFO - 192.168.1.73 - - [03/Apr/2026 00:25:50] "GET /settings HTTP/1.1" 200 -
+2026-04-03 00:25:50,387 - werkzeug - INFO - 192.168.1.73 - - [03/Apr/2026 00:25:50] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-03 00:25:50,398 - werkzeug - INFO - 192.168.1.73 - - [03/Apr/2026 00:25:50] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-03 00:25:58,635 - werkzeug - INFO - 192.168.1.73 - - [03/Apr/2026 00:25:58] "GET / HTTP/1.1" 200 -
+2026-04-03 00:25:58,678 - werkzeug - INFO - 192.168.1.73 - - [03/Apr/2026 00:25:58] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-03 00:25:58,680 - werkzeug - INFO - 192.168.1.73 - - [03/Apr/2026 00:25:58] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-03 00:25:58,758 - werkzeug - INFO - 192.168.1.73 - - [03/Apr/2026 00:25:58] "GET /api/status HTTP/1.1" 200 -
+2026-04-03 00:26:08,756 - werkzeug - INFO - 192.168.1.73 - - [03/Apr/2026 00:26:08] "GET /api/status HTTP/1.1" 200 -
+2026-04-03 00:26:18,742 - werkzeug - INFO - 192.168.1.73 - - [03/Apr/2026 00:26:18] "GET /api/status HTTP/1.1" 200 -
+2026-04-03 00:26:27,339 - controller.controller - INFO - 开始执行时间表 [sync]: test
+2026-04-03 00:26:27,340 - player.player - INFO - Target screen set to: 0
+2026-04-03 00:26:27,341 - player.player - INFO - Using Electron for local source: D:\Desktop\活力\凤凰卫视\凤凰卫视.mp4 -> file:///D:/Desktop/%E6%B4%BB%E5%8A%9B/%E5%87%A4%E5%87%B0%E5%8D%AB%E8%A7%86/%E5%87%A4%E5%87%B0%E5%8D%AB%E8%A7%86.mp4
+2026-04-03 00:26:28,740 - werkzeug - INFO - 192.168.1.73 - - [03/Apr/2026 00:26:28] "GET /api/status HTTP/1.1" 200 -
+2026-04-03 00:26:29,353 - player.player - INFO - Playback stopped.
+2026-04-03 00:26:29,356 - player.player - INFO - Resolved Electron binary: C:\Users\Daniel\Documents\projects\youthPlayer\node_modules\.bin\electron.cmd
+2026-04-03 00:26:29,815 - player.player - INFO - Launching Electron command: ['C:\\Users\\Daniel\\Documents\\projects\\youthPlayer\\node_modules\\.bin\\electron.cmd', 'C:\\Users\\Daniel\\Documents\\projects\\youthPlayer\\player\\electron_runner.js', '--', '--url', 'file:///D:/Desktop/%E6%B4%BB%E5%8A%9B/%E5%87%A4%E5%87%B0%E5%8D%AB%E8%A7%86/%E5%87%A4%E5%87%B0%E5%8D%AB%E8%A7%86.mp4', '--host', '127.0.0.1', '--port', '18870', '--left', '0', '--top', '0', '--width', '1600', '--height', '1000', '--topmost']
+2026-04-03 00:26:30,268 - werkzeug - INFO - 192.168.1.73 - - [03/Apr/2026 00:26:30] "GET /users HTTP/1.1" 200 -
+2026-04-03 00:26:30,304 - werkzeug - INFO - 192.168.1.73 - - [03/Apr/2026 00:26:30] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-03 00:26:30,305 - werkzeug - INFO - 192.168.1.73 - - [03/Apr/2026 00:26:30] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-03 00:26:30,823 - player.player - INFO - Web live opened via Electron: file:///D:/Desktop/%E6%B4%BB%E5%8A%9B/%E5%87%A4%E5%87%B0%E5%8D%AB%E8%A7%86/%E5%87%A4%E5%87%B0%E5%8D%AB%E8%A7%86.mp4
+2026-04-03 00:26:30,825 - controller.controller - INFO - 开始执行时间表 [manual]: test
+2026-04-03 00:26:30,826 - player.player - INFO - Target screen set to: 0
+2026-04-03 00:26:30,827 - player.player - INFO - Using Electron for local source: D:\Desktop\活力\凤凰卫视\凤凰卫视.mp4 -> file:///D:/Desktop/%E6%B4%BB%E5%8A%9B/%E5%87%A4%E5%87%B0%E5%8D%AB%E8%A7%86/%E5%87%A4%E5%87%B0%E5%8D%AB%E8%A7%86.mp4
+2026-04-03 00:26:30,834 - player.player - INFO - Playback stopped.
+2026-04-03 00:26:30,838 - player.player - INFO - Resolved Electron binary: C:\Users\Daniel\Documents\projects\youthPlayer\node_modules\.bin\electron.cmd
+2026-04-03 00:26:31,061 - werkzeug - INFO - 192.168.1.73 - - [03/Apr/2026 00:26:31] "GET /settings HTTP/1.1" 200 -
+2026-04-03 00:26:31,096 - werkzeug - INFO - 192.168.1.73 - - [03/Apr/2026 00:26:31] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-03 00:26:31,099 - werkzeug - INFO - 192.168.1.73 - - [03/Apr/2026 00:26:31] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-03 00:26:31,373 - player.player - INFO - Launching Electron command: ['C:\\Users\\Daniel\\Documents\\projects\\youthPlayer\\node_modules\\.bin\\electron.cmd', 'C:\\Users\\Daniel\\Documents\\projects\\youthPlayer\\player\\electron_runner.js', '--', '--url', 'file:///D:/Desktop/%E6%B4%BB%E5%8A%9B/%E5%87%A4%E5%87%B0%E5%8D%AB%E8%A7%86/%E5%87%A4%E5%87%B0%E5%8D%AB%E8%A7%86.mp4', '--host', '127.0.0.1', '--port', '18871', '--left', '0', '--top', '0', '--width', '1600', '--height', '1000', '--topmost']
+2026-04-03 00:26:32,386 - player.player - INFO - Web live opened via Electron: file:///D:/Desktop/%E6%B4%BB%E5%8A%9B/%E5%87%A4%E5%87%B0%E5%8D%AB%E8%A7%86/%E5%87%A4%E5%87%B0%E5%8D%AB%E8%A7%86.mp4
+2026-04-03 00:26:32,416 - werkzeug - INFO - 192.168.1.73 - - [03/Apr/2026 00:26:32] "[32mPOST /control HTTP/1.1[0m" 302 -
+2026-04-03 00:26:39,546 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:26:39] "GET /users HTTP/1.1" 200 -
+2026-04-03 00:26:39,608 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:26:39] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-03 00:26:39,613 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:26:39] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-03 00:26:43,126 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:26:43] "GET / HTTP/1.1" 200 -
+2026-04-03 00:26:43,181 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:26:43] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-03 00:26:43,184 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:26:43] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-03 00:26:43,228 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:26:43] "GET /api/status HTTP/1.1" 200 -
+2026-04-03 00:26:45,827 - player.player - INFO - Playback stopped.
+2026-04-03 00:26:45,873 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:26:45] "[32mPOST /control HTTP/1.1[0m" 302 -
+2026-04-03 00:26:45,933 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:26:45] "GET / HTTP/1.1" 200 -
+2026-04-03 00:26:45,983 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:26:45] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-03 00:26:45,987 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:26:45] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-03 00:26:46,017 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:26:46] "GET /api/status HTTP/1.1" 200 -
+2026-04-03 00:26:46,763 - controller.controller - INFO - 开始执行时间表 [sync]: test
+2026-04-03 00:26:46,763 - player.player - INFO - Target screen set to: 0
+2026-04-03 00:26:46,764 - player.player - INFO - Using Electron for local source: D:\Desktop\活力\凤凰卫视\凤凰卫视.mp4 -> file:///D:/Desktop/%E6%B4%BB%E5%8A%9B/%E5%87%A4%E5%87%B0%E5%8D%AB%E8%A7%86/%E5%87%A4%E5%87%B0%E5%8D%AB%E8%A7%86.mp4
+2026-04-03 00:26:46,764 - player.player - INFO - Playback stopped.
+2026-04-03 00:26:46,765 - player.player - INFO - Resolved Electron binary: C:\Users\Daniel\Documents\projects\youthPlayer\node_modules\.bin\electron.cmd
+2026-04-03 00:26:47,110 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:26:47] "GET /settings HTTP/1.1" 200 -
+2026-04-03 00:26:47,159 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:26:47] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-03 00:26:47,161 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:26:47] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-03 00:26:47,240 - player.player - INFO - Launching Electron command: ['C:\\Users\\Daniel\\Documents\\projects\\youthPlayer\\node_modules\\.bin\\electron.cmd', 'C:\\Users\\Daniel\\Documents\\projects\\youthPlayer\\player\\electron_runner.js', '--', '--url', 'file:///D:/Desktop/%E6%B4%BB%E5%8A%9B/%E5%87%A4%E5%87%B0%E5%8D%AB%E8%A7%86/%E5%87%A4%E5%87%B0%E5%8D%AB%E8%A7%86.mp4', '--host', '127.0.0.1', '--port', '18870', '--left', '0', '--top', '0', '--width', '1600', '--height', '1000', '--topmost']
+2026-04-03 00:26:48,257 - player.player - INFO - Web live opened via Electron: file:///D:/Desktop/%E6%B4%BB%E5%8A%9B/%E5%87%A4%E5%87%B0%E5%8D%AB%E8%A7%86/%E5%87%A4%E5%87%B0%E5%8D%AB%E8%A7%86.mp4
+2026-04-03 00:26:59,148 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:26:59] "GET / HTTP/1.1" 200 -
+2026-04-03 00:26:59,197 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:26:59] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-03 00:26:59,199 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:26:59] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-03 00:26:59,232 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:26:59] "GET /api/status HTTP/1.1" 200 -
+2026-04-03 00:27:03,398 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:27:03] "[32mPOST /control HTTP/1.1[0m" 302 -
+2026-04-03 00:27:03,444 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:27:03] "GET / HTTP/1.1" 200 -
+2026-04-03 00:27:03,514 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:27:03] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-03 00:27:03,523 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:27:03] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-03 00:27:03,548 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:27:03] "GET /api/status HTTP/1.1" 200 -
+2026-04-03 00:27:04,911 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:27:04] "GET /settings HTTP/1.1" 200 -
+2026-04-03 00:27:04,949 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:27:04] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-03 00:27:04,950 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:27:04] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-03 00:27:09,036 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:27:09] "GET / HTTP/1.1" 200 -
+2026-04-03 00:27:09,088 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:27:09] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-03 00:27:09,088 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:27:09] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-03 00:27:09,121 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:27:09] "GET /api/status HTTP/1.1" 200 -
+2026-04-03 00:27:11,729 - controller.controller - INFO - 开始执行时间表 [manual]: test
+2026-04-03 00:27:11,729 - player.player - INFO - Target screen set to: 0
+2026-04-03 00:27:11,731 - player.player - INFO - Using Electron for local source: D:\Desktop\活力\凤凰卫视\凤凰卫视.mp4 -> file:///D:/Desktop/%E6%B4%BB%E5%8A%9B/%E5%87%A4%E5%87%B0%E5%8D%AB%E8%A7%86/%E5%87%A4%E5%87%B0%E5%8D%AB%E8%A7%86.mp4
+2026-04-03 00:27:11,736 - player.player - INFO - Playback stopped.
+2026-04-03 00:27:11,739 - player.player - INFO - Resolved Electron binary: C:\Users\Daniel\Documents\projects\youthPlayer\node_modules\.bin\electron.cmd
+2026-04-03 00:27:12,179 - player.player - INFO - Launching Electron command: ['C:\\Users\\Daniel\\Documents\\projects\\youthPlayer\\node_modules\\.bin\\electron.cmd', 'C:\\Users\\Daniel\\Documents\\projects\\youthPlayer\\player\\electron_runner.js', '--', '--url', 'file:///D:/Desktop/%E6%B4%BB%E5%8A%9B/%E5%87%A4%E5%87%B0%E5%8D%AB%E8%A7%86/%E5%87%A4%E5%87%B0%E5%8D%AB%E8%A7%86.mp4', '--host', '127.0.0.1', '--port', '18871', '--left', '0', '--top', '0', '--width', '1600', '--height', '1000', '--topmost']
+2026-04-03 00:27:13,187 - player.player - INFO - Web live opened via Electron: file:///D:/Desktop/%E6%B4%BB%E5%8A%9B/%E5%87%A4%E5%87%B0%E5%8D%AB%E8%A7%86/%E5%87%A4%E5%87%B0%E5%8D%AB%E8%A7%86.mp4
+2026-04-03 00:27:13,216 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:27:13] "[32mPOST /control HTTP/1.1[0m" 302 -
+2026-04-03 00:27:13,309 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:27:13] "GET / HTTP/1.1" 200 -
+2026-04-03 00:27:13,375 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:27:13] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-03 00:27:13,391 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:27:13] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-03 00:27:13,446 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:27:13] "GET /api/status HTTP/1.1" 200 -
+2026-04-03 00:27:16,791 - player.player - INFO - Playback stopped.
+2026-04-03 00:27:16,820 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:27:16] "[32mPOST /control HTTP/1.1[0m" 302 -
+2026-04-03 00:27:16,900 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:27:16] "GET / HTTP/1.1" 200 -
+2026-04-03 00:27:16,949 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:27:16] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-03 00:27:16,954 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:27:16] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-03 00:27:17,002 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:27:17] "GET /api/status HTTP/1.1" 200 -
+2026-04-03 00:27:18,266 - controller.controller - INFO - 开始执行时间表 [sync]: test
+2026-04-03 00:27:18,266 - player.player - INFO - Target screen set to: 0
+2026-04-03 00:27:18,268 - player.player - INFO - Using Electron for local source: D:\Desktop\活力\凤凰卫视\凤凰卫视.mp4 -> file:///D:/Desktop/%E6%B4%BB%E5%8A%9B/%E5%87%A4%E5%87%B0%E5%8D%AB%E8%A7%86/%E5%87%A4%E5%87%B0%E5%8D%AB%E8%A7%86.mp4
+2026-04-03 00:27:18,268 - player.player - INFO - Playback stopped.
+2026-04-03 00:27:18,271 - player.player - INFO - Resolved Electron binary: C:\Users\Daniel\Documents\projects\youthPlayer\node_modules\.bin\electron.cmd
+2026-04-03 00:27:18,680 - player.player - INFO - Launching Electron command: ['C:\\Users\\Daniel\\Documents\\projects\\youthPlayer\\node_modules\\.bin\\electron.cmd', 'C:\\Users\\Daniel\\Documents\\projects\\youthPlayer\\player\\electron_runner.js', '--', '--url', 'file:///D:/Desktop/%E6%B4%BB%E5%8A%9B/%E5%87%A4%E5%87%B0%E5%8D%AB%E8%A7%86/%E5%87%A4%E5%87%B0%E5%8D%AB%E8%A7%86.mp4', '--host', '127.0.0.1', '--port', '18870', '--left', '0', '--top', '0', '--width', '1600', '--height', '1000', '--topmost']
+2026-04-03 00:27:19,687 - player.player - INFO - Web live opened via Electron: file:///D:/Desktop/%E6%B4%BB%E5%8A%9B/%E5%87%A4%E5%87%B0%E5%8D%AB%E8%A7%86/%E5%87%A4%E5%87%B0%E5%8D%AB%E8%A7%86.mp4
+2026-04-03 00:27:28,117 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 00:27:28] "GET /api/status HTTP/1.1" 200 -
+2026-04-03 00:27:29,611 - apscheduler.scheduler - INFO - Scheduler has been shut down
