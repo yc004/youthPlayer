@@ -24,6 +24,15 @@ try:  # pragma: no cover
 except ImportError:  # pragma: no cover
     win32api = None
 
+try:  # pragma: no cover
+    import win32con
+    import win32gui
+    import win32ui
+except ImportError:  # pragma: no cover
+    win32con = None
+    win32gui = None
+    win32ui = None
+
 
 logger = logging.getLogger(__name__)
 
@@ -58,6 +67,8 @@ class Player:
         self.playlist_backend = "vlc"
         self._playlist_stop_event = threading.Event()
         self._playlist_thread = None
+        self.monitor_last_capture_at = None
+        self.monitor_last_capture_path = ""
 
         self._init_vlc()
         self.set_screen(Config.PRIMARY_SCREEN)
@@ -600,4 +611,66 @@ class Player:
             "playlist_loop_count": self.playlist_loop_count,
             "playlist_round": self.playlist_round,
             "playlist_backend": self.playlist_backend,
+            "monitor_last_capture_at": self.monitor_last_capture_at,
         }
+
+    def capture_monitor_snapshot(self):
+        """捕获当前目标屏幕截图，保存为 runtime/monitor_latest.bmp"""
+        if not win32gui or not win32ui or not win32con:
+            self.last_error = "pywin32 screenshot modules unavailable."
+            return False, self.last_error
+
+        screen = self.current_screen or {"left": 0, "top": 0, "width": 1920, "height": 1080}
+        left = int(screen.get("left", 0))
+        top = int(screen.get("top", 0))
+        width = int(screen.get("width", 0))
+        height = int(screen.get("height", 0))
+        if width <= 0 or height <= 0:
+            return False, "Invalid monitor bounds."
+
+        runtime_dir = os.path.join(Config.BASE_DIR, "runtime")
+        os.makedirs(runtime_dir, exist_ok=True)
+        target_path = os.path.join(runtime_dir, "monitor_latest.bmp")
+
+        hdesktop = None
+        desktop_dc = None
+        img_dc = None
+        mem_dc = None
+        screenshot = None
+        try:
+            hdesktop = win32gui.GetDesktopWindow()
+            desktop_dc = win32gui.GetWindowDC(hdesktop)
+            img_dc = win32ui.CreateDCFromHandle(desktop_dc)
+            mem_dc = img_dc.CreateCompatibleDC()
+            screenshot = win32ui.CreateBitmap()
+            screenshot.CreateCompatibleBitmap(img_dc, width, height)
+            mem_dc.SelectObject(screenshot)
+            mem_dc.BitBlt((0, 0), (width, height), img_dc, (left, top), win32con.SRCCOPY)
+            screenshot.SaveBitmapFile(mem_dc, target_path)
+            self.monitor_last_capture_at = time.strftime("%Y-%m-%d %H:%M:%S")
+            self.monitor_last_capture_path = target_path
+            return True, target_path
+        except Exception as exc:
+            logger.warning("Capture monitor snapshot failed: %s", exc)
+            return False, str(exc)
+        finally:
+            try:
+                if screenshot:
+                    win32gui.DeleteObject(screenshot.GetHandle())
+            except Exception:
+                pass
+            try:
+                if mem_dc:
+                    mem_dc.DeleteDC()
+            except Exception:
+                pass
+            try:
+                if img_dc:
+                    img_dc.DeleteDC()
+            except Exception:
+                pass
+            try:
+                if hdesktop and desktop_dc:
+                    win32gui.ReleaseDC(hdesktop, desktop_dc)
+            except Exception:
+                pass

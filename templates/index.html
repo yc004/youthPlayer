@@ -50,6 +50,16 @@
 
 <section class="panel">
     <div class="panel-head">
+        <h2>播放画面监控</h2>
+        <span class="chip info" data-role="monitor-time">{{ status.monitor_last_capture_at or '等待截图' }}</span>
+    </div>
+    <div class="monitor-preview-wrap">
+        <img data-role="monitor-preview" class="monitor-preview" alt="monitor preview">
+    </div>
+</section>
+
+<section class="panel">
+    <div class="panel-head">
         <h2>周计划甘特视图</h2>
         <span class="chip info">按周查看播放任务分布</span>
     </div>

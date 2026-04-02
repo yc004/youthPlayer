@@ -1,7 +1,7 @@
 import os
 from datetime import datetime
 
-from flask import Blueprint, flash, jsonify, redirect, render_template, request, url_for
+from flask import Blueprint, flash, jsonify, redirect, render_template, request, send_file, url_for
 from flask_login import current_user, login_required, login_user, logout_user
 
 from config import Config
@@ -374,6 +374,34 @@ def api_status():
                 else None
             ),
             "server_time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "monitor": {
+                "captured_at": player.monitor_last_capture_at,
+                "available": bool(player.monitor_last_capture_path and os.path.exists(player.monitor_last_capture_path)),
+                "frame_url": url_for("main.monitor_frame"),
+            },
+        }
+    )
+
+
+@main.route("/monitor/frame")
+@login_required
+def monitor_frame():
+    path = player.monitor_last_capture_path
+    if not path or not os.path.exists(path):
+        return ("No monitor frame", 404)
+    return send_file(path, mimetype="image/bmp", conditional=True)
+
+
+@main.route("/api/monitor")
+@login_required
+def api_monitor():
+    path = player.monitor_last_capture_path
+    exists = bool(path and os.path.exists(path))
+    return jsonify(
+        {
+            "ok": exists,
+            "captured_at": player.monitor_last_capture_at,
+            "frame_url": (url_for("main.monitor_frame") if exists else ""),
         }
     )
 

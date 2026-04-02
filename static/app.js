@@ -18,6 +18,7 @@
                 var payload = JSON.parse(request.responseText);
                 var player = payload.player || {};
                 var active = payload.active_schedule;
+                var monitor = payload.monitor || {};
 
                 setText("[data-role='player-state']", player.is_playing ? "播放中" : "空闲");
                 setText("[data-role='screen-name']", player.screen_name || "未知屏幕");
@@ -27,6 +28,12 @@
                 setText("[data-role='last-error']", player.last_error || "无");
                 setText("[data-role='server-time']", payload.server_time || "--");
                 setText("[data-role='active-schedule']", active ? active.name : "无");
+                setText("[data-role='monitor-time']", monitor.captured_at || "等待截图");
+
+                var monitorImg = document.querySelector("[data-role='monitor-preview']");
+                if (monitorImg && monitor.frame_url) {
+                    monitorImg.src = monitor.frame_url + "?t=" + Date.now();
+                }
 
                 var badge = document.querySelector("[data-role='play-badge']");
                 if (badge) {

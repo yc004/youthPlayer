@@ -1,4 +1,3 @@
-# 系统配置文件
 import os
 
 
@@ -13,7 +12,7 @@ class Config:
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
-    # 播放器配置
+    # 播放配置
     VLC_PATH = os.environ.get("YP_VLC_PATH", r"C:\Program Files\VideoLAN\VLC\vlc.exe")
     WEB_USE_ELECTRON = os.environ.get("YP_WEB_USE_ELECTRON", "1") == "1"
     WEB_ELECTRON_ONLY = os.environ.get("YP_WEB_ELECTRON_ONLY", "1") == "1"
@@ -39,6 +38,11 @@ class Config:
     WATCHDOG_RECOVERY_COOLDOWN = 20
     WINDOW_TOPMOST = True
     WINDOW_RECOVERY_ENABLED = True
+
+    # 监控截图
+    MONITOR_CAPTURE_ENABLED = os.environ.get("YP_MONITOR_CAPTURE_ENABLED", "1") == "1"
+    MONITOR_CAPTURE_INTERVAL = int(os.environ.get("YP_MONITOR_CAPTURE_INTERVAL", 5))
+    MONITOR_CAPTURE_ONLY_WHEN_PLAYING = os.environ.get("YP_MONITOR_CAPTURE_ONLY_PLAYING", "1") == "1"
 
     # Web 配置
     WEB_PORT = int(os.environ.get("YP_WEB_PORT", 5000))
