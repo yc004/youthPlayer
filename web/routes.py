@@ -39,6 +39,12 @@ def _parse_weekdays(form):
     return sorted(set(days))
 
 
+def _parse_playlist_paths(form):
+    raw = (form.get("playlist_paths") or "").replace("\r\n", "\n")
+    items = [line.strip() for line in raw.split("\n") if line.strip()]
+    return items, "\n".join(items)
+
+
 def _build_timeline_payload(schedules):
     out = []
     for item in schedules:
@@ -187,14 +193,39 @@ def _validate_schedule_form(form):
     elif end_time <= start_time:
         raise ValueError("结束时间必须晚于开始时间。")
 
-    return start_time, end_time, is_weekly, ",".join(str(day) for day in weekdays)
+    loop_mode = (form.get("loop_mode") or "single").strip()
+    if loop_mode not in {"single", "list_loop", "single_loop", "once"}:
+        loop_mode = "single"
+    try:
+        loop_count = int(form.get("loop_count") or 0)
+    except Exception:
+        loop_count = 0
+    loop_count = max(0, loop_count)
+    _items, playlist_paths = _parse_playlist_paths(form)
+    return (
+        start_time,
+        end_time,
+        is_weekly,
+        ",".join(str(day) for day in weekdays),
+        loop_mode,
+        loop_count,
+        playlist_paths,
+    )
 
 
 @main.route("/schedule/add", methods=["POST"])
 @login_required
 def add_schedule():
     try:
-        start_time, end_time, is_weekly, weekly_days = _validate_schedule_form(request.form)
+        (
+            start_time,
+            end_time,
+            is_weekly,
+            weekly_days,
+            loop_mode,
+            loop_count,
+            playlist_paths,
+        ) = _validate_schedule_form(request.form)
 
         schedule = Schedule(
             name=request.form["name"].strip(),
@@ -206,6 +237,9 @@ def add_schedule():
             is_active=True,
             is_weekly=is_weekly,
             weekly_days=weekly_days,
+            playlist_paths=playlist_paths,
+            loop_mode=loop_mode,
+            loop_count=loop_count,
         )
         success = controller.add_schedule(schedule)
         flash("时间表添加成功。" if success else "时间表添加失败。", "success" if success else "error")
@@ -218,7 +252,15 @@ def add_schedule():
 @login_required
 def update_schedule(schedule_id):
     try:
-        start_time, end_time, is_weekly, weekly_days = _validate_schedule_form(request.form)
+        (
+            start_time,
+            end_time,
+            is_weekly,
+            weekly_days,
+            loop_mode,
+            loop_count,
+            playlist_paths,
+        ) = _validate_schedule_form(request.form)
 
         kwargs = {
             "name": request.form["name"].strip(),
@@ -230,6 +272,9 @@ def update_schedule(schedule_id):
             "is_active": "is_active" in request.form,
             "is_weekly": is_weekly,
             "weekly_days": weekly_days,
+            "playlist_paths": playlist_paths,
+            "loop_mode": loop_mode,
+            "loop_count": loop_count,
         }
         success = controller.update_schedule(schedule_id, **kwargs)
         flash("时间表更新成功。" if success else "时间表更新失败。", "success" if success else "error")

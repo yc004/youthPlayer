@@ -45,6 +45,9 @@ class Schedule(db.Model):
     is_active = db.Column(db.Boolean, default=True)
     is_weekly = db.Column(db.Boolean, default=False, nullable=False)
     weekly_days = db.Column(db.String(20), default="", nullable=False)  # "0,1,2" => Mon,Tue,Wed
+    playlist_paths = db.Column(db.Text, default="", nullable=False)  # 多视频，一行一个路径/URL
+    loop_mode = db.Column(db.String(20), default="single", nullable=False)  # single/list_loop/single_loop/once
+    loop_count = db.Column(db.Integer, default=0, nullable=False)  # 0=无限循环
 
     def __repr__(self):
         return f"<Schedule {self.name}>"
@@ -81,6 +84,12 @@ class Schedule(db.Model):
     def is_running_now(self):
         return self.is_running_at(datetime.now())
 
+    @property
+    def playlist_items(self):
+        if not self.playlist_paths:
+            return []
+        return [line.strip() for line in self.playlist_paths.splitlines() if line.strip()]
+
 
 class SystemSetting(db.Model):
     __tablename__ = "system_setting"
@@ -107,3 +116,22 @@ class SettingAuditLog(db.Model):
 
     def __repr__(self):
         return f"<SettingAuditLog {self.setting_key} {self.old_value}->{self.new_value}>"
+
+
+class OperationAuditLog(db.Model):
+    __tablename__ = "operation_audit_log"
+
+    id = db.Column(db.Integer, primary_key=True)
+    action = db.Column(db.String(100), nullable=False, index=True)  # playback_start / playback_stop / schedule_delete
+    target_type = db.Column(db.String(50), nullable=False, default="system")  # schedule/player/system
+    target_id = db.Column(db.String(100), nullable=False, default="")
+    success = db.Column(db.Boolean, nullable=False, default=True)
+    detail = db.Column(db.String(500), nullable=False, default="")
+    operator_user_id = db.Column(db.Integer, nullable=True, index=True)
+    operator_username = db.Column(db.String(50), nullable=False, default="")
+    remote_addr = db.Column(db.String(100), nullable=False, default="")
+    user_agent = db.Column(db.String(500), nullable=False, default="")
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.now, index=True)
+
+    def __repr__(self):
+        return f"<OperationAuditLog {self.action} success={self.success}>"

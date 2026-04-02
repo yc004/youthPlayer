@@ -50,6 +50,14 @@ class Player:
         self.last_started_at = None
         self.expected_playing = False
         self._op_lock = threading.RLock()
+        self.playlist_items = []
+        self.playlist_index = 0
+        self.playlist_mode = "single"
+        self.playlist_loop_count = 0  # 0=无限
+        self.playlist_round = 1
+        self.playlist_backend = "vlc"
+        self._playlist_stop_event = threading.Event()
+        self._playlist_thread = None
 
         self._init_vlc()
         self.set_screen(Config.PRIMARY_SCREEN)
@@ -166,12 +174,18 @@ class Player:
         return self._open_web_live_electron(target_url)
 
     def _play_vlc_media(self, source, source_type="media"):
+        return self._play_vlc_media_internal(source, source_type=source_type, reset_before_play=True)
+
+    def _play_vlc_media_internal(self, source, source_type="media", reset_before_play=True):
         if not self.player or not self.instance:
             self.last_error = "VLC player is not initialized."
             logger.error(self.last_error)
             return False
         try:
-            self.stop()
+            if reset_before_play:
+                self.stop()
+            else:
+                self.player.stop()
             media = self.instance.media_new(source)
             self.player.set_media(media)
             result = self.player.play()
@@ -194,6 +208,103 @@ class Player:
             self.last_error = str(exc)
             logger.error("VLC playback failed: %s", exc)
             return False
+
+    def play_playlist(self, items, source_type="playlist", loop_mode="list_loop", loop_count=0):
+        with self._op_lock:
+            normalized = [str(x).strip() for x in (items or []) if str(x).strip()]
+            if not normalized:
+                self.last_error = "Playlist is empty."
+                return False
+
+            self.stop()
+            self.playlist_items = normalized
+            self.playlist_index = 0
+            self.playlist_mode = loop_mode or "list_loop"
+            self.playlist_loop_count = max(0, int(loop_count or 0))
+            self.playlist_round = 1
+            self.playlist_backend = "vlc"
+            self._playlist_stop_event.clear()
+
+            first = self.playlist_items[0]
+            use_electron = Config.ALL_PLAY_VIA_ELECTRON and len(self.playlist_items) == 1
+            if use_electron:
+                ok = self._open_via_electron(first, source_type=source_type)
+                self.playlist_backend = "electron"
+            else:
+                if Config.ALL_PLAY_VIA_ELECTRON and len(self.playlist_items) > 1:
+                    logger.info("Playlist rotation uses VLC to guarantee reliable next-track switching.")
+                ok = self._play_vlc_media_internal(first, source_type=source_type, reset_before_play=False)
+                self.playlist_backend = "vlc"
+            if not ok:
+                self.playlist_items = []
+                return False
+
+            self._playlist_thread = threading.Thread(target=self._playlist_worker, daemon=True)
+            self._playlist_thread.start()
+            logger.info(
+                "Playlist started. size=%s mode=%s loop_count=%s",
+                len(self.playlist_items),
+                self.playlist_mode,
+                self.playlist_loop_count,
+            )
+            return True
+
+    def _playlist_worker(self):
+        while not self._playlist_stop_event.is_set():
+            time.sleep(1)
+            with self._op_lock:
+                if not self.playlist_items:
+                    return
+
+                if self.playlist_backend != "vlc":
+                    continue
+
+                if not self.player or vlc is None:
+                    continue
+                state = self.player.get_state()
+                if state not in {vlc.State.Ended, vlc.State.Error}:
+                    continue
+                if not self._advance_playlist_locked():
+                    return
+
+    def _advance_playlist_locked(self):
+        if not self.playlist_items:
+            return False
+
+        size = len(self.playlist_items)
+        mode = self.playlist_mode
+
+        if mode == "single":
+            self.playlist_items = []
+            self.expected_playing = False
+            return False
+
+        if mode == "single_loop":
+            if self.playlist_loop_count > 0 and self.playlist_round >= self.playlist_loop_count:
+                self.playlist_items = []
+                self.expected_playing = False
+                return False
+            self.playlist_round += 1
+            next_index = self.playlist_index
+        else:
+            # list_loop / once
+            next_index = self.playlist_index + 1
+            if next_index >= size:
+                if mode == "once":
+                    self.playlist_items = []
+                    self.expected_playing = False
+                    return False
+                # list_loop
+                if self.playlist_loop_count > 0 and self.playlist_round >= self.playlist_loop_count:
+                    self.playlist_items = []
+                    self.expected_playing = False
+                    return False
+                self.playlist_round += 1
+                next_index = 0
+
+        self.playlist_index = next_index
+        source = self.playlist_items[self.playlist_index]
+        return self._play_vlc_media_internal(source, source_type="playlist", reset_before_play=False)
 
     def _should_use_browser(self, url):
         parsed = urlparse(url)
@@ -378,6 +489,11 @@ class Player:
     def stop(self):
         with self._op_lock:
             try:
+                self._playlist_stop_event.set()
+                self.playlist_items = []
+                self.playlist_index = 0
+                self.playlist_round = 1
+                self.playlist_backend = "vlc"
                 if self.player:
                     self.player.stop()
                 self.current_media = None
@@ -478,4 +594,10 @@ class Player:
             "screen_name": self.current_screen["name"] if self.current_screen else f"Screen {self.screen_index}",
             "last_error": self.last_error,
             "last_started_at": self.last_started_at,
+            "playlist_size": len(self.playlist_items),
+            "playlist_index": self.playlist_index,
+            "playlist_mode": self.playlist_mode,
+            "playlist_loop_count": self.playlist_loop_count,
+            "playlist_round": self.playlist_round,
+            "playlist_backend": self.playlist_backend,
         }

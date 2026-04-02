@@ -153,6 +153,23 @@
                 <button type="button" class="btn btn-secondary btn-path-browse">浏览...</button>
             </div>
         </label>
+        <label class="field field-wide">
+            <span>轮播列表（可选，一行一个文件/URL）</span>
+            <textarea name="playlist_paths" rows="4" placeholder="D:\video\a.mp4&#10;D:\video\b.mp4&#10;https://example.com/live"></textarea>
+        </label>
+        <label class="field">
+            <span>循环模式</span>
+            <select name="loop_mode">
+                <option value="single">单个播放（默认）</option>
+                <option value="list_loop">列表循环</option>
+                <option value="single_loop">单条循环</option>
+                <option value="once">列表播完停止</option>
+            </select>
+        </label>
+        <label class="field">
+            <span>循环次数（0=无限）</span>
+            <input type="number" name="loop_count" min="0" step="1" value="0">
+        </label>
         <label class="field">
             <span>播放屏幕</span>
             <select name="screen_index" required>
@@ -197,6 +214,7 @@
                     <span class="chip info">{{ "网页直播" if schedule.content_type == 'live' else ("NAS" if schedule.content_type == 'nas' else "本地") }}</span>
                     <span class="chip">屏幕 {{ schedule.screen_index }}</span>
                     {% if schedule.is_weekly %}<span class="chip info">周循环</span>{% endif %}
+                    {% if schedule.playlist_items %}<span class="chip info">轮播 {{ schedule.playlist_items|length }} 条</span>{% endif %}
                 </div>
             </summary>
 
@@ -260,6 +278,23 @@
                             <input type="text" name="content_path" class="content-path-input" value="{{ schedule.content_path }}" required>
                             <button type="button" class="btn btn-secondary btn-path-browse">浏览...</button>
                         </div>
+                    </label>
+                    <label class="field field-wide">
+                        <span>轮播列表（可选，一行一个文件/URL）</span>
+                        <textarea name="playlist_paths" rows="4">{{ schedule.playlist_paths }}</textarea>
+                    </label>
+                    <label class="field">
+                        <span>循环模式</span>
+                        <select name="loop_mode">
+                            <option value="single" {% if schedule.loop_mode == 'single' %}selected{% endif %}>单个播放（默认）</option>
+                            <option value="list_loop" {% if schedule.loop_mode == 'list_loop' %}selected{% endif %}>列表循环</option>
+                            <option value="single_loop" {% if schedule.loop_mode == 'single_loop' %}selected{% endif %}>单条循环</option>
+                            <option value="once" {% if schedule.loop_mode == 'once' %}selected{% endif %}>列表播完停止</option>
+                        </select>
+                    </label>
+                    <label class="field">
+                        <span>循环次数（0=无限）</span>
+                        <input type="number" name="loop_count" min="0" step="1" value="{{ schedule.loop_count or 0 }}">
                     </label>
                     <label class="field">
                         <span>播放屏幕</span>

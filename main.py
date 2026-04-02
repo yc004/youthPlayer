@@ -83,6 +83,18 @@ def init_db():
                     conn.exec_driver_sql(
                         "ALTER TABLE schedule ADD COLUMN weekly_days VARCHAR(20) NOT NULL DEFAULT ''"
                     )
+                if "playlist_paths" not in columns:
+                    conn.exec_driver_sql(
+                        "ALTER TABLE schedule ADD COLUMN playlist_paths TEXT NOT NULL DEFAULT ''"
+                    )
+                if "loop_mode" not in columns:
+                    conn.exec_driver_sql(
+                        "ALTER TABLE schedule ADD COLUMN loop_mode VARCHAR(20) NOT NULL DEFAULT 'single'"
+                    )
+                if "loop_count" not in columns:
+                    conn.exec_driver_sql(
+                        "ALTER TABLE schedule ADD COLUMN loop_count INTEGER NOT NULL DEFAULT 0"
+                    )
 
         admin = User.query.filter_by(username="admin").first()
         if not admin:

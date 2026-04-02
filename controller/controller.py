@@ -136,6 +136,17 @@ class Controller:
         logger.info("开始执行时间表 [%s]: %s", source, schedule.name)
         self.player.set_screen(schedule.screen_index)
 
+        if schedule.playlist_items:
+            success = self.player.play_playlist(
+                schedule.playlist_items,
+                source_type=schedule.content_type,
+                loop_mode=schedule.loop_mode or "list_loop",
+                loop_count=schedule.loop_count or 0,
+            )
+            if success:
+                self.current_schedule_id = schedule.id
+            return success
+
         if schedule.content_type == "local":
             success = self.player.play_local(schedule.content_path)
         elif schedule.content_type == "nas":

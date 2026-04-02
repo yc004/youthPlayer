@@ -291,13 +291,19 @@ a {
 }
 
 .field input,
-.field select {
+.field select,
+.field textarea {
     width: 100%;
     border: 1px solid #d1d5db;
     border-radius: 12px;
     padding: 12px 14px;
     font-size: 14px;
     background: #fff;
+}
+
+.field textarea {
+    resize: vertical;
+    min-height: 84px;
 }
 
 .path-picker {

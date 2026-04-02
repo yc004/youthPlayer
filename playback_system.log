@@ -1668,3 +1668,36 @@ error sending request for url (https://msedgedriver.azureedge.net/LATEST_STABLE)
 2026-04-03 00:11:30,894 - player.player - INFO - Launching Electron command: ['C:\\Users\\Daniel\\Documents\\projects\\youthPlayer\\node_modules\\.bin\\electron.cmd', 'C:\\Users\\Daniel\\Documents\\projects\\youthPlayer\\player\\electron_runner.js', '--', '--url', 'file:///D:/Desktop/%E6%B4%BB%E5%8A%9B/%E5%87%A4%E5%87%B0%E5%8D%AB%E8%A7%86/%E5%87%A4%E5%87%B0%E5%8D%AB%E8%A7%86.mp4', '--host', '127.0.0.1', '--port', '18870', '--left', '0', '--top', '0', '--width', '1600', '--height', '1000', '--topmost']
 2026-04-03 00:11:31,401 - player.player - INFO - Web live opened via Electron: file:///D:/Desktop/%E6%B4%BB%E5%8A%9B/%E5%87%A4%E5%87%B0%E5%8D%AB%E8%A7%86/%E5%87%A4%E5%87%B0%E5%8D%AB%E8%A7%86.mp4
 2026-04-03 00:11:35,745 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2026-04-03 00:13:35,440 - apscheduler.scheduler - INFO - Scheduler started
+2026-04-03 00:13:35,487 - player.player - INFO - Using VLC at: C:\Program Files\VideoLAN\VLC\vlc.exe
+2026-04-03 00:13:35,547 - player.player - INFO - VLC player initialized.
+2026-04-03 00:13:35,547 - player.player - INFO - Target screen set to: 0
+2026-04-03 00:13:35,584 - __main__ - INFO - Loaded setting all_play_via_electron=True
+2026-04-03 00:13:35,588 - apscheduler.scheduler - INFO - Added job "Controller._execute_schedule" to job store "default"
+2026-04-03 00:13:35,589 - apscheduler.scheduler - INFO - Added job "Controller._finish_schedule" to job store "default"
+2026-04-03 00:13:35,589 - controller.controller - INFO - 已注册时间表任务: 111 (ID=1)
+2026-04-03 00:13:35,590 - apscheduler.scheduler - INFO - Added job "Controller._execute_schedule" to job store "default"
+2026-04-03 00:13:35,590 - apscheduler.scheduler - INFO - Added job "Controller._finish_schedule" to job store "default"
+2026-04-03 00:13:35,591 - controller.controller - INFO - 已注册时间表任务: test (ID=2)
+2026-04-03 00:13:35,591 - controller.controller - INFO - 已加载 2 个有效时间表
+2026-04-03 00:13:35,593 - controller.controller - INFO - 开始执行时间表 [sync]: test
+2026-04-03 00:13:35,594 - player.player - INFO - Target screen set to: 0
+2026-04-03 00:13:35,594 - player.player - INFO - Using Electron for local source: D:\Desktop\活力\凤凰卫视\凤凰卫视.mp4 -> file:///D:/Desktop/%E6%B4%BB%E5%8A%9B/%E5%87%A4%E5%87%B0%E5%8D%AB%E8%A7%86/%E5%87%A4%E5%87%B0%E5%8D%AB%E8%A7%86.mp4
+2026-04-03 00:13:35,595 - player.player - INFO - Playback stopped.
+2026-04-03 00:13:35,597 - player.player - INFO - Resolved Electron binary: C:\Users\Daniel\Documents\projects\youthPlayer\node_modules\.bin\electron.cmd
+2026-04-03 00:13:35,895 - player.player - INFO - Launching Electron command: ['C:\\Users\\Daniel\\Documents\\projects\\youthPlayer\\node_modules\\.bin\\electron.cmd', 'C:\\Users\\Daniel\\Documents\\projects\\youthPlayer\\player\\electron_runner.js', '--', '--url', 'file:///D:/Desktop/%E6%B4%BB%E5%8A%9B/%E5%87%A4%E5%87%B0%E5%8D%AB%E8%A7%86/%E5%87%A4%E5%87%B0%E5%8D%AB%E8%A7%86.mp4', '--host', '127.0.0.1', '--port', '18870', '--left', '0', '--top', '0', '--width', '1600', '--height', '1000', '--topmost']
+2026-04-03 00:13:36,409 - player.player - INFO - Web live opened via Electron: file:///D:/Desktop/%E6%B4%BB%E5%8A%9B/%E5%87%A4%E5%87%B0%E5%8D%AB%E8%A7%86/%E5%87%A4%E5%87%B0%E5%8D%AB%E8%A7%86.mp4
+2026-04-03 00:13:36,412 - security.watchdog - INFO - 看门狗启动成功
+2026-04-03 00:13:36,427 - werkzeug - WARNING -  * Running on all addresses.
+   WARNING: This is a development server. Do not use it in a production deployment.
+2026-04-03 00:13:36,427 - werkzeug - INFO -  * Running on http://192.168.1.73:5000/ (Press CTRL+C to quit)
+2026-04-03 00:13:48,400 - werkzeug - INFO - 192.168.1.73 - - [03/Apr/2026 00:13:48] "GET /api/status HTTP/1.1" 200 -
+2026-04-03 00:13:54,065 - controller.controller - INFO - 开始执行时间表 [sync]: test
+2026-04-03 00:13:54,066 - player.player - INFO - Target screen set to: 0
+2026-04-03 00:13:54,066 - player.player - INFO - Using Electron for local source: D:\Desktop\活力\凤凰卫视\凤凰卫视.mp4 -> file:///D:/Desktop/%E6%B4%BB%E5%8A%9B/%E5%87%A4%E5%87%B0%E5%8D%AB%E8%A7%86/%E5%87%A4%E5%87%B0%E5%8D%AB%E8%A7%86.mp4
+2026-04-03 00:13:55,747 - werkzeug - INFO - 192.168.1.73 - - [03/Apr/2026 00:13:55] "GET /api/status HTTP/1.1" 200 -
+2026-04-03 00:13:56,067 - player.player - INFO - Playback stopped.
+2026-04-03 00:13:56,069 - player.player - INFO - Resolved Electron binary: C:\Users\Daniel\Documents\projects\youthPlayer\node_modules\.bin\electron.cmd
+2026-04-03 00:13:56,393 - player.player - INFO - Launching Electron command: ['C:\\Users\\Daniel\\Documents\\projects\\youthPlayer\\node_modules\\.bin\\electron.cmd', 'C:\\Users\\Daniel\\Documents\\projects\\youthPlayer\\player\\electron_runner.js', '--', '--url', 'file:///D:/Desktop/%E6%B4%BB%E5%8A%9B/%E5%87%A4%E5%87%B0%E5%8D%AB%E8%A7%86/%E5%87%A4%E5%87%B0%E5%8D%AB%E8%A7%86.mp4', '--host', '127.0.0.1', '--port', '18870', '--left', '0', '--top', '0', '--width', '1600', '--height', '1000', '--topmost']
+2026-04-03 00:13:56,927 - player.player - INFO - Web live opened via Electron: file:///D:/Desktop/%E6%B4%BB%E5%8A%9B/%E5%87%A4%E5%87%B0%E5%8D%AB%E8%A7%86/%E5%87%A4%E5%87%B0%E5%8D%AB%E8%A7%86.mp4
+2026-04-03 00:14:03,246 - apscheduler.scheduler - INFO - Scheduler has been shut down
