@@ -18,6 +18,7 @@ class Controller:
         self.scheduler = scheduler
         self.scheduled_jobs = {}
         self.current_schedule_id = None
+        self.manual_stop_schedule_id = None
 
     def refresh_schedules(self):
         self._clear_all_jobs()
@@ -135,6 +136,7 @@ class Controller:
 
     def _play_schedule(self, schedule, source="manual"):
         logger.info("开始执行时间表 [%s]: %s", source, schedule.name)
+        self.manual_stop_schedule_id = None
         self.player.set_screen(schedule.screen_index)
 
         if schedule.playlist_items:
@@ -175,8 +177,17 @@ class Controller:
             active_schedule = self._find_active_schedule(datetime.now())
             if not active_schedule:
                 self.current_schedule_id = None
+                self.manual_stop_schedule_id = None
                 self.player.show_screensaver()
                 return None
+
+            # 管理员手动“停止播放”后，不自动拉起当前这条计划
+            if (
+                not force_restart
+                and self.manual_stop_schedule_id is not None
+                and self.manual_stop_schedule_id == active_schedule.id
+            ):
+                return active_schedule
 
             if (
                 force_restart
@@ -297,6 +308,8 @@ class Controller:
                 return self._play_schedule(schedule, source="manual")
 
             if action == "stop":
+                active = self.get_active_schedule_now()
+                self.manual_stop_schedule_id = active.id if active else self.current_schedule_id
                 self.current_schedule_id = None
                 return self.player.stop()
 
