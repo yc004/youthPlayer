@@ -321,10 +321,37 @@
         });
     }
 
+    function refreshMonitorOnly() {
+        var monitorImg = document.querySelector("[data-role='monitor-preview']");
+        if (!monitorImg) return;
+        var request = new XMLHttpRequest();
+        request.open("GET", "/api/monitor", true);
+        request.onreadystatechange = function () {
+            if (request.readyState !== 4 || request.status !== 200) return;
+            try {
+                var payload = JSON.parse(request.responseText);
+                setText("[data-role='monitor-time']", payload.captured_at || "等待截图");
+                if (payload.frame_url) {
+                    monitorImg.src = payload.frame_url + "?t=" + Date.now();
+                }
+            } catch (_err) {
+                // ignore
+            }
+        };
+        request.send();
+    }
+
+    function initMonitorPolling() {
+        if (!document.querySelector("[data-role='monitor-preview']")) return;
+        refreshMonitorOnly();
+        window.setInterval(refreshMonitorOnly, 5000);
+    }
+
     if (document.querySelector("[data-role='player-state']")) {
         refreshStatus();
         window.setInterval(refreshStatus, 10000);
     }
     initGantt();
     initFileBrowser();
+    initMonitorPolling();
 })();

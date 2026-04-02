@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+
+{% block title %}播放计划{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div>
+        <span class="eyebrow">Schedules</span>
+        <h1>播放计划管理</h1>
+        <p>配置定时任务、周循环、轮播与循环模式。</p>
+    </div>
+    <div class="page-actions">
+        <span class="soft-badge">{{ summary.schedule_count }} 条计划</span>
+    </div>
+</section>
+
+<section class="panel">
+    <div class="panel-head">
+        <h2>周计划甘特视图</h2>
+        <span class="chip info">按周查看播放分布</span>
+    </div>
+    <div class="gantt-tabs" data-role="gantt-tabs">
+        {% for label in weekday_labels %}
+        <button class="gantt-tab {% if loop.first %}active{% endif %}" type="button" data-day="{{ loop.index0 }}">{{ label }}</button>
+        {% endfor %}
+    </div>
+    <div class="gantt-board" data-role="gantt-board"></div>
+</section>
+
+<section class="panel">
+    <div class="panel-head">
+        <h2>新建计划</h2>
+        <span class="chip info">支持单次任务与周循环</span>
+    </div>
+    <form method="post" action="{{ url_for('main.add_schedule') }}" class="schedule-form">
+        <label class="field"><span>计划名称</span><input type="text" name="name" required></label>
+        <label class="field"><span>开始时间</span><input type="datetime-local" name="start_time" required></label>
+        <label class="field"><span>结束时间</span><input type="datetime-local" name="end_time" required></label>
+        <label class="check-field check-field-alone"><input type="checkbox" name="is_weekly" value="1"><span>每周循环</span></label>
+        <div class="field field-weekdays field-wide">
+            <span>循环星期</span>
+            <div class="weekday-group">
+                {% for label in weekday_labels %}
+                <label><input type="checkbox" name="weekdays" value="{{ loop.index0 }}"> {{ label }}</label>
+                {% endfor %}
+            </div>
+        </div>
+        <label class="field"><span>内容类型</span>
+            <select name="content_type" required>
+                <option value="local">本地视频</option>
+                <option value="nas">NAS 素材</option>
+                <option value="live">网络直播 / 直播页</option>
+            </select>
+        </label>
+        <label class="field field-wide">
+            <span>内容地址</span>
+            <div class="path-picker">
+                <input type="text" name="content_path" class="content-path-input" required>
+                <button type="button" class="btn btn-secondary btn-path-browse">浏览...</button>
+            </div>
+        </label>
+        <label class="field field-wide">
+            <span>轮播列表（可选，一行一个）</span>
+            <textarea name="playlist_paths" rows="4"></textarea>
+        </label>
+        <label class="field"><span>循环模式</span>
+            <select name="loop_mode">
+                <option value="single">单个播放</option>
+                <option value="list_loop">列表循环</option>
+                <option value="single_loop">单条循环</option>
+                <option value="once">列表播完停止</option>
+            </select>
+        </label>
+        <label class="field"><span>循环次数（0=无限）</span><input type="number" name="loop_count" min="0" value="0"></label>
+        <label class="field"><span>播放屏幕</span>
+            <select name="screen_index" required>
+                {% for screen in screens %}
+                <option value="{{ screen.index }}">{{ screen.name }}（{{ screen.index }}）</option>
+                {% endfor %}
+            </select>
+        </label>
+        <div class="form-actions"><button type="submit" class="btn btn-primary">保存计划</button></div>
+    </form>
+</section>
+
+<section class="panel">
+    <div class="panel-head">
+        <h2>计划列表</h2>
+        <span class="chip">{{ summary.active_count }} 条启用</span>
+    </div>
+    <div class="schedule-stack">
+        {% for schedule in schedules %}
+        <details class="schedule-card">
+            <summary>
+                <div>
+                    <strong>{{ schedule.name }}</strong>
+                    <p>{{ schedule.start_time.strftime('%Y-%m-%d %H:%M') }} → {{ schedule.end_time.strftime('%Y-%m-%d %H:%M') }}</p>
+                </div>
+                <div class="summary-meta">
+                    <span class="chip {{ 'success' if schedule.is_active else 'muted' }}">{{ "启用" if schedule.is_active else "停用" }}</span>
+                    {% if schedule.playlist_items %}<span class="chip info">轮播 {{ schedule.playlist_items|length }} 条</span>{% endif %}
+                </div>
+            </summary>
+            <div class="schedule-body">
+                <div class="button-row compact">
+                    <form method="post" action="{{ url_for('main.play_schedule_now', schedule_id=schedule.id) }}"><button class="btn btn-primary" type="submit">立即播放</button></form>
+                    <form method="post" action="{{ url_for('main.toggle_schedule', schedule_id=schedule.id) }}"><button class="btn btn-secondary" type="submit">{{ "停用" if schedule.is_active else "启用" }}</button></form>
+                    <form method="post" action="{{ url_for('main.delete_schedule', schedule_id=schedule.id) }}" onsubmit="return confirm('确认删除该计划吗？');"><button class="btn btn-danger" type="submit">删除</button></form>
+                </div>
+            </div>
+        </details>
+        {% else %}
+        <div class="empty-state">暂无播放计划</div>
+        {% endfor %}
+    </div>
+</section>
+
+<script id="timeline-data" type="application/json">{{ timeline_payload|tojson }}</script>
+
+<div class="file-browser-backdrop" data-role="file-browser-backdrop" hidden>
+    <div class="file-browser-modal">
+        <div class="file-browser-head">
+            <strong>选择播放文件</strong>
+            <button type="button" class="btn btn-secondary" data-role="fb-close">关闭</button>
+        </div>
+        <div class="file-browser-toolbar">
+            <button type="button" class="btn btn-secondary" data-role="fb-roots">盘符</button>
+            <button type="button" class="btn btn-secondary" data-role="fb-up">上级</button>
+            <button type="button" class="btn btn-secondary" data-role="fb-use-dir">使用当前目录</button>
+        </div>
+        <div class="file-browser-path">
+            <input type="text" data-role="fb-path-input" placeholder="输入路径并回车">
+            <button type="button" class="btn btn-primary" data-role="fb-go">进入</button>
+        </div>
+        <div class="file-browser-cwd" data-role="fb-cwd">当前位置：/</div>
+        <div class="file-browser-list" data-role="fb-list"></div>
+    </div>
+</div>
+{% endblock %}

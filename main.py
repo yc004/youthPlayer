@@ -133,6 +133,13 @@ def load_runtime_settings():
                 "on",
             }
             logger.info("Loaded setting all_play_via_electron=%s", Config.ALL_PLAY_VIA_ELECTRON)
+        interval_item = db.session.get(SystemSetting, "monitor_capture_interval")
+        if interval_item:
+            try:
+                Config.MONITOR_CAPTURE_INTERVAL = max(2, min(3600, int(str(interval_item.value).strip())))
+            except Exception:
+                pass
+            logger.info("Loaded setting monitor_capture_interval=%ss", Config.MONITOR_CAPTURE_INTERVAL)
 
 
 def setup_monitor_capture_job():
@@ -142,8 +149,6 @@ def setup_monitor_capture_job():
     interval = max(2, int(Config.MONITOR_CAPTURE_INTERVAL or 5))
 
     def _capture_job():
-        if Config.MONITOR_CAPTURE_ONLY_WHEN_PLAYING and not player.expected_playing:
-            return
         player.capture_monitor_snapshot()
 
     scheduler.add_job(
@@ -156,6 +161,10 @@ def setup_monitor_capture_job():
         coalesce=True,
     )
     logger.info("Monitor capture job enabled, interval=%ss", interval)
+    try:
+        player.capture_monitor_snapshot()
+    except Exception:
+        pass
 
 
 def bootstrap():

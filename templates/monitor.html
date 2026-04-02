@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}画面监控{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div>
+        <span class="eyebrow">Monitor</span>
+        <h1>播放画面监控</h1>
+        <p>自动抓图并实时展示，支持手动截图。</p>
+    </div>
+    <div class="page-actions">
+        <span class="soft-badge" data-role="monitor-time">{{ status.monitor_last_capture_at or "等待截图" }}</span>
+    </div>
+</section>
+
+<section class="panel">
+    <div class="panel-head">
+        <h2>实时画面</h2>
+        <div class="button-row compact">
+            <form method="post" action="{{ url_for('main.monitor_capture_now') }}">
+                <button class="btn btn-secondary" type="submit">手动截图</button>
+            </form>
+        </div>
+    </div>
+    <div class="monitor-preview-wrap">
+        <img data-role="monitor-preview" class="monitor-preview" alt="monitor preview">
+    </div>
+</section>
+
+<section class="panel">
+    <div class="panel-head">
+        <h2>快速控制</h2>
+    </div>
+    <form method="post" action="{{ url_for('main.control') }}" class="button-row">
+        <button class="btn btn-primary" type="submit" name="action" value="start">开始</button>
+        <button class="btn btn-danger" type="submit" name="action" value="stop">停止</button>
+        <button class="btn btn-secondary" type="submit" name="action" value="resume">恢复</button>
+    </form>
+</section>
+{% endblock %}

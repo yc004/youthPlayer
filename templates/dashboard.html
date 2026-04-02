@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}控制台{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div>
+        <span class="eyebrow">Dashboard</span>
+        <h1>播放控制台</h1>
+        <p>查看状态并执行开始/停止等控制。</p>
+    </div>
+    <div class="page-actions">
+        <span class="soft-badge" data-role="server-time">--</span>
+    </div>
+</section>
+
+<section class="stats-grid">
+    <article class="stat-card">
+        <span class="stat-label">当前状态</span>
+        <strong class="stat-value" data-role="player-state">{{ "播放中" if status.is_playing else "空闲" }}</strong>
+        <p>{{ status.backend|upper }} / <span data-role="screen-name">{{ status.screen_name }}</span></p>
+    </article>
+    <article class="stat-card">
+        <span class="stat-label">当前内容</span>
+        <strong class="stat-value small" data-role="current-source">{{ status.current_source or "暂无播放内容" }}</strong>
+        <p>后端：<span data-role="backend">{{ status.backend }}</span></p>
+    </article>
+    <article class="stat-card">
+        <span class="stat-label">生效计划</span>
+        <strong class="stat-value" data-role="active-schedule">{{ active_schedule.name if active_schedule else "无" }}</strong>
+        <p>{{ summary.active_count }} 条启用计划</p>
+    </article>
+    <article class="stat-card">
+        <span class="stat-label">错误信息</span>
+        <strong class="stat-value small" data-role="last-error">{{ status.last_error or "无" }}</strong>
+        <p>状态：<span data-role="state-detail">{{ status.state }}</span></p>
+    </article>
+</section>
+
+<section class="layout-grid">
+    <article class="panel">
+        <div class="panel-head">
+            <h2>播放控制</h2>
+            <span class="chip {{ 'success' if status.is_playing else 'muted' }}" data-role="play-badge">
+                {{ "播放中" if status.is_playing else "待机" }}
+            </span>
+        </div>
+        <form method="post" action="{{ url_for('main.control') }}" class="button-row">
+            <button class="btn btn-primary" type="submit" name="action" value="start">开始</button>
+            <button class="btn btn-danger" type="submit" name="action" value="stop">停止</button>
+            <button class="btn btn-secondary" type="submit" name="action" value="pause">暂停</button>
+            <button class="btn btn-secondary" type="submit" name="action" value="resume">恢复</button>
+            <button class="btn btn-secondary" type="submit" name="action" value="web_play">网页注入播放</button>
+            <button class="btn btn-secondary" type="submit" name="action" value="web_fullscreen">网页注入全屏</button>
+        </form>
+    </article>
+
+    <article class="panel">
+        <div class="panel-head">
+            <h2>屏幕状态</h2>
+            <span class="chip info">{{ screens|length }} 块屏幕</span>
+        </div>
+        <div class="screen-list">
+            {% for screen in screens %}
+            <div class="screen-card {{ 'active' if screen.index == status.screen_index else '' }}">
+                <strong>{{ screen.name }}</strong>
+                <span>#{{ screen.index }}{% if screen.primary %} · 主屏{% endif %}</span>
+                <small>{{ screen.width }} × {{ screen.height }} / {{ screen.left }}, {{ screen.top }}</small>
+            </div>
+            {% endfor %}
+        </div>
+    </article>
+</section>
+{% endblock %}

@@ -18,7 +18,9 @@
             </div>
         </div>
         <nav class="nav-links">
-            <a href="{{ url_for('main.index') }}">总览</a>
+            <a href="{{ url_for('main.dashboard') }}">控制台</a>
+            <a href="{{ url_for('main.schedules_page') }}">播放计划</a>
+            <a href="{{ url_for('main.monitor_page') }}">画面监控</a>
             {% if current_user.is_admin %}
             <a href="{{ url_for('main.manage_users') }}">用户管理</a>
             <a href="{{ url_for('main.settings') }}">系统设置</a>

@@ -16,6 +16,7 @@ watchdog = None
 
 WEEKDAY_LABELS = ["周一", "周二", "周三", "周四", "周五", "周六", "周日"]
 SETTING_KEY_ALL_ELECTRON = "all_play_via_electron"
+SETTING_KEY_MONITOR_INTERVAL = "monitor_capture_interval"
 
 
 def init_routes(player_instance, controller_instance, watchdog_instance):
@@ -78,6 +79,13 @@ def _build_dashboard_context():
     }
 
 
+def _back(default_endpoint):
+    ref = request.referrer
+    if ref:
+        return redirect(ref)
+    return redirect(url_for(default_endpoint))
+
+
 def _list_windows_roots():
     roots = []
     for code in range(ord("A"), ord("Z") + 1):
@@ -101,6 +109,27 @@ def _set_setting_bool(key, value):
         db.session.add(item)
     else:
         item.value = "1" if value else "0"
+    db.session.commit()
+
+
+def _get_setting_int(key, default=0):
+    item = db.session.get(SystemSetting, key)
+    if not item:
+        return int(default)
+    try:
+        return int(str(item.value).strip())
+    except Exception:
+        return int(default)
+
+
+def _set_setting_int(key, value):
+    v = int(value)
+    item = db.session.get(SystemSetting, key)
+    if not item:
+        item = SystemSetting(key=key, value=str(v))
+        db.session.add(item)
+    else:
+        item.value = str(v)
     db.session.commit()
 
 
@@ -180,7 +209,33 @@ def logout():
 @main.route("/")
 @login_required
 def index():
-    return render_template("index.html", **_build_dashboard_context())
+    return redirect(url_for("main.dashboard"))
+
+
+@main.route("/dashboard")
+@login_required
+def dashboard():
+    return render_template("dashboard.html", **_build_dashboard_context())
+
+
+@main.route("/schedules")
+@login_required
+def schedules_page():
+    return render_template("schedules.html", **_build_dashboard_context())
+
+
+@main.route("/monitor")
+@login_required
+def monitor_page():
+    return render_template("monitor.html", **_build_dashboard_context())
+
+
+@main.route("/monitor/capture", methods=["POST"])
+@login_required
+def monitor_capture_now():
+    ok, msg = player.capture_monitor_snapshot()
+    flash("已手动截图。" if ok else f"手动截图失败：{msg}", "success" if ok else "error")
+    return _back("main.monitor_page")
 
 
 @main.route("/control", methods=["POST"])
@@ -200,7 +255,7 @@ def control():
         "操作成功。" if success else f"操作失败：{player.get_status().get('last_error') or '请检查日志'}",
         "success" if success else "error",
     )
-    return redirect(url_for("main.index"))
+    return _back("main.dashboard")
 
 
 def _validate_schedule_form(form):
@@ -271,7 +326,7 @@ def add_schedule():
         flash("时间表添加成功。" if success else "时间表添加失败。", "success" if success else "error")
     except Exception as exc:
         flash(f"时间表添加失败：{exc}", "error")
-    return redirect(url_for("main.index"))
+    return _back("main.schedules_page")
 
 
 @main.route("/schedule/update/<int:schedule_id>", methods=["POST"])
@@ -306,7 +361,7 @@ def update_schedule(schedule_id):
         flash("时间表更新成功。" if success else "时间表更新失败。", "success" if success else "error")
     except Exception as exc:
         flash(f"时间表更新失败：{exc}", "error")
-    return redirect(url_for("main.index"))
+    return _back("main.schedules_page")
 
 
 @main.route("/schedule/delete/<int:schedule_id>", methods=["POST"])
@@ -320,7 +375,7 @@ def delete_schedule(schedule_id):
         target_id=str(schedule_id),
     )
     flash("时间表已删除。" if success else "删除失败。", "success" if success else "error")
-    return redirect(url_for("main.index"))
+    return _back("main.schedules_page")
 
 
 @main.route("/schedule/toggle/<int:schedule_id>", methods=["POST"])
@@ -329,11 +384,11 @@ def toggle_schedule(schedule_id):
     schedule = db.session.get(Schedule, schedule_id)
     if not schedule:
         flash("未找到该时间表。", "error")
-        return redirect(url_for("main.index"))
+        return _back("main.schedules_page")
 
     success = controller.update_schedule(schedule_id, is_active=not schedule.is_active)
     flash("时间表状态已更新。" if success else "状态更新失败。", "success" if success else "error")
-    return redirect(url_for("main.index"))
+    return _back("main.schedules_page")
 
 
 @main.route("/schedule/play/<int:schedule_id>", methods=["POST"])
@@ -348,7 +403,7 @@ def play_schedule_now(schedule_id):
         detail=player.get_status().get("last_error") or "",
     )
     flash("已开始播放指定内容。" if success else "播放失败。", "success" if success else "error")
-    return redirect(url_for("main.index"))
+    return _back("main.schedules_page")
 
 
 @main.route("/api/status")
@@ -388,6 +443,10 @@ def api_status():
 def monitor_frame():
     path = player.monitor_last_capture_path
     if not path or not os.path.exists(path):
+        ok, _ = player.capture_monitor_snapshot()
+        if ok:
+            path = player.monitor_last_capture_path
+    if not path or not os.path.exists(path):
         return ("No monitor frame", 404)
     return send_file(path, mimetype="image/bmp", conditional=True)
 
@@ -397,6 +456,11 @@ def monitor_frame():
 def api_monitor():
     path = player.monitor_last_capture_path
     exists = bool(path and os.path.exists(path))
+    if not exists:
+        ok, _ = player.capture_monitor_snapshot()
+        if ok:
+            path = player.monitor_last_capture_path
+            exists = bool(path and os.path.exists(path))
     return jsonify(
         {
             "ok": exists,
@@ -482,17 +546,65 @@ def settings():
         return redirect(url_for("main.index"))
 
     if request.method == "POST":
+        form_action = (request.form.get("form_action") or "system").strip()
+        if form_action == "password":
+            old_password = request.form.get("old_password", "")
+            new_password = request.form.get("new_password", "")
+            confirm_password = request.form.get("confirm_password", "")
+            if not current_user.check_password(old_password):
+                flash("当前密码不正确。", "error")
+                return redirect(url_for("main.settings"))
+            if len(new_password) < 6:
+                flash("新密码至少 6 位。", "error")
+                return redirect(url_for("main.settings"))
+            if new_password != confirm_password:
+                flash("两次输入的新密码不一致。", "error")
+                return redirect(url_for("main.settings"))
+            current_user.set_password(new_password)
+            db.session.commit()
+            _append_operation_audit_log(
+                action="admin_password_change",
+                success=True,
+                target_type="user",
+                target_id=str(current_user.id),
+            )
+            flash("管理员密码修改成功。", "success")
+            return redirect(url_for("main.settings"))
+
         enable_all_electron = "all_play_via_electron" in request.form
+        monitor_interval = request.form.get("monitor_capture_interval", str(Config.MONITOR_CAPTURE_INTERVAL))
+        try:
+            monitor_interval = max(2, min(3600, int(monitor_interval)))
+        except Exception:
+            monitor_interval = int(Config.MONITOR_CAPTURE_INTERVAL)
         old_value = "1" if _get_setting_bool(SETTING_KEY_ALL_ELECTRON, Config.ALL_PLAY_VIA_ELECTRON) else "0"
         new_value = "1" if enable_all_electron else "0"
         _set_setting_bool(SETTING_KEY_ALL_ELECTRON, enable_all_electron)
+        old_interval = str(_get_setting_int(SETTING_KEY_MONITOR_INTERVAL, Config.MONITOR_CAPTURE_INTERVAL))
+        _set_setting_int(SETTING_KEY_MONITOR_INTERVAL, monitor_interval)
         Config.ALL_PLAY_VIA_ELECTRON = enable_all_electron
+        Config.MONITOR_CAPTURE_INTERVAL = monitor_interval
+        try:
+            controller.scheduler.reschedule_job(
+                "monitor_capture_job",
+                trigger="interval",
+                seconds=max(2, int(monitor_interval)),
+            )
+        except Exception:
+            pass
         if old_value != new_value:
             _append_setting_audit_log(SETTING_KEY_ALL_ELECTRON, old_value, new_value)
+        if old_interval != str(monitor_interval):
+            _append_setting_audit_log(SETTING_KEY_MONITOR_INTERVAL, old_interval, str(monitor_interval))
+            try:
+                player.capture_monitor_snapshot()
+            except Exception:
+                pass
         flash("系统设置已保存。", "success")
         return redirect(url_for("main.settings"))
 
     all_play_via_electron = _get_setting_bool(SETTING_KEY_ALL_ELECTRON, Config.ALL_PLAY_VIA_ELECTRON)
+    monitor_capture_interval = _get_setting_int(SETTING_KEY_MONITOR_INTERVAL, Config.MONITOR_CAPTURE_INTERVAL)
     audit_logs = (
         SettingAuditLog.query.order_by(SettingAuditLog.created_at.desc(), SettingAuditLog.id.desc())
         .limit(50)
@@ -506,6 +618,7 @@ def settings():
     return render_template(
         "settings.html",
         all_play_via_electron=all_play_via_electron,
+        monitor_capture_interval=monitor_capture_interval,
         audit_logs=audit_logs,
         operation_logs=operation_logs,
     )
