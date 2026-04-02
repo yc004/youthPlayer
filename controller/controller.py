@@ -129,6 +129,7 @@ class Controller:
             logger.info("时间表结束，停止播放: %s", schedule_id)
             self.player.stop()
             self.current_schedule_id = None
+            self.sync_active_schedule(force_restart=True)
             return True
         return False
 
@@ -173,6 +174,8 @@ class Controller:
         with self.app.app_context():
             active_schedule = self._find_active_schedule(datetime.now())
             if not active_schedule:
+                self.current_schedule_id = None
+                self.player.show_screensaver()
                 return None
 
             if (
@@ -232,6 +235,7 @@ class Controller:
             if self.current_schedule_id == schedule_id:
                 self.player.stop()
                 self.current_schedule_id = None
+                self.sync_active_schedule(force_restart=True)
 
             logger.info("删除时间表: %s", schedule.name)
             return True

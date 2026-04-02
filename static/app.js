@@ -1,4 +1,6 @@
 (function () {
+    var ganttActiveDay = 0;
+
     function setText(selector, value) {
         var node = document.querySelector(selector);
         if (node && typeof value !== "undefined" && value !== null && value !== "") {
@@ -85,6 +87,10 @@
         bar.textContent = minutesToText(schedule.start_minutes) + "-" + minutesToText(schedule.end_minutes);
         lane.appendChild(bar);
 
+        var nowMarker = document.createElement("div");
+        nowMarker.className = "gantt-now-marker";
+        lane.appendChild(nowMarker);
+
         row.appendChild(label);
         row.appendChild(lane);
         return row;
@@ -129,14 +135,51 @@
         rows.forEach(function (item) {
             board.appendChild(createRow(item));
         });
+        refreshGanttNowMarker(day);
+    }
+
+    function refreshGanttNowMarker(day) {
+        var now = new Date();
+        var isTodayTab = now.getDay() === ((day + 1) % 7); // JS: Sun=0, app: Mon=0
+        var nowMinutes = now.getHours() * 60 + now.getMinutes();
+        var left = (nowMinutes / 1440) * 100;
+
+        document.querySelectorAll(".gantt-row").forEach(function (row) {
+            var bar = row.querySelector(".gantt-bar");
+            var marker = row.querySelector(".gantt-now-marker");
+            if (!marker) return;
+            if (!isTodayTab) {
+                marker.style.display = "none";
+                row.classList.remove("current-live");
+                return;
+            }
+            marker.style.display = "block";
+            marker.style.left = left + "%";
+
+            var isCurrent = false;
+            if (bar) {
+                var txt = bar.textContent || "";
+                var seg = txt.split("-");
+                if (seg.length === 2) {
+                    var s = seg[0].split(":");
+                    var e = seg[1].split(":");
+                    if (s.length === 2 && e.length === 2) {
+                        var sm = Number(s[0]) * 60 + Number(s[1]);
+                        var em = Number(e[0]) * 60 + Number(e[1]);
+                        isCurrent = nowMinutes >= sm && nowMinutes < em;
+                    }
+                }
+            }
+            row.classList.toggle("current-live", isCurrent);
+        });
     }
 
     function initGantt() {
         var tabs = document.querySelectorAll("[data-role='gantt-tabs'] .gantt-tab");
         if (!tabs.length) return;
 
-        var activeDay = 0;
-        renderGantt(activeDay);
+        ganttActiveDay = 0;
+        renderGantt(ganttActiveDay);
 
         tabs.forEach(function (tab) {
             tab.addEventListener("click", function () {
@@ -144,10 +187,14 @@
                     x.classList.remove("active");
                 });
                 tab.classList.add("active");
-                activeDay = Number(tab.getAttribute("data-day") || "0");
-                renderGantt(activeDay);
+                ganttActiveDay = Number(tab.getAttribute("data-day") || "0");
+                renderGantt(ganttActiveDay);
             });
         });
+
+        window.setInterval(function () {
+            refreshGanttNowMarker(ganttActiveDay);
+        }, 1000);
     }
 
     function initFileBrowser() {

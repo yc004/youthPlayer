@@ -9,7 +9,7 @@ import time
 import urllib.error
 import urllib.request
 from pathlib import Path
-from urllib.parse import urlparse
+from urllib.parse import quote, urlparse
 from shutil import which
 
 from config import Config
@@ -69,6 +69,7 @@ class Player:
         self._playlist_thread = None
         self.monitor_last_capture_at = None
         self.monitor_last_capture_path = ""
+        self.screensaver_url = Path(os.path.join(os.path.dirname(__file__), "screensaver.html")).resolve().as_uri()
 
         self._init_vlc()
         self.set_screen(Config.PRIMARY_SCREEN)
@@ -163,6 +164,20 @@ class Player:
             if self._should_use_browser(live_url):
                 return self._open_web_live_electron(live_url)
             return self._play_vlc_media(live_url, source_type="stream")
+
+    def show_screensaver(self):
+        with self._op_lock:
+            if not Config.IDLE_SCREENSAVER_ENABLED:
+                return False
+            if (
+                self.current_backend == "electron"
+                and self.current_source == self.screensaver_url
+                and self.electron_process
+                and self.electron_process.poll() is None
+            ):
+                return True
+            title = quote(Config.IDLE_SCREENSAVER_TITLE or "校园电视播放系统")
+            return self._open_web_live_electron(f"{self.screensaver_url}?title={title}")
 
     def _to_electron_url(self, source):
         if source.startswith(("http://", "https://", "file://")):

@@ -43,6 +43,8 @@ class Config:
     MONITOR_CAPTURE_ENABLED = os.environ.get("YP_MONITOR_CAPTURE_ENABLED", "1") == "1"
     MONITOR_CAPTURE_INTERVAL = int(os.environ.get("YP_MONITOR_CAPTURE_INTERVAL", 5))
     MONITOR_CAPTURE_ONLY_WHEN_PLAYING = os.environ.get("YP_MONITOR_CAPTURE_ONLY_PLAYING", "1") == "1"
+    IDLE_SCREENSAVER_ENABLED = os.environ.get("YP_IDLE_SCREENSAVER_ENABLED", "1") == "1"
+    IDLE_SCREENSAVER_TITLE = os.environ.get("YP_IDLE_SCREENSAVER_TITLE", "校园电视播放系统")
 
     # Web 配置
     WEB_PORT = int(os.environ.get("YP_WEB_PORT", 5000))

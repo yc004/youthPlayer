@@ -1,5 +1,6 @@
 import logging
 import os
+import ctypes
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from flask import Flask
@@ -11,6 +12,21 @@ from models import SystemSetting, User, db
 
 app = Flask(__name__)
 app.config.from_object(Config)
+
+
+def enable_high_dpi_awareness():
+    """避免截图/屏幕坐标在高缩放下只取到左上角区域。"""
+    try:
+        # Windows 8.1+ per-monitor aware
+        ctypes.windll.shcore.SetProcessDpiAwareness(2)
+        return
+    except Exception:
+        pass
+    try:
+        # Windows 7 fallback
+        ctypes.windll.user32.SetProcessDPIAware()
+    except Exception:
+        pass
 
 
 def configure_logging():
@@ -30,6 +46,7 @@ def configure_logging():
 
 configure_logging()
 logger = logging.getLogger(__name__)
+enable_high_dpi_awareness()
 
 
 login_manager = LoginManager()

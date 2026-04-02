@@ -414,6 +414,10 @@ a {
     opacity: 0.55;
 }
 
+.gantt-row.current-live .gantt-bar {
+    box-shadow: 0 0 0 2px rgba(250, 204, 21, 0.7) inset, 0 0 14px rgba(250, 204, 21, 0.45);
+}
+
 .gantt-row-label {
     font-size: 13px;
     color: #334155;
@@ -448,6 +452,16 @@ a {
     padding: 0 8px;
     white-space: nowrap;
     overflow: hidden;
+}
+
+.gantt-now-marker {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #f43f5e;
+    box-shadow: 0 0 8px rgba(244, 63, 94, 0.8);
+    pointer-events: none;
 }
 
 .field-weekdays .weekday-group {
