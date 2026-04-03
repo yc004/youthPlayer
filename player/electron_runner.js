@@ -1,4 +1,4 @@
-const { app, BrowserWindow } = require("electron");
+const { app, BrowserWindow, screen } = require("electron");
 const http = require("http");
 const fs = require("fs");
 const path = require("path");
@@ -9,6 +9,7 @@ function parseArgs() {
     url: "",
     host: "127.0.0.1",
     port: 18870,
+    screenIndex: -1,
     left: 0,
     top: 0,
     width: 1920,
@@ -23,6 +24,7 @@ function parseArgs() {
     if (k === "--url") out.url = v;
     if (k === "--host") out.host = v;
     if (k === "--port") out.port = Number(v);
+    if (k === "--screen-index") out.screenIndex = Number(v);
     if (k === "--left") out.left = Number(v);
     if (k === "--top") out.top = Number(v);
     if (k === "--width") out.width = Number(v);
@@ -180,15 +182,60 @@ function createControlServer() {
   controlServer.listen(params.port, params.host);
 }
 
+function getTargetBounds() {
+  return {
+    x: Number(params.left) || 0,
+    y: Number(params.top) || 0,
+    width: Math.max(1, Number(params.width) || 1920),
+    height: Math.max(1, Number(params.height) || 1080),
+  };
+}
+
+function boundsEqual(a, b) {
+  return (
+    Number(a && a.x) === Number(b && b.x) &&
+    Number(a && a.y) === Number(b && b.y) &&
+    Number(a && a.width) === Number(b && b.width) &&
+    Number(a && a.height) === Number(b && b.height)
+  );
+}
+
+function resolveTargetDisplay(targetBounds) {
+  const displays = screen.getAllDisplays();
+  if (Number.isInteger(params.screenIndex) && params.screenIndex >= 0 && params.screenIndex < displays.length) {
+    return displays[params.screenIndex];
+  }
+  const exact = displays.find((item) => boundsEqual(item && item.bounds, targetBounds));
+  if (exact) return exact;
+  const centerPoint = {
+    x: Math.round(targetBounds.x + targetBounds.width / 2),
+    y: Math.round(targetBounds.y + targetBounds.height / 2),
+  };
+  const nearest = screen.getDisplayNearestPoint(centerPoint);
+  if (nearest) return nearest;
+  return screen.getPrimaryDisplay();
+}
+
 function createWindow() {
-  trace("createWindow.start", params);
+  const requestedBounds = getTargetBounds();
+  const targetDisplay = resolveTargetDisplay(requestedBounds);
+  const finalBounds = (targetDisplay && targetDisplay.bounds) || requestedBounds;
+  trace("createWindow.start", {
+    params,
+    requestedBounds,
+    targetDisplay: targetDisplay
+      ? { id: targetDisplay.id, bounds: targetDisplay.bounds }
+      : null,
+    finalBounds,
+  });
   mainWindow = new BrowserWindow({
-    x: params.left,
-    y: params.top,
-    width: params.width,
-    height: params.height,
-    fullscreen: true,
-    kiosk: true,
+    x: finalBounds.x,
+    y: finalBounds.y,
+    width: finalBounds.width,
+    height: finalBounds.height,
+    show: false,
+    fullscreen: false,
+    kiosk: false,
     alwaysOnTop: params.topmost,
     autoHideMenuBar: true,
     webPreferences: {
@@ -208,7 +255,12 @@ function createWindow() {
   mainWindow.loadURL(params.url);
   mainWindow.once("ready-to-show", () => {
     trace("window.ready-to-show");
+    mainWindow.setBounds(finalBounds, false);
     mainWindow.show();
+    mainWindow.focus();
+    if (params.topmost) {
+      mainWindow.setAlwaysOnTop(true, "screen-saver");
+    }
     mainWindow.setKiosk(true);
     mainWindow.setFullScreen(true);
   });
@@ -236,6 +288,7 @@ function createWindow() {
     await runInject(SCRIPT_PLAY);
     await runInject(SCRIPT_FULLSCREEN);
     if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.setBounds(finalBounds, false);
       mainWindow.setKiosk(true);
       mainWindow.setFullScreen(true);
     }

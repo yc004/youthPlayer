@@ -385,6 +385,8 @@ class Player:
             Config.ELECTRON_CONTROL_HOST,
             "--port",
             str(self.electron_port),
+            "--screen-index",
+            str(self.screen_index),
             "--left",
             str(screen["left"]),
             "--top",
@@ -447,26 +449,40 @@ class Player:
 
     def _resolve_electron_bin(self):
         configured = (Config.ELECTRON_BIN or "").strip()
+        is_windows = os.name == "nt"
 
-        # 1) Explicitly configured binary/path wins.
-        if configured:
-            if os.path.isabs(configured) and os.path.exists(configured):
-                return configured
-            configured_hit = which(configured)
-            if configured_hit:
-                return configured_hit
+        def _is_windows_executable(path):
+            lower = str(path or "").lower()
+            return lower.endswith(".exe") or lower.endswith(".cmd") or lower.endswith(".bat")
 
-        # 2) Prefer project-local Electron.
-        local_candidates = [
-            os.path.join(Config.BASE_DIR, "node_modules", "electron", "dist", "electron.exe"),
-            os.path.join(Config.BASE_DIR, "node_modules", ".bin", "electron"),
-            os.path.join(Config.BASE_DIR, "node_modules", ".bin", "electron.cmd"),
+        # 1) Prefer project-local Electron first.
+        if is_windows:
+            local_candidates = [
+                os.path.join(Config.BASE_DIR, "node_modules", "electron", "dist", "electron.exe"),
+                os.path.join(Config.BASE_DIR, "node_modules", ".bin", "electron.cmd"),
+                os.path.join(Config.BASE_DIR, "node_modules", ".bin", "electron.bat"),
+            ]
+        else:
+            local_candidates = [
+                os.path.join(Config.BASE_DIR, "node_modules", "electron", "dist", "electron"),
+                os.path.join(Config.BASE_DIR, "node_modules", ".bin", "electron"),
         ]
         for candidate in local_candidates:
             if os.path.exists(candidate):
                 return candidate
 
-        # 3) Global PATH fallback.
+        # 2) Then honor configured binary/path.
+        if configured:
+            if os.path.isabs(configured) and os.path.exists(configured):
+                if not is_windows or _is_windows_executable(configured):
+                    return configured
+            configured_hit = which(configured)
+            if configured_hit and (not is_windows or _is_windows_executable(configured_hit)):
+                return configured_hit
+
+        # 3) Global PATH fallback last.
+        if is_windows:
+            return which("electron.cmd") or which("electron.exe") or which("electron")
         return which("electron")
 
     def _reserve_port(self, host, base):
