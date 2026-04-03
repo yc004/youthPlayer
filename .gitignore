@@ -5,3 +5,4 @@ __pycache__
 runtime/
 youthplayer_venv/
 node_modules
+.vscode
