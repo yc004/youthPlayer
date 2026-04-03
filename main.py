@@ -140,6 +140,11 @@ def load_runtime_settings():
             except Exception:
                 pass
             logger.info("Loaded setting monitor_capture_interval=%ss", Config.MONITOR_CAPTURE_INTERVAL)
+        screensaver_image_item = db.session.get(SystemSetting, "idle_screensaver_image")
+        if screensaver_image_item:
+            image_path = str(screensaver_image_item.value or "").strip()
+            Config.IDLE_SCREENSAVER_IMAGE = image_path if image_path and os.path.exists(image_path) else ""
+            logger.info("Loaded setting idle_screensaver_image=%s", Config.IDLE_SCREENSAVER_IMAGE or "<empty>")
 
 
 def setup_monitor_capture_job():

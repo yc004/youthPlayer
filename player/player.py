@@ -6,10 +6,12 @@ import socket
 import subprocess
 import threading
 import time
+import base64
+import json
 import urllib.error
 import urllib.request
 from pathlib import Path
-from urllib.parse import quote, urlparse
+from urllib.parse import urlparse
 from shutil import which
 
 from config import Config
@@ -169,15 +171,24 @@ class Player:
         with self._op_lock:
             if not Config.IDLE_SCREENSAVER_ENABLED:
                 return False
+            payload = {"title": Config.IDLE_SCREENSAVER_TITLE or "校园电视播放系统"}
+            image_path = (Config.IDLE_SCREENSAVER_IMAGE or "").strip()
+            if image_path and os.path.exists(image_path):
+                try:
+                    payload["image"] = Path(image_path).resolve().as_uri()
+                except Exception:
+                    logger.warning("Invalid screensaver image path: %s", image_path)
+            payload_text = json.dumps(payload, ensure_ascii=False, separators=(",", ":"))
+            payload_b64 = base64.urlsafe_b64encode(payload_text.encode("utf-8")).decode("ascii").rstrip("=")
+            target_url = f"{self.screensaver_url}?cfg={payload_b64}"
             if (
                 self.current_backend == "electron"
-                and (self.current_source or "").startswith(self.screensaver_url)
+                and (self.current_source or "") == target_url
                 and self.electron_process
                 and self.electron_process.poll() is None
             ):
                 return True
-            title = quote(Config.IDLE_SCREENSAVER_TITLE or "校园电视播放系统")
-            return self._open_web_live_electron(f"{self.screensaver_url}?title={title}")
+            return self._open_web_live_electron(target_url)
 
     def _to_electron_url(self, source):
         if source.startswith(("http://", "https://", "file://")):
@@ -447,8 +458,9 @@ class Player:
 
         # 2) Prefer project-local Electron.
         local_candidates = [
-            os.path.join(Config.BASE_DIR, "node_modules", ".bin", "electron.cmd"),
+            os.path.join(Config.BASE_DIR, "node_modules", "electron", "dist", "electron.exe"),
             os.path.join(Config.BASE_DIR, "node_modules", ".bin", "electron"),
+            os.path.join(Config.BASE_DIR, "node_modules", ".bin", "electron.cmd"),
         ]
         for candidate in local_candidates:
             if os.path.exists(candidate):

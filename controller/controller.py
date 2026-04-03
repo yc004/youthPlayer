@@ -19,6 +19,7 @@ class Controller:
         self.scheduled_jobs = {}
         self.current_schedule_id = None
         self.manual_stop_schedule_id = None
+        self.suppress_idle_screensaver = False
 
     def refresh_schedules(self):
         self._clear_all_jobs()
@@ -178,6 +179,8 @@ class Controller:
             if not active_schedule:
                 self.current_schedule_id = None
                 self.manual_stop_schedule_id = None
+                if self.suppress_idle_screensaver and not force_restart:
+                    return None
                 self.player.show_screensaver()
                 return None
 
@@ -292,6 +295,7 @@ class Controller:
     def control_playback(self, action, schedule_id=None):
         try:
             if action == "start":
+                self.suppress_idle_screensaver = False
                 if schedule_id:
                     schedule = db.session.get(Schedule, int(schedule_id))
                 else:
@@ -311,12 +315,14 @@ class Controller:
                 active = self.get_active_schedule_now()
                 self.manual_stop_schedule_id = active.id if active else self.current_schedule_id
                 self.current_schedule_id = None
+                self.suppress_idle_screensaver = True
                 return self.player.stop()
 
             if action == "pause":
                 return self.player.pause()
 
             if action == "resume":
+                self.suppress_idle_screensaver = False
                 return self.player.resume()
 
             if action == "web_play":

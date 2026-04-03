@@ -3160,3 +3160,595 @@ jinja2.exceptions.TemplateNotFound: dashboard.html
 2026-04-03 01:06:42,230 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 01:06:45 CST)" executed successfully
 2026-04-03 01:06:42,884 - apscheduler.scheduler - INFO - Scheduler has been shut down
 2026-04-03 01:06:47,885 - security.watchdog - INFO - 看门狗停止成功
+2026-04-03 19:42:19,181 - apscheduler.scheduler - INFO - Scheduler started
+2026-04-03 19:42:19,432 - player.player - INFO - Using VLC at: C:\Program Files\VideoLAN\VLC\vlc.exe
+2026-04-03 19:42:19,624 - player.player - INFO - VLC player initialized.
+2026-04-03 19:42:19,624 - player.player - INFO - Target screen set to: 0
+2026-04-03 19:42:19,714 - __main__ - INFO - Loaded setting all_play_via_electron=True
+2026-04-03 19:42:19,716 - __main__ - INFO - Loaded setting monitor_capture_interval=3s
+2026-04-03 19:42:19,752 - apscheduler.scheduler - INFO - Added job "setup_monitor_capture_job.<locals>._capture_job" to job store "default"
+2026-04-03 19:42:19,752 - __main__ - INFO - Monitor capture job enabled, interval=3s
+2026-04-03 19:42:19,916 - apscheduler.scheduler - INFO - Added job "Controller._execute_schedule" to job store "default"
+2026-04-03 19:42:19,917 - apscheduler.scheduler - INFO - Added job "Controller._finish_schedule" to job store "default"
+2026-04-03 19:42:19,917 - controller.controller - INFO - 已注册时间表任务: 111 (ID=1)
+2026-04-03 19:42:19,918 - controller.controller - INFO - 跳过过期时间表: test (ID=2)
+2026-04-03 19:42:19,918 - controller.controller - INFO - 已加载 2 个有效时间表
+2026-04-03 19:42:19,924 - player.player - INFO - Playback stopped.
+2026-04-03 19:42:19,928 - player.player - INFO - Resolved Electron binary: C:\Users\Daniel\Documents\projects\youthPlayer\node_modules\.bin\electron.cmd
+2026-04-03 19:42:21,615 - player.player - INFO - Launching Electron command: ['C:\\Users\\Daniel\\Documents\\projects\\youthPlayer\\node_modules\\.bin\\electron.cmd', 'C:\\Users\\Daniel\\Documents\\projects\\youthPlayer\\player\\electron_runner.js', '--', '--url', 'file:///C:/Users/Daniel/Documents/projects/youthPlayer/player/screensaver.html?title=%E6%A0%A1%E5%9B%AD%E7%94%B5%E8%A7%86%E6%92%AD%E6%94%BE%E7%B3%BB%E7%BB%9F', '--host', '127.0.0.1', '--port', '18870', '--left', '0', '--top', '0', '--width', '3200', '--height', '2000', '--topmost']
+2026-04-03 19:42:22,760 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:42:22 CST)" (scheduled at 2026-04-03 19:42:22.752408+08:00)
+2026-04-03 19:42:22,909 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:42:25 CST)" executed successfully
+2026-04-03 19:42:23,944 - player.player - INFO - Web live opened via Electron: file:///C:/Users/Daniel/Documents/projects/youthPlayer/player/screensaver.html?title=%E6%A0%A1%E5%9B%AD%E7%94%B5%E8%A7%86%E6%92%AD%E6%94%BE%E7%B3%BB%E7%BB%9F
+2026-04-03 19:42:23,949 - security.watchdog - INFO - 看门狗启动成功
+2026-04-03 19:42:23,990 - werkzeug - WARNING -  * Running on all addresses.
+   WARNING: This is a development server. Do not use it in a production deployment.
+2026-04-03 19:42:23,991 - werkzeug - INFO -  * Running on http://192.168.1.73:5000/ (Press CTRL+C to quit)
+2026-04-03 19:42:25,764 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:42:28 CST)" (scheduled at 2026-04-03 19:42:25.752408+08:00)
+2026-04-03 19:42:25,874 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:42:28 CST)" executed successfully
+2026-04-03 19:42:28,763 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:42:31 CST)" (scheduled at 2026-04-03 19:42:28.752408+08:00)
+2026-04-03 19:42:28,851 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:42:31 CST)" executed successfully
+2026-04-03 19:42:31,759 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:42:34 CST)" (scheduled at 2026-04-03 19:42:31.752408+08:00)
+2026-04-03 19:42:31,846 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:42:34 CST)" executed successfully
+2026-04-03 19:42:34,762 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:42:37 CST)" (scheduled at 2026-04-03 19:42:34.752408+08:00)
+2026-04-03 19:42:34,848 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:42:37 CST)" executed successfully
+2026-04-03 19:42:37,759 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:42:40 CST)" (scheduled at 2026-04-03 19:42:37.752408+08:00)
+2026-04-03 19:42:37,846 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:42:40 CST)" executed successfully
+2026-04-03 19:42:40,660 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:42:40] "[32mGET / HTTP/1.1[0m" 302 -
+2026-04-03 19:42:40,763 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:42:43 CST)" (scheduled at 2026-04-03 19:42:40.752408+08:00)
+2026-04-03 19:42:40,784 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:42:40] "GET /dashboard HTTP/1.1" 200 -
+2026-04-03 19:42:40,846 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:42:43 CST)" executed successfully
+2026-04-03 19:42:41,317 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:42:41] "GET /static/styles.css HTTP/1.1" 200 -
+2026-04-03 19:42:41,331 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:42:41] "GET /static/app.js HTTP/1.1" 200 -
+2026-04-03 19:42:41,449 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:42:41] "GET /api/status HTTP/1.1" 200 -
+2026-04-03 19:42:41,537 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:42:41] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-04-03 19:42:41,568 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:42:41] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-04-03 19:42:43,763 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:42:46 CST)" (scheduled at 2026-04-03 19:42:43.752408+08:00)
+2026-04-03 19:42:43,856 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:42:46 CST)" executed successfully
+2026-04-03 19:42:44,125 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:42:44] "GET /monitor HTTP/1.1" 200 -
+2026-04-03 19:42:44,160 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:42:44] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-03 19:42:44,162 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:42:44] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-03 19:42:44,312 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:42:44] "GET /api/monitor HTTP/1.1" 200 -
+2026-04-03 19:42:44,367 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:42:44] "GET /monitor/frame?t=1775216565113 HTTP/1.1" 200 -
+2026-04-03 19:42:46,760 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:42:49 CST)" (scheduled at 2026-04-03 19:42:46.752408+08:00)
+2026-04-03 19:42:46,853 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:42:49 CST)" executed successfully
+2026-04-03 19:42:47,602 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:42:47] "GET /settings HTTP/1.1" 200 -
+2026-04-03 19:42:47,652 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:42:47] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-03 19:42:47,653 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:42:47] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-03 19:42:49,762 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:42:52 CST)" (scheduled at 2026-04-03 19:42:49.752408+08:00)
+2026-04-03 19:42:49,856 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:42:52 CST)" executed successfully
+2026-04-03 19:42:52,759 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:42:55 CST)" (scheduled at 2026-04-03 19:42:52.752408+08:00)
+2026-04-03 19:42:52,849 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:42:55 CST)" executed successfully
+2026-04-03 19:42:55,764 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:42:58 CST)" (scheduled at 2026-04-03 19:42:55.752408+08:00)
+2026-04-03 19:42:55,854 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:42:58 CST)" executed successfully
+2026-04-03 19:42:58,763 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:43:01 CST)" (scheduled at 2026-04-03 19:42:58.752408+08:00)
+2026-04-03 19:42:58,855 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:43:01 CST)" executed successfully
+2026-04-03 19:43:01,763 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:43:04 CST)" (scheduled at 2026-04-03 19:43:01.752408+08:00)
+2026-04-03 19:43:01,863 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:43:04 CST)" executed successfully
+2026-04-03 19:43:02,316 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:43:02] "[32mPOST /settings HTTP/1.1[0m" 302 -
+2026-04-03 19:43:02,356 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:43:02] "GET /settings HTTP/1.1" 200 -
+2026-04-03 19:43:02,417 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:43:02] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-03 19:43:02,419 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:43:02] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-03 19:43:02,423 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:43:02] "GET /screensaver/preview HTTP/1.1" 200 -
+2026-04-03 19:43:05,314 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:43:08 CST)" (scheduled at 2026-04-03 19:43:05.314144+08:00)
+2026-04-03 19:43:05,411 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:43:08 CST)" executed successfully
+2026-04-03 19:43:07,467 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:43:07] "[32mPOST /settings HTTP/1.1[0m" 302 -
+2026-04-03 19:43:07,509 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:43:07] "GET /settings HTTP/1.1" 200 -
+2026-04-03 19:43:07,560 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:43:07] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-03 19:43:07,563 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:43:07] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-03 19:43:07,568 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:43:07] "[36mGET /screensaver/preview HTTP/1.1[0m" 304 -
+2026-04-03 19:43:10,467 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:43:13 CST)" (scheduled at 2026-04-03 19:43:10.466255+08:00)
+2026-04-03 19:43:10,555 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:43:13 CST)" executed successfully
+2026-04-03 19:43:13,467 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:43:16 CST)" (scheduled at 2026-04-03 19:43:13.466255+08:00)
+2026-04-03 19:43:13,554 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:43:16 CST)" executed successfully
+2026-04-03 19:43:14,010 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:43:14] "GET /schedules HTTP/1.1" 200 -
+2026-04-03 19:43:14,053 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:43:14] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-03 19:43:14,055 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:43:14] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-03 19:43:16,466 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:43:19 CST)" (scheduled at 2026-04-03 19:43:16.466255+08:00)
+2026-04-03 19:43:16,561 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:43:19 CST)" executed successfully
+2026-04-03 19:43:17,342 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:43:17] "GET /monitor HTTP/1.1" 200 -
+2026-04-03 19:43:17,378 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:43:17] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-03 19:43:17,380 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:43:17] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-03 19:43:17,409 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:43:17] "GET /api/monitor HTTP/1.1" 200 -
+2026-04-03 19:43:17,429 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:43:17] "GET /monitor/frame?t=1775216598209 HTTP/1.1" 200 -
+2026-04-03 19:43:18,463 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:43:18] "GET /dashboard HTTP/1.1" 200 -
+2026-04-03 19:43:18,494 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:43:18] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-03 19:43:18,496 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:43:18] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-03 19:43:18,537 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:43:18] "GET /api/status HTTP/1.1" 200 -
+2026-04-03 19:43:19,467 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:43:22 CST)" (scheduled at 2026-04-03 19:43:19.466255+08:00)
+2026-04-03 19:43:19,566 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:43:22 CST)" executed successfully
+2026-04-03 19:43:20,186 - player.player - INFO - Playback stopped.
+2026-04-03 19:43:20,206 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:43:20] "[32mPOST /control HTTP/1.1[0m" 302 -
+2026-04-03 19:43:20,264 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:43:20] "GET /dashboard HTTP/1.1" 200 -
+2026-04-03 19:43:20,315 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:43:20] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-03 19:43:20,317 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:43:20] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-03 19:43:20,365 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:43:20] "GET /api/status HTTP/1.1" 200 -
+2026-04-03 19:43:22,214 - player.player - INFO - Playback stopped.
+2026-04-03 19:43:22,217 - player.player - INFO - Resolved Electron binary: C:\Users\Daniel\Documents\projects\youthPlayer\node_modules\.bin\electron.cmd
+2026-04-03 19:43:22,466 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:43:25 CST)" (scheduled at 2026-04-03 19:43:22.466255+08:00)
+2026-04-03 19:43:22,579 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:43:25 CST)" executed successfully
+2026-04-03 19:43:22,766 - player.player - INFO - Launching Electron command: ['C:\\Users\\Daniel\\Documents\\projects\\youthPlayer\\node_modules\\.bin\\electron.cmd', 'C:\\Users\\Daniel\\Documents\\projects\\youthPlayer\\player\\electron_runner.js', '--', '--url', 'file:///C:/Users/Daniel/Documents/projects/youthPlayer/player/screensaver.html?title=%E6%A0%A1%E5%9B%AD%E7%94%B5%E8%A7%86%E6%92%AD%E6%94%BE%E7%B3%BB%E7%BB%9F&image=file%3A%2F%2F%2FC%3A%2FUsers%2FDaniel%2FDocuments%2Fprojects%2FyouthPlayer%2Fruntime%2Fscreensaver_assets%2Fscreensaver_20260403_194302_3aace62f.jpg', '--host', '127.0.0.1', '--port', '18870', '--left', '0', '--top', '0', '--width', '3200', '--height', '2000', '--topmost']
+2026-04-03 19:43:24,277 - player.player - INFO - Web live opened via Electron: file:///C:/Users/Daniel/Documents/projects/youthPlayer/player/screensaver.html?title=%E6%A0%A1%E5%9B%AD%E7%94%B5%E8%A7%86%E6%92%AD%E6%94%BE%E7%B3%BB%E7%BB%9F&image=file%3A%2F%2F%2FC%3A%2FUsers%2FDaniel%2FDocuments%2Fprojects%2FyouthPlayer%2Fruntime%2Fscreensaver_assets%2Fscreensaver_20260403_194302_3aace62f.jpg
+2026-04-03 19:43:24,284 - controller.controller - INFO - 开始执行时间表 [manual]: 111
+2026-04-03 19:43:24,286 - player.player - INFO - Target screen set to: 0
+2026-04-03 19:43:24,286 - player.player - INFO - Using Electron for live source: https://tv.cctv.com/live/cctv13/ -> https://tv.cctv.com/live/cctv13/
+2026-04-03 19:43:24,299 - player.player - INFO - Playback stopped.
+2026-04-03 19:43:24,303 - player.player - INFO - Resolved Electron binary: C:\Users\Daniel\Documents\projects\youthPlayer\node_modules\.bin\electron.cmd
+2026-04-03 19:43:25,047 - player.player - INFO - Launching Electron command: ['C:\\Users\\Daniel\\Documents\\projects\\youthPlayer\\node_modules\\.bin\\electron.cmd', 'C:\\Users\\Daniel\\Documents\\projects\\youthPlayer\\player\\electron_runner.js', '--', '--url', 'https://tv.cctv.com/live/cctv13/', '--host', '127.0.0.1', '--port', '18871', '--left', '0', '--top', '0', '--width', '3200', '--height', '2000', '--topmost']
+2026-04-03 19:43:25,466 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:43:28 CST)" (scheduled at 2026-04-03 19:43:25.466255+08:00)
+2026-04-03 19:43:25,580 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:43:28 CST)" executed successfully
+2026-04-03 19:43:26,095 - player.player - INFO - Web live opened via Electron: https://tv.cctv.com/live/cctv13/
+2026-04-03 19:43:26,117 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:43:26] "[32mPOST /control HTTP/1.1[0m" 302 -
+2026-04-03 19:43:26,203 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:43:26] "GET /dashboard HTTP/1.1" 200 -
+2026-04-03 19:43:26,266 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:43:26] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-03 19:43:26,286 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:43:26] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-03 19:43:26,338 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:43:26] "GET /api/status HTTP/1.1" 200 -
+2026-04-03 19:43:28,467 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:43:31 CST)" (scheduled at 2026-04-03 19:43:28.466255+08:00)
+2026-04-03 19:43:28,596 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:43:31 CST)" executed successfully
+2026-04-03 19:43:30,504 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:43:30] "GET /settings HTTP/1.1" 200 -
+2026-04-03 19:43:30,549 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:43:30] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-03 19:43:30,555 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:43:30] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-03 19:43:30,559 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:43:30] "[36mGET /screensaver/preview HTTP/1.1[0m" 304 -
+2026-04-03 19:43:31,467 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:43:34 CST)" (scheduled at 2026-04-03 19:43:31.466255+08:00)
+2026-04-03 19:43:31,583 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:43:34 CST)" executed successfully
+2026-04-03 19:43:34,467 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:43:37 CST)" (scheduled at 2026-04-03 19:43:34.466255+08:00)
+2026-04-03 19:43:34,713 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:43:37 CST)" executed successfully
+2026-04-03 19:43:37,467 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:43:40 CST)" (scheduled at 2026-04-03 19:43:37.466255+08:00)
+2026-04-03 19:43:37,563 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:43:40 CST)" executed successfully
+2026-04-03 19:43:39,295 - player.player - INFO - Playback stopped.
+2026-04-03 19:43:39,298 - player.player - INFO - Resolved Electron binary: C:\Users\Daniel\Documents\projects\youthPlayer\node_modules\.bin\electron.cmd
+2026-04-03 19:43:39,876 - player.player - INFO - Launching Electron command: ['C:\\Users\\Daniel\\Documents\\projects\\youthPlayer\\node_modules\\.bin\\electron.cmd', 'C:\\Users\\Daniel\\Documents\\projects\\youthPlayer\\player\\electron_runner.js', '--', '--url', 'file:///C:/Users/Daniel/Documents/projects/youthPlayer/player/screensaver.html?title=%E6%A0%A1%E5%9B%AD%E7%94%B5%E8%A7%86%E6%92%AD%E6%94%BE%E7%B3%BB%E7%BB%9F&image=file%3A%2F%2F%2FC%3A%2FUsers%2FDaniel%2FDocuments%2Fprojects%2FyouthPlayer%2Fruntime%2Fscreensaver_assets%2Fscreensaver_20260403_194302_3aace62f.jpg', '--host', '127.0.0.1', '--port', '18870', '--left', '0', '--top', '0', '--width', '3200', '--height', '2000', '--topmost']
+2026-04-03 19:43:40,467 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:43:43 CST)" (scheduled at 2026-04-03 19:43:40.466255+08:00)
+2026-04-03 19:43:40,587 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:43:43 CST)" executed successfully
+2026-04-03 19:43:40,884 - player.player - INFO - Web live opened via Electron: file:///C:/Users/Daniel/Documents/projects/youthPlayer/player/screensaver.html?title=%E6%A0%A1%E5%9B%AD%E7%94%B5%E8%A7%86%E6%92%AD%E6%94%BE%E7%B3%BB%E7%BB%9F&image=file%3A%2F%2F%2FC%3A%2FUsers%2FDaniel%2FDocuments%2Fprojects%2FyouthPlayer%2Fruntime%2Fscreensaver_assets%2Fscreensaver_20260403_194302_3aace62f.jpg
+2026-04-03 19:43:43,467 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:43:46 CST)" (scheduled at 2026-04-03 19:43:43.466255+08:00)
+2026-04-03 19:43:43,543 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:43:46 CST)" executed successfully
+2026-04-03 19:43:46,467 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:43:49 CST)" (scheduled at 2026-04-03 19:43:46.466255+08:00)
+2026-04-03 19:43:46,543 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:43:49 CST)" executed successfully
+2026-04-03 19:43:48,934 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:43:48] "[32mPOST /settings HTTP/1.1[0m" 302 -
+2026-04-03 19:43:48,971 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:43:48] "GET /settings HTTP/1.1" 200 -
+2026-04-03 19:43:49,035 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:43:49] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-03 19:43:49,036 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:43:49] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-03 19:43:51,933 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:43:54 CST)" (scheduled at 2026-04-03 19:43:51.932629+08:00)
+2026-04-03 19:43:52,031 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:43:54 CST)" executed successfully
+2026-04-03 19:43:54,933 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:43:57 CST)" (scheduled at 2026-04-03 19:43:54.932629+08:00)
+2026-04-03 19:43:55,022 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:43:57 CST)" executed successfully
+2026-04-03 19:43:57,934 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:44:00 CST)" (scheduled at 2026-04-03 19:43:57.932629+08:00)
+2026-04-03 19:43:58,031 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:44:00 CST)" executed successfully
+2026-04-03 19:43:59,272 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:43:59] "[32mPOST /settings HTTP/1.1[0m" 302 -
+2026-04-03 19:43:59,316 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:43:59] "GET /settings HTTP/1.1" 200 -
+2026-04-03 19:43:59,377 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:43:59] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-03 19:43:59,381 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:43:59] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-03 19:43:59,384 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:43:59] "GET /screensaver/preview HTTP/1.1" 200 -
+2026-04-03 19:44:02,271 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:44:05 CST)" (scheduled at 2026-04-03 19:44:02.270107+08:00)
+2026-04-03 19:44:02,357 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:44:05 CST)" executed successfully
+2026-04-03 19:44:05,271 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:44:08 CST)" (scheduled at 2026-04-03 19:44:05.270107+08:00)
+2026-04-03 19:44:05,361 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:44:08 CST)" executed successfully
+2026-04-03 19:44:07,718 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:44:07] "GET /dashboard HTTP/1.1" 200 -
+2026-04-03 19:44:07,767 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:44:07] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-03 19:44:07,769 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:44:07] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-03 19:44:07,796 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:44:07] "GET /api/status HTTP/1.1" 200 -
+2026-04-03 19:44:08,270 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:44:11 CST)" (scheduled at 2026-04-03 19:44:08.270107+08:00)
+2026-04-03 19:44:08,356 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:44:11 CST)" executed successfully
+2026-04-03 19:44:11,270 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:44:14 CST)" (scheduled at 2026-04-03 19:44:11.270107+08:00)
+2026-04-03 19:44:11,370 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:44:14 CST)" executed successfully
+2026-04-03 19:44:12,035 - player.player - INFO - Playback stopped.
+2026-04-03 19:44:12,052 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:44:12] "[32mPOST /control HTTP/1.1[0m" 302 -
+2026-04-03 19:44:12,097 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:44:12] "GET /dashboard HTTP/1.1" 200 -
+2026-04-03 19:44:12,138 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:44:12] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-03 19:44:12,141 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:44:12] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-03 19:44:12,174 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:44:12] "GET /api/status HTTP/1.1" 200 -
+2026-04-03 19:44:14,271 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:44:17 CST)" (scheduled at 2026-04-03 19:44:14.270107+08:00)
+2026-04-03 19:44:14,376 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:44:17 CST)" executed successfully
+2026-04-03 19:44:17,270 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:44:20 CST)" (scheduled at 2026-04-03 19:44:17.270107+08:00)
+2026-04-03 19:44:17,376 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:44:20 CST)" executed successfully
+2026-04-03 19:44:20,270 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:44:23 CST)" (scheduled at 2026-04-03 19:44:20.270107+08:00)
+2026-04-03 19:44:20,377 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:44:23 CST)" executed successfully
+2026-04-03 19:44:22,201 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:44:22] "GET /api/status HTTP/1.1" 200 -
+2026-04-03 19:44:23,271 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:44:26 CST)" (scheduled at 2026-04-03 19:44:23.270107+08:00)
+2026-04-03 19:44:23,404 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:44:26 CST)" executed successfully
+2026-04-03 19:44:25,906 - player.player - INFO - Playback stopped.
+2026-04-03 19:44:25,910 - player.player - INFO - Resolved Electron binary: C:\Users\Daniel\Documents\projects\youthPlayer\node_modules\.bin\electron.cmd
+2026-04-03 19:44:26,272 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:44:29 CST)" (scheduled at 2026-04-03 19:44:26.270107+08:00)
+2026-04-03 19:44:26,376 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:44:29 CST)" executed successfully
+2026-04-03 19:44:26,597 - player.player - INFO - Launching Electron command: ['C:\\Users\\Daniel\\Documents\\projects\\youthPlayer\\node_modules\\.bin\\electron.cmd', 'C:\\Users\\Daniel\\Documents\\projects\\youthPlayer\\player\\electron_runner.js', '--', '--url', 'file:///C:/Users/Daniel/Documents/projects/youthPlayer/player/screensaver.html?title=%E6%A0%A1%E5%9B%AD%E7%94%B5%E8%A7%86%E6%92%AD%E6%94%BE%E7%B3%BB%E7%BB%9F&image=file%3A%2F%2F%2FC%3A%2FUsers%2FDaniel%2FDocuments%2Fprojects%2FyouthPlayer%2Fruntime%2Fscreensaver_assets%2Fscreensaver_20260403_194359_d7676619.jpg', '--host', '127.0.0.1', '--port', '18870', '--left', '0', '--top', '0', '--width', '3200', '--height', '2000', '--topmost']
+2026-04-03 19:44:28,113 - player.player - INFO - Web live opened via Electron: file:///C:/Users/Daniel/Documents/projects/youthPlayer/player/screensaver.html?title=%E6%A0%A1%E5%9B%AD%E7%94%B5%E8%A7%86%E6%92%AD%E6%94%BE%E7%B3%BB%E7%BB%9F&image=file%3A%2F%2F%2FC%3A%2FUsers%2FDaniel%2FDocuments%2Fprojects%2FyouthPlayer%2Fruntime%2Fscreensaver_assets%2Fscreensaver_20260403_194359_d7676619.jpg
+2026-04-03 19:44:29,271 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:44:32 CST)" (scheduled at 2026-04-03 19:44:29.270107+08:00)
+2026-04-03 19:44:29,393 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:44:32 CST)" executed successfully
+2026-04-03 19:44:32,191 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:44:32] "GET /api/status HTTP/1.1" 200 -
+2026-04-03 19:44:32,270 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:44:35 CST)" (scheduled at 2026-04-03 19:44:32.270107+08:00)
+2026-04-03 19:44:32,438 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:44:35 CST)" executed successfully
+2026-04-03 19:44:34,180 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2026-04-03 19:46:37,855 - apscheduler.scheduler - INFO - Scheduler started
+2026-04-03 19:46:38,104 - player.player - INFO - Using VLC at: C:\Program Files\VideoLAN\VLC\vlc.exe
+2026-04-03 19:46:38,290 - player.player - INFO - VLC player initialized.
+2026-04-03 19:46:38,292 - player.player - INFO - Target screen set to: 0
+2026-04-03 19:46:38,409 - __main__ - INFO - Loaded setting all_play_via_electron=True
+2026-04-03 19:46:38,411 - __main__ - INFO - Loaded setting monitor_capture_interval=3s
+2026-04-03 19:46:38,414 - __main__ - INFO - Loaded setting idle_screensaver_image=C:\Users\Daniel\Documents\projects\youthPlayer\runtime\screensaver_assets\screensaver_20260403_194359_d7676619.jpg
+2026-04-03 19:46:38,448 - apscheduler.scheduler - INFO - Added job "setup_monitor_capture_job.<locals>._capture_job" to job store "default"
+2026-04-03 19:46:38,448 - __main__ - INFO - Monitor capture job enabled, interval=3s
+2026-04-03 19:46:38,630 - apscheduler.scheduler - INFO - Added job "Controller._execute_schedule" to job store "default"
+2026-04-03 19:46:38,631 - apscheduler.scheduler - INFO - Added job "Controller._finish_schedule" to job store "default"
+2026-04-03 19:46:38,632 - controller.controller - INFO - 已注册时间表任务: 111 (ID=1)
+2026-04-03 19:46:38,632 - controller.controller - INFO - 跳过过期时间表: test (ID=2)
+2026-04-03 19:46:38,633 - controller.controller - INFO - 已加载 2 个有效时间表
+2026-04-03 19:46:38,643 - player.player - INFO - Playback stopped.
+2026-04-03 19:46:38,648 - player.player - INFO - Resolved Electron binary: C:\Users\Daniel\Documents\projects\youthPlayer\node_modules\.bin\electron.cmd
+2026-04-03 19:46:39,528 - player.player - INFO - Launching Electron command: ['C:\\Users\\Daniel\\Documents\\projects\\youthPlayer\\node_modules\\.bin\\electron.cmd', 'C:\\Users\\Daniel\\Documents\\projects\\youthPlayer\\player\\electron_runner.js', '--', '--url', 'file:///C:/Users/Daniel/Documents/projects/youthPlayer/player/screensaver.html?title=%E6%A0%A1%E5%9B%AD%E7%94%B5%E8%A7%86%E6%92%AD%E6%94%BE%E7%B3%BB%E7%BB%9F&image=file%3A%2F%2F%2FC%3A%2FUsers%2FDaniel%2FDocuments%2Fprojects%2FyouthPlayer%2Fruntime%2Fscreensaver_assets%2Fscreensaver_20260403_194359_d7676619.jpg', '--host', '127.0.0.1', '--port', '18870', '--left', '0', '--top', '0', '--width', '3200', '--height', '2000', '--topmost']
+2026-04-03 19:46:41,104 - player.player - INFO - Web live opened via Electron: file:///C:/Users/Daniel/Documents/projects/youthPlayer/player/screensaver.html?title=%E6%A0%A1%E5%9B%AD%E7%94%B5%E8%A7%86%E6%92%AD%E6%94%BE%E7%B3%BB%E7%BB%9F&image=file%3A%2F%2F%2FC%3A%2FUsers%2FDaniel%2FDocuments%2Fprojects%2FyouthPlayer%2Fruntime%2Fscreensaver_assets%2Fscreensaver_20260403_194359_d7676619.jpg
+2026-04-03 19:46:41,107 - security.watchdog - INFO - 看门狗启动成功
+2026-04-03 19:46:41,145 - werkzeug - WARNING -  * Running on all addresses.
+   WARNING: This is a development server. Do not use it in a production deployment.
+2026-04-03 19:46:41,146 - werkzeug - INFO -  * Running on http://192.168.1.73:5000/ (Press CTRL+C to quit)
+2026-04-03 19:46:41,450 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:46:41 CST)" (scheduled at 2026-04-03 19:46:41.448391+08:00)
+2026-04-03 19:46:41,580 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:46:44 CST)" executed successfully
+2026-04-03 19:46:41,764 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:46:41] "GET /api/status HTTP/1.1" 200 -
+2026-04-03 19:46:41,796 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:46:41] "GET /dashboard HTTP/1.1" 200 -
+2026-04-03 19:46:41,864 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:46:41] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-03 19:46:41,866 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:46:41] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-03 19:46:41,906 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:46:41] "GET /api/status HTTP/1.1" 200 -
+2026-04-03 19:46:44,008 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:46:44] "GET /users HTTP/1.1" 200 -
+2026-04-03 19:46:44,050 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:46:44] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-03 19:46:44,053 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:46:44] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-03 19:46:44,451 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:46:47 CST)" (scheduled at 2026-04-03 19:46:44.448391+08:00)
+2026-04-03 19:46:44,546 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:46:47 CST)" executed successfully
+2026-04-03 19:46:45,593 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:46:45] "GET /settings HTTP/1.1" 200 -
+2026-04-03 19:46:45,642 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:46:45] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-03 19:46:45,649 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:46:45] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-03 19:46:45,653 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:46:45] "[36mGET /screensaver/preview HTTP/1.1[0m" 304 -
+2026-04-03 19:46:47,449 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:46:50 CST)" (scheduled at 2026-04-03 19:46:47.448391+08:00)
+2026-04-03 19:46:47,557 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:46:50 CST)" executed successfully
+2026-04-03 19:46:47,596 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:46:47] "[32mPOST /settings HTTP/1.1[0m" 302 -
+2026-04-03 19:46:47,652 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:46:47] "GET /settings HTTP/1.1" 200 -
+2026-04-03 19:46:47,693 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:46:47] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-03 19:46:47,702 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:46:47] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-03 19:46:47,703 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:46:47] "[36mGET /screensaver/preview HTTP/1.1[0m" 304 -
+2026-04-03 19:46:50,595 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:46:53 CST)" (scheduled at 2026-04-03 19:46:50.594367+08:00)
+2026-04-03 19:46:50,690 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:46:53 CST)" executed successfully
+2026-04-03 19:46:53,595 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:46:56 CST)" (scheduled at 2026-04-03 19:46:53.594367+08:00)
+2026-04-03 19:46:53,680 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:46:56 CST)" executed successfully
+2026-04-03 19:46:56,595 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:46:59 CST)" (scheduled at 2026-04-03 19:46:56.594367+08:00)
+2026-04-03 19:46:56,678 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:46:59 CST)" executed successfully
+2026-04-03 19:46:58,297 - player.player - INFO - Playback stopped.
+2026-04-03 19:46:58,300 - player.player - INFO - Resolved Electron binary: C:\Users\Daniel\Documents\projects\youthPlayer\node_modules\.bin\electron.cmd
+2026-04-03 19:46:59,085 - player.player - INFO - Launching Electron command: ['C:\\Users\\Daniel\\Documents\\projects\\youthPlayer\\node_modules\\.bin\\electron.cmd', 'C:\\Users\\Daniel\\Documents\\projects\\youthPlayer\\player\\electron_runner.js', '--', '--url', 'file:///C:/Users/Daniel/Documents/projects/youthPlayer/player/screensaver.html?title=%E6%A0%A1%E5%9B%AD%E7%94%B5%E8%A7%86%E6%92%AD%E6%94%BE%E7%B3%BB%E7%BB%9F', '--host', '127.0.0.1', '--port', '18871', '--left', '0', '--top', '0', '--width', '3200', '--height', '2000', '--topmost']
+2026-04-03 19:46:59,595 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:47:02 CST)" (scheduled at 2026-04-03 19:46:59.594367+08:00)
+2026-04-03 19:46:59,706 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:47:02 CST)" executed successfully
+2026-04-03 19:47:00,596 - player.player - INFO - Web live opened via Electron: file:///C:/Users/Daniel/Documents/projects/youthPlayer/player/screensaver.html?title=%E6%A0%A1%E5%9B%AD%E7%94%B5%E8%A7%86%E6%92%AD%E6%94%BE%E7%B3%BB%E7%BB%9F
+2026-04-03 19:47:00,600 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:47:00] "[32mPOST /settings HTTP/1.1[0m" 302 -
+2026-04-03 19:47:00,693 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:47:00] "GET /settings HTTP/1.1" 200 -
+2026-04-03 19:47:00,787 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:47:00] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-03 19:47:00,787 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:47:00] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-03 19:47:00,792 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:47:00] "GET /screensaver/preview HTTP/1.1" 200 -
+2026-04-03 19:47:03,598 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:47:06 CST)" (scheduled at 2026-04-03 19:47:03.596799+08:00)
+2026-04-03 19:47:03,692 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:47:06 CST)" executed successfully
+2026-04-03 19:47:06,597 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:47:09 CST)" (scheduled at 2026-04-03 19:47:06.596799+08:00)
+2026-04-03 19:47:06,686 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:47:09 CST)" executed successfully
+2026-04-03 19:47:09,597 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:47:12 CST)" (scheduled at 2026-04-03 19:47:09.596799+08:00)
+2026-04-03 19:47:09,693 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:47:12 CST)" executed successfully
+2026-04-03 19:47:11,353 - player.player - INFO - Playback stopped.
+2026-04-03 19:47:11,356 - player.player - INFO - Resolved Electron binary: C:\Users\Daniel\Documents\projects\youthPlayer\node_modules\.bin\electron.cmd
+2026-04-03 19:47:12,185 - player.player - INFO - Launching Electron command: ['C:\\Users\\Daniel\\Documents\\projects\\youthPlayer\\node_modules\\.bin\\electron.cmd', 'C:\\Users\\Daniel\\Documents\\projects\\youthPlayer\\player\\electron_runner.js', '--', '--url', 'file:///C:/Users/Daniel/Documents/projects/youthPlayer/player/screensaver.html?title=%E6%A0%A1%E5%9B%AD%E7%94%B5%E8%A7%86%E6%92%AD%E6%94%BE%E7%B3%BB%E7%BB%9F&image=file%3A%2F%2F%2FC%3A%2FUsers%2FDaniel%2FDocuments%2Fprojects%2FyouthPlayer%2Fruntime%2Fscreensaver_assets%2Fscreensaver_20260403_194658_322ce828.jpg', '--host', '127.0.0.1', '--port', '18870', '--left', '0', '--top', '0', '--width', '3200', '--height', '2000', '--topmost']
+2026-04-03 19:47:12,599 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:47:15 CST)" (scheduled at 2026-04-03 19:47:12.596799+08:00)
+2026-04-03 19:47:12,730 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:47:15 CST)" executed successfully
+2026-04-03 19:47:13,789 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2026-04-03 19:47:14,489 - player.player - ERROR - Electron did not become ready. process_exit=1
+2026-04-03 19:47:14,489 - player.player - ERROR - Electron open failed: Electron control endpoint not ready.
+2026-04-03 19:47:18,790 - security.watchdog - INFO - 看门狗停止成功
+2026-04-03 19:50:28,485 - apscheduler.scheduler - INFO - Scheduler started
+2026-04-03 19:50:28,623 - player.player - INFO - Using VLC at: C:\Program Files\VideoLAN\VLC\vlc.exe
+2026-04-03 19:50:28,740 - player.player - INFO - VLC player initialized.
+2026-04-03 19:50:28,740 - player.player - INFO - Target screen set to: 0
+2026-04-03 19:50:28,823 - __main__ - INFO - Loaded setting all_play_via_electron=True
+2026-04-03 19:50:28,824 - __main__ - INFO - Loaded setting monitor_capture_interval=3s
+2026-04-03 19:50:28,826 - __main__ - INFO - Loaded setting idle_screensaver_image=C:\Users\Daniel\Documents\projects\youthPlayer\runtime\screensaver_assets\screensaver_20260403_194658_322ce828.jpg
+2026-04-03 19:50:28,856 - apscheduler.scheduler - INFO - Added job "setup_monitor_capture_job.<locals>._capture_job" to job store "default"
+2026-04-03 19:50:28,857 - __main__ - INFO - Monitor capture job enabled, interval=3s
+2026-04-03 19:50:28,963 - apscheduler.scheduler - INFO - Added job "Controller._execute_schedule" to job store "default"
+2026-04-03 19:50:28,964 - apscheduler.scheduler - INFO - Added job "Controller._finish_schedule" to job store "default"
+2026-04-03 19:50:28,965 - controller.controller - INFO - 已注册时间表任务: 111 (ID=1)
+2026-04-03 19:50:28,965 - controller.controller - INFO - 跳过过期时间表: test (ID=2)
+2026-04-03 19:50:28,965 - controller.controller - INFO - 已加载 2 个有效时间表
+2026-04-03 19:50:28,971 - player.player - INFO - Playback stopped.
+2026-04-03 19:50:28,973 - player.player - INFO - Resolved Electron binary: C:\Users\Daniel\Documents\projects\youthPlayer\node_modules\electron\dist\electron.exe
+2026-04-03 19:50:29,323 - player.player - INFO - Launching Electron command: ['C:\\Users\\Daniel\\Documents\\projects\\youthPlayer\\node_modules\\electron\\dist\\electron.exe', 'C:\\Users\\Daniel\\Documents\\projects\\youthPlayer\\player\\electron_runner.js', '--', '--url', 'file:///C:/Users/Daniel/Documents/projects/youthPlayer/player/screensaver.html?cfg=eyJ0aXRsZSI6IuagoeWbreeUteinhuaSreaUvuezu-e7nyIsImltYWdlIjoiZmlsZTovLy9DOi9Vc2Vycy9EYW5pZWwvRG9jdW1lbnRzL3Byb2plY3RzL3lvdXRoUGxheWVyL3J1bnRpbWUvc2NyZWVuc2F2ZXJfYXNzZXRzL3NjcmVlbnNhdmVyXzIwMjYwNDAzXzE5NDY1OF8zMjJjZTgyOC5qcGcifQ', '--host', '127.0.0.1', '--port', '18870', '--left', '0', '--top', '0', '--width', '3200', '--height', '2000', '--topmost']
+2026-04-03 19:50:30,341 - player.player - INFO - Web live opened via Electron: file:///C:/Users/Daniel/Documents/projects/youthPlayer/player/screensaver.html?cfg=eyJ0aXRsZSI6IuagoeWbreeUteinhuaSreaUvuezu-e7nyIsImltYWdlIjoiZmlsZTovLy9DOi9Vc2Vycy9EYW5pZWwvRG9jdW1lbnRzL3Byb2plY3RzL3lvdXRoUGxheWVyL3J1bnRpbWUvc2NyZWVuc2F2ZXJfYXNzZXRzL3NjcmVlbnNhdmVyXzIwMjYwNDAzXzE5NDY1OF8zMjJjZTgyOC5qcGcifQ
+2026-04-03 19:50:30,345 - security.watchdog - INFO - 看门狗启动成功
+2026-04-03 19:50:30,383 - werkzeug - WARNING -  * Running on all addresses.
+   WARNING: This is a development server. Do not use it in a production deployment.
+2026-04-03 19:50:30,385 - werkzeug - INFO -  * Running on http://192.168.1.73:5000/ (Press CTRL+C to quit)
+2026-04-03 19:50:31,869 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:50:31 CST)" (scheduled at 2026-04-03 19:50:31.856774+08:00)
+2026-04-03 19:50:31,974 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:50:34 CST)" executed successfully
+2026-04-03 19:50:34,868 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:50:37 CST)" (scheduled at 2026-04-03 19:50:34.856774+08:00)
+2026-04-03 19:50:34,954 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:50:37 CST)" executed successfully
+2026-04-03 19:50:37,872 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:50:40 CST)" (scheduled at 2026-04-03 19:50:37.856774+08:00)
+2026-04-03 19:50:37,963 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:50:40 CST)" executed successfully
+2026-04-03 19:50:40,867 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:50:43 CST)" (scheduled at 2026-04-03 19:50:40.856774+08:00)
+2026-04-03 19:50:40,954 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:50:43 CST)" executed successfully
+2026-04-03 19:50:43,873 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:50:46 CST)" (scheduled at 2026-04-03 19:50:43.856774+08:00)
+2026-04-03 19:50:43,957 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:50:46 CST)" executed successfully
+2026-04-03 19:50:46,869 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:50:49 CST)" (scheduled at 2026-04-03 19:50:46.856774+08:00)
+2026-04-03 19:50:46,950 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:50:49 CST)" executed successfully
+2026-04-03 19:50:49,870 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:50:52 CST)" (scheduled at 2026-04-03 19:50:49.856774+08:00)
+2026-04-03 19:50:49,967 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:50:52 CST)" executed successfully
+2026-04-03 19:50:52,870 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:50:55 CST)" (scheduled at 2026-04-03 19:50:52.856774+08:00)
+2026-04-03 19:50:52,947 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:50:55 CST)" executed successfully
+2026-04-03 19:50:55,871 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:50:58 CST)" (scheduled at 2026-04-03 19:50:55.856774+08:00)
+2026-04-03 19:50:55,954 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:50:58 CST)" executed successfully
+2026-04-03 19:50:58,870 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:51:01 CST)" (scheduled at 2026-04-03 19:50:58.856774+08:00)
+2026-04-03 19:50:58,973 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:51:01 CST)" executed successfully
+2026-04-03 19:51:01,868 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:51:04 CST)" (scheduled at 2026-04-03 19:51:01.856774+08:00)
+2026-04-03 19:51:01,949 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:51:04 CST)" executed successfully
+2026-04-03 19:51:04,868 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:51:07 CST)" (scheduled at 2026-04-03 19:51:04.856774+08:00)
+2026-04-03 19:51:04,952 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:51:07 CST)" executed successfully
+2026-04-03 19:51:07,872 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:51:10 CST)" (scheduled at 2026-04-03 19:51:07.856774+08:00)
+2026-04-03 19:51:07,954 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:51:10 CST)" executed successfully
+2026-04-03 19:51:10,857 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:51:13 CST)" (scheduled at 2026-04-03 19:51:10.856774+08:00)
+2026-04-03 19:51:10,937 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:51:13 CST)" executed successfully
+2026-04-03 19:51:13,857 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:51:16 CST)" (scheduled at 2026-04-03 19:51:13.856774+08:00)
+2026-04-03 19:51:13,945 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:51:16 CST)" executed successfully
+2026-04-03 19:51:16,856 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:51:19 CST)" (scheduled at 2026-04-03 19:51:16.856774+08:00)
+2026-04-03 19:51:16,939 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:51:19 CST)" executed successfully
+2026-04-03 19:51:19,856 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:51:22 CST)" (scheduled at 2026-04-03 19:51:19.856774+08:00)
+2026-04-03 19:51:19,949 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:51:22 CST)" executed successfully
+2026-04-03 19:51:22,857 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:51:25 CST)" (scheduled at 2026-04-03 19:51:22.856774+08:00)
+2026-04-03 19:51:22,945 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:51:25 CST)" executed successfully
+2026-04-03 19:51:25,858 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:51:28 CST)" (scheduled at 2026-04-03 19:51:25.856774+08:00)
+2026-04-03 19:51:25,947 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:51:28 CST)" executed successfully
+2026-04-03 19:51:28,857 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:51:31 CST)" (scheduled at 2026-04-03 19:51:28.856774+08:00)
+2026-04-03 19:51:28,941 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:51:31 CST)" executed successfully
+2026-04-03 19:51:31,857 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:51:34 CST)" (scheduled at 2026-04-03 19:51:31.856774+08:00)
+2026-04-03 19:51:31,945 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:51:34 CST)" executed successfully
+2026-04-03 19:51:34,857 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:51:37 CST)" (scheduled at 2026-04-03 19:51:34.856774+08:00)
+2026-04-03 19:51:34,936 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:51:37 CST)" executed successfully
+2026-04-03 19:51:37,857 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:51:40 CST)" (scheduled at 2026-04-03 19:51:37.856774+08:00)
+2026-04-03 19:51:37,938 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:51:40 CST)" executed successfully
+2026-04-03 19:51:40,857 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:51:43 CST)" (scheduled at 2026-04-03 19:51:40.856774+08:00)
+2026-04-03 19:51:40,942 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:51:43 CST)" executed successfully
+2026-04-03 19:51:43,857 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:51:46 CST)" (scheduled at 2026-04-03 19:51:43.856774+08:00)
+2026-04-03 19:51:43,950 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:51:46 CST)" executed successfully
+2026-04-03 19:51:46,857 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:51:49 CST)" (scheduled at 2026-04-03 19:51:46.856774+08:00)
+2026-04-03 19:51:46,945 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:51:49 CST)" executed successfully
+2026-04-03 19:51:49,858 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:51:52 CST)" (scheduled at 2026-04-03 19:51:49.856774+08:00)
+2026-04-03 19:51:49,953 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:51:52 CST)" executed successfully
+2026-04-03 19:51:52,857 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:51:55 CST)" (scheduled at 2026-04-03 19:51:52.856774+08:00)
+2026-04-03 19:51:52,951 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:51:55 CST)" executed successfully
+2026-04-03 19:51:55,857 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:51:58 CST)" (scheduled at 2026-04-03 19:51:55.856774+08:00)
+2026-04-03 19:51:55,950 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:51:58 CST)" executed successfully
+2026-04-03 19:51:58,858 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:52:01 CST)" (scheduled at 2026-04-03 19:51:58.856774+08:00)
+2026-04-03 19:51:58,955 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:52:01 CST)" executed successfully
+2026-04-03 19:52:01,857 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:52:04 CST)" (scheduled at 2026-04-03 19:52:01.856774+08:00)
+2026-04-03 19:52:01,950 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:52:04 CST)" executed successfully
+2026-04-03 19:52:04,857 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:52:07 CST)" (scheduled at 2026-04-03 19:52:04.856774+08:00)
+2026-04-03 19:52:04,944 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:52:07 CST)" executed successfully
+2026-04-03 19:52:07,857 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:52:10 CST)" (scheduled at 2026-04-03 19:52:07.856774+08:00)
+2026-04-03 19:52:07,959 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:52:10 CST)" executed successfully
+2026-04-03 19:52:10,857 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:52:13 CST)" (scheduled at 2026-04-03 19:52:10.856774+08:00)
+2026-04-03 19:52:10,956 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:52:13 CST)" executed successfully
+2026-04-03 19:52:13,857 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:52:16 CST)" (scheduled at 2026-04-03 19:52:13.856774+08:00)
+2026-04-03 19:52:13,952 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:52:16 CST)" executed successfully
+2026-04-03 19:52:16,857 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:52:19 CST)" (scheduled at 2026-04-03 19:52:16.856774+08:00)
+2026-04-03 19:52:16,941 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:52:19 CST)" executed successfully
+2026-04-03 19:52:19,857 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:52:22 CST)" (scheduled at 2026-04-03 19:52:19.856774+08:00)
+2026-04-03 19:52:19,952 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:52:22 CST)" executed successfully
+2026-04-03 19:52:22,857 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:52:25 CST)" (scheduled at 2026-04-03 19:52:22.856774+08:00)
+2026-04-03 19:52:22,945 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:52:25 CST)" executed successfully
+2026-04-03 19:52:25,857 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:52:28 CST)" (scheduled at 2026-04-03 19:52:25.856774+08:00)
+2026-04-03 19:52:25,955 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:52:28 CST)" executed successfully
+2026-04-03 19:52:28,857 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:52:31 CST)" (scheduled at 2026-04-03 19:52:28.856774+08:00)
+2026-04-03 19:52:28,949 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:52:31 CST)" executed successfully
+2026-04-03 19:52:31,857 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:52:34 CST)" (scheduled at 2026-04-03 19:52:31.856774+08:00)
+2026-04-03 19:52:31,950 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:52:34 CST)" executed successfully
+2026-04-03 19:52:34,857 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:52:37 CST)" (scheduled at 2026-04-03 19:52:34.856774+08:00)
+2026-04-03 19:52:34,952 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:52:37 CST)" executed successfully
+2026-04-03 19:52:37,857 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:52:40 CST)" (scheduled at 2026-04-03 19:52:37.856774+08:00)
+2026-04-03 19:52:37,953 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:52:40 CST)" executed successfully
+2026-04-03 19:52:40,857 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:52:43 CST)" (scheduled at 2026-04-03 19:52:40.856774+08:00)
+2026-04-03 19:52:40,953 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:52:43 CST)" executed successfully
+2026-04-03 19:52:43,857 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:52:46 CST)" (scheduled at 2026-04-03 19:52:43.856774+08:00)
+2026-04-03 19:52:43,951 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:52:46 CST)" executed successfully
+2026-04-03 19:52:46,858 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:52:49 CST)" (scheduled at 2026-04-03 19:52:46.856774+08:00)
+2026-04-03 19:52:46,966 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:52:49 CST)" executed successfully
+2026-04-03 19:52:49,857 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:52:52 CST)" (scheduled at 2026-04-03 19:52:49.856774+08:00)
+2026-04-03 19:52:49,951 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:52:52 CST)" executed successfully
+2026-04-03 19:52:52,857 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:52:55 CST)" (scheduled at 2026-04-03 19:52:52.856774+08:00)
+2026-04-03 19:52:52,947 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:52:55 CST)" executed successfully
+2026-04-03 19:52:55,857 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:52:58 CST)" (scheduled at 2026-04-03 19:52:55.856774+08:00)
+2026-04-03 19:52:55,948 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:52:58 CST)" executed successfully
+2026-04-03 19:52:58,857 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:53:01 CST)" (scheduled at 2026-04-03 19:52:58.856774+08:00)
+2026-04-03 19:52:58,956 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:53:01 CST)" executed successfully
+2026-04-03 19:53:01,857 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:53:04 CST)" (scheduled at 2026-04-03 19:53:01.856774+08:00)
+2026-04-03 19:53:01,951 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:53:04 CST)" executed successfully
+2026-04-03 19:53:04,858 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:53:07 CST)" (scheduled at 2026-04-03 19:53:04.856774+08:00)
+2026-04-03 19:53:04,950 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:53:07 CST)" executed successfully
+2026-04-03 19:53:07,857 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:53:10 CST)" (scheduled at 2026-04-03 19:53:07.856774+08:00)
+2026-04-03 19:53:07,951 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:53:10 CST)" executed successfully
+2026-04-03 19:53:10,858 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:53:13 CST)" (scheduled at 2026-04-03 19:53:10.856774+08:00)
+2026-04-03 19:53:10,949 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:53:13 CST)" executed successfully
+2026-04-03 19:53:13,856 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:53:16 CST)" (scheduled at 2026-04-03 19:53:13.856774+08:00)
+2026-04-03 19:53:13,954 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:53:16 CST)" executed successfully
+2026-04-03 19:53:16,857 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:53:19 CST)" (scheduled at 2026-04-03 19:53:16.856774+08:00)
+2026-04-03 19:53:16,947 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:53:19 CST)" executed successfully
+2026-04-03 19:53:19,857 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:53:22 CST)" (scheduled at 2026-04-03 19:53:19.856774+08:00)
+2026-04-03 19:53:19,947 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:53:22 CST)" executed successfully
+2026-04-03 19:53:22,858 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:53:25 CST)" (scheduled at 2026-04-03 19:53:22.856774+08:00)
+2026-04-03 19:53:22,957 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:53:25 CST)" executed successfully
+2026-04-03 19:53:25,857 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:53:28 CST)" (scheduled at 2026-04-03 19:53:25.856774+08:00)
+2026-04-03 19:53:26,178 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:53:28 CST)" executed successfully
+2026-04-03 19:53:28,857 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:53:31 CST)" (scheduled at 2026-04-03 19:53:28.856774+08:00)
+2026-04-03 19:53:28,947 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:53:31 CST)" executed successfully
+2026-04-03 19:53:31,857 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:53:34 CST)" (scheduled at 2026-04-03 19:53:31.856774+08:00)
+2026-04-03 19:53:31,943 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:53:34 CST)" executed successfully
+2026-04-03 19:53:34,857 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:53:37 CST)" (scheduled at 2026-04-03 19:53:34.856774+08:00)
+2026-04-03 19:53:34,932 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:53:37 CST)" executed successfully
+2026-04-03 19:53:37,858 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:53:40 CST)" (scheduled at 2026-04-03 19:53:37.856774+08:00)
+2026-04-03 19:53:37,939 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:53:40 CST)" executed successfully
+2026-04-03 19:53:40,857 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:53:43 CST)" (scheduled at 2026-04-03 19:53:40.856774+08:00)
+2026-04-03 19:53:40,945 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:53:43 CST)" executed successfully
+2026-04-03 19:53:43,856 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:53:46 CST)" (scheduled at 2026-04-03 19:53:43.856774+08:00)
+2026-04-03 19:53:43,942 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:53:46 CST)" executed successfully
+2026-04-03 19:53:46,857 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:53:49 CST)" (scheduled at 2026-04-03 19:53:46.856774+08:00)
+2026-04-03 19:53:46,950 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:53:49 CST)" executed successfully
+2026-04-03 19:53:49,857 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:53:52 CST)" (scheduled at 2026-04-03 19:53:49.856774+08:00)
+2026-04-03 19:53:49,946 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:53:52 CST)" executed successfully
+2026-04-03 19:53:52,857 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:53:55 CST)" (scheduled at 2026-04-03 19:53:52.856774+08:00)
+2026-04-03 19:53:52,964 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:53:55 CST)" executed successfully
+2026-04-03 19:53:55,857 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:53:58 CST)" (scheduled at 2026-04-03 19:53:55.856774+08:00)
+2026-04-03 19:53:55,956 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:53:58 CST)" executed successfully
+2026-04-03 19:53:58,857 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:54:01 CST)" (scheduled at 2026-04-03 19:53:58.856774+08:00)
+2026-04-03 19:53:58,951 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:54:01 CST)" executed successfully
+2026-04-03 19:54:01,857 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:54:04 CST)" (scheduled at 2026-04-03 19:54:01.856774+08:00)
+2026-04-03 19:54:01,943 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:54:04 CST)" executed successfully
+2026-04-03 19:54:04,857 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:54:07 CST)" (scheduled at 2026-04-03 19:54:04.856774+08:00)
+2026-04-03 19:54:04,954 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:54:07 CST)" executed successfully
+2026-04-03 19:54:07,858 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:54:10 CST)" (scheduled at 2026-04-03 19:54:07.856774+08:00)
+2026-04-03 19:54:07,956 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:54:10 CST)" executed successfully
+2026-04-03 19:54:10,857 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:54:13 CST)" (scheduled at 2026-04-03 19:54:10.856774+08:00)
+2026-04-03 19:54:10,950 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:54:13 CST)" executed successfully
+2026-04-03 19:54:13,857 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:54:16 CST)" (scheduled at 2026-04-03 19:54:13.856774+08:00)
+2026-04-03 19:54:14,043 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:54:16 CST)" executed successfully
+2026-04-03 19:54:16,857 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:54:19 CST)" (scheduled at 2026-04-03 19:54:16.856774+08:00)
+2026-04-03 19:54:16,963 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:54:19 CST)" executed successfully
+2026-04-03 19:54:19,858 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:54:22 CST)" (scheduled at 2026-04-03 19:54:19.856774+08:00)
+2026-04-03 19:54:19,952 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:54:22 CST)" executed successfully
+2026-04-03 19:54:22,857 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:54:25 CST)" (scheduled at 2026-04-03 19:54:22.856774+08:00)
+2026-04-03 19:54:22,948 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:54:25 CST)" executed successfully
+2026-04-03 19:54:25,857 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:54:28 CST)" (scheduled at 2026-04-03 19:54:25.856774+08:00)
+2026-04-03 19:54:25,952 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:54:28 CST)" executed successfully
+2026-04-03 19:54:28,857 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:54:31 CST)" (scheduled at 2026-04-03 19:54:28.856774+08:00)
+2026-04-03 19:54:28,942 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:54:31 CST)" executed successfully
+2026-04-03 19:54:31,857 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:54:34 CST)" (scheduled at 2026-04-03 19:54:31.856774+08:00)
+2026-04-03 19:54:31,953 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:54:34 CST)" executed successfully
+2026-04-03 19:54:34,857 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:54:37 CST)" (scheduled at 2026-04-03 19:54:34.856774+08:00)
+2026-04-03 19:54:34,957 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:54:37 CST)" executed successfully
+2026-04-03 19:54:37,857 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:54:40 CST)" (scheduled at 2026-04-03 19:54:37.856774+08:00)
+2026-04-03 19:54:37,943 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:54:40 CST)" executed successfully
+2026-04-03 19:54:40,858 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:54:43 CST)" (scheduled at 2026-04-03 19:54:40.856774+08:00)
+2026-04-03 19:54:40,960 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:54:43 CST)" executed successfully
+2026-04-03 19:54:43,857 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:54:46 CST)" (scheduled at 2026-04-03 19:54:43.856774+08:00)
+2026-04-03 19:54:43,952 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:54:46 CST)" executed successfully
+2026-04-03 19:54:46,857 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:54:49 CST)" (scheduled at 2026-04-03 19:54:46.856774+08:00)
+2026-04-03 19:54:46,956 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:54:49 CST)" executed successfully
+2026-04-03 19:54:49,857 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:54:52 CST)" (scheduled at 2026-04-03 19:54:49.856774+08:00)
+2026-04-03 19:54:49,955 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:54:52 CST)" executed successfully
+2026-04-03 19:54:52,857 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:54:55 CST)" (scheduled at 2026-04-03 19:54:52.856774+08:00)
+2026-04-03 19:54:52,952 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:54:55 CST)" executed successfully
+2026-04-03 19:54:52,976 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:54:52] "GET /settings HTTP/1.1" 200 -
+2026-04-03 19:54:53,134 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:54:53] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-03 19:54:53,142 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:54:53] "[36mGET /screensaver/preview HTTP/1.1[0m" 304 -
+2026-04-03 19:54:53,147 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:54:53] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-03 19:54:55,858 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:54:58 CST)" (scheduled at 2026-04-03 19:54:55.856774+08:00)
+2026-04-03 19:54:55,958 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:54:58 CST)" executed successfully
+2026-04-03 19:54:58,857 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:55:01 CST)" (scheduled at 2026-04-03 19:54:58.856774+08:00)
+2026-04-03 19:54:58,943 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:55:01 CST)" executed successfully
+2026-04-03 19:55:01,857 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:55:04 CST)" (scheduled at 2026-04-03 19:55:01.856774+08:00)
+2026-04-03 19:55:01,954 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:55:04 CST)" executed successfully
+2026-04-03 19:55:04,858 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:55:07 CST)" (scheduled at 2026-04-03 19:55:04.856774+08:00)
+2026-04-03 19:55:04,956 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:55:07 CST)" executed successfully
+2026-04-03 19:55:07,858 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:55:10 CST)" (scheduled at 2026-04-03 19:55:07.856774+08:00)
+2026-04-03 19:55:07,957 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:55:10 CST)" executed successfully
+2026-04-03 19:55:10,857 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:55:13 CST)" (scheduled at 2026-04-03 19:55:10.856774+08:00)
+2026-04-03 19:55:10,948 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:55:13 CST)" executed successfully
+2026-04-03 19:55:13,858 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:55:16 CST)" (scheduled at 2026-04-03 19:55:13.856774+08:00)
+2026-04-03 19:55:14,056 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:55:16 CST)" executed successfully
+2026-04-03 19:55:16,857 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:55:19 CST)" (scheduled at 2026-04-03 19:55:16.856774+08:00)
+2026-04-03 19:55:16,948 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:55:19 CST)" executed successfully
+2026-04-03 19:55:18,575 - player.player - INFO - Playback stopped.
+2026-04-03 19:55:18,577 - player.player - INFO - Resolved Electron binary: C:\Users\Daniel\Documents\projects\youthPlayer\node_modules\electron\dist\electron.exe
+2026-04-03 19:55:18,921 - player.player - INFO - Launching Electron command: ['C:\\Users\\Daniel\\Documents\\projects\\youthPlayer\\node_modules\\electron\\dist\\electron.exe', 'C:\\Users\\Daniel\\Documents\\projects\\youthPlayer\\player\\electron_runner.js', '--', '--url', 'file:///C:/Users/Daniel/Documents/projects/youthPlayer/player/screensaver.html?cfg=eyJ0aXRsZSI6IuagoeWbreeUteinhuaSreaUvuezu-e7nyJ9', '--host', '127.0.0.1', '--port', '18870', '--left', '0', '--top', '0', '--width', '3200', '--height', '2000', '--topmost']
+2026-04-03 19:55:19,857 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:55:22 CST)" (scheduled at 2026-04-03 19:55:19.856774+08:00)
+2026-04-03 19:55:19,931 - player.player - INFO - Web live opened via Electron: file:///C:/Users/Daniel/Documents/projects/youthPlayer/player/screensaver.html?cfg=eyJ0aXRsZSI6IuagoeWbreeUteinhuaSreaUvuezu-e7nyJ9
+2026-04-03 19:55:19,932 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:55:19] "[32mPOST /settings HTTP/1.1[0m" 302 -
+2026-04-03 19:55:19,937 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:55:22 CST)" executed successfully
+2026-04-03 19:55:20,000 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:55:20] "GET /settings HTTP/1.1" 200 -
+2026-04-03 19:55:20,057 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:55:20] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-03 19:55:20,060 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:55:20] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-03 19:55:20,063 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:55:20] "GET /screensaver/preview HTTP/1.1" 200 -
+2026-04-03 19:55:22,826 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:55:22] "[32mPOST /settings HTTP/1.1[0m" 302 -
+2026-04-03 19:55:22,875 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:55:22] "GET /settings HTTP/1.1" 200 -
+2026-04-03 19:55:22,932 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:55:22] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-03 19:55:22,936 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:55:22] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-03 19:55:22,939 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:55:22] "[36mGET /screensaver/preview HTTP/1.1[0m" 304 -
+2026-04-03 19:55:24,248 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:55:24] "GET /schedules HTTP/1.1" 200 -
+2026-04-03 19:55:24,290 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:55:24] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-03 19:55:24,291 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:55:24] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-03 19:55:25,786 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:55:25] "GET /dashboard HTTP/1.1" 200 -
+2026-04-03 19:55:25,825 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:55:28 CST)" (scheduled at 2026-04-03 19:55:25.825276+08:00)
+2026-04-03 19:55:25,833 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:55:25] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-03 19:55:25,833 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:55:25] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-03 19:55:25,863 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:55:25] "GET /api/status HTTP/1.1" 200 -
+2026-04-03 19:55:25,898 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:55:28 CST)" executed successfully
+2026-04-03 19:55:27,747 - player.player - INFO - Playback stopped.
+2026-04-03 19:55:27,778 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:55:27] "[32mPOST /control HTTP/1.1[0m" 302 -
+2026-04-03 19:55:27,851 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:55:27] "GET /dashboard HTTP/1.1" 200 -
+2026-04-03 19:55:27,913 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:55:27] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-03 19:55:27,916 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:55:27] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-03 19:55:27,967 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:55:27] "GET /api/status HTTP/1.1" 200 -
+2026-04-03 19:55:28,826 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:55:31 CST)" (scheduled at 2026-04-03 19:55:28.825276+08:00)
+2026-04-03 19:55:28,943 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:55:31 CST)" executed successfully
+2026-04-03 19:55:29,985 - player.player - INFO - Playback stopped.
+2026-04-03 19:55:29,988 - player.player - INFO - Resolved Electron binary: C:\Users\Daniel\Documents\projects\youthPlayer\node_modules\electron\dist\electron.exe
+2026-04-03 19:55:30,311 - player.player - INFO - Launching Electron command: ['C:\\Users\\Daniel\\Documents\\projects\\youthPlayer\\node_modules\\electron\\dist\\electron.exe', 'C:\\Users\\Daniel\\Documents\\projects\\youthPlayer\\player\\electron_runner.js', '--', '--url', 'file:///C:/Users/Daniel/Documents/projects/youthPlayer/player/screensaver.html?cfg=eyJ0aXRsZSI6IuagoeWbreeUteinhuaSreaUvuezu-e7nyIsImltYWdlIjoiZmlsZTovLy9DOi9Vc2Vycy9EYW5pZWwvRG9jdW1lbnRzL3Byb2plY3RzL3lvdXRoUGxheWVyL3J1bnRpbWUvc2NyZWVuc2F2ZXJfYXNzZXRzL3NjcmVlbnNhdmVyXzIwMjYwNDAzXzE5NTUxOF80ZTU2YTI4MS5qcGcifQ', '--host', '127.0.0.1', '--port', '18870', '--left', '0', '--top', '0', '--width', '3200', '--height', '2000', '--topmost']
+2026-04-03 19:55:31,333 - player.player - INFO - Web live opened via Electron: file:///C:/Users/Daniel/Documents/projects/youthPlayer/player/screensaver.html?cfg=eyJ0aXRsZSI6IuagoeWbreeUteinhuaSreaUvuezu-e7nyIsImltYWdlIjoiZmlsZTovLy9DOi9Vc2Vycy9EYW5pZWwvRG9jdW1lbnRzL3Byb2plY3RzL3lvdXRoUGxheWVyL3J1bnRpbWUvc2NyZWVuc2F2ZXJfYXNzZXRzL3NjcmVlbnNhdmVyXzIwMjYwNDAzXzE5NTUxOF80ZTU2YTI4MS5qcGcifQ
+2026-04-03 19:55:31,340 - controller.controller - INFO - 开始执行时间表 [manual]: 111
+2026-04-03 19:55:31,344 - player.player - INFO - Target screen set to: 0
+2026-04-03 19:55:31,345 - player.player - INFO - Using Electron for live source: https://tv.cctv.com/live/cctv13/ -> https://tv.cctv.com/live/cctv13/
+2026-04-03 19:55:31,434 - player.player - INFO - Playback stopped.
+2026-04-03 19:55:31,438 - player.player - INFO - Resolved Electron binary: C:\Users\Daniel\Documents\projects\youthPlayer\node_modules\electron\dist\electron.exe
+2026-04-03 19:55:31,826 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:55:34 CST)" (scheduled at 2026-04-03 19:55:31.825276+08:00)
+2026-04-03 19:55:31,828 - player.player - INFO - Launching Electron command: ['C:\\Users\\Daniel\\Documents\\projects\\youthPlayer\\node_modules\\electron\\dist\\electron.exe', 'C:\\Users\\Daniel\\Documents\\projects\\youthPlayer\\player\\electron_runner.js', '--', '--url', 'https://tv.cctv.com/live/cctv13/', '--host', '127.0.0.1', '--port', '18870', '--left', '0', '--top', '0', '--width', '3200', '--height', '2000', '--topmost']
+2026-04-03 19:55:31,950 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:55:34 CST)" executed successfully
+2026-04-03 19:55:32,866 - player.player - INFO - Web live opened via Electron: https://tv.cctv.com/live/cctv13/
+2026-04-03 19:55:32,887 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:55:32] "[32mPOST /control HTTP/1.1[0m" 302 -
+2026-04-03 19:55:33,083 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:55:33] "GET /dashboard HTTP/1.1" 200 -
+2026-04-03 19:55:33,209 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:55:33] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-03 19:55:33,214 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:55:33] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-03 19:55:33,265 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:55:33] "GET /api/status HTTP/1.1" 200 -
+2026-04-03 19:55:34,826 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:55:37 CST)" (scheduled at 2026-04-03 19:55:34.825276+08:00)
+2026-04-03 19:55:34,957 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:55:37 CST)" executed successfully
+2026-04-03 19:55:37,826 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:55:40 CST)" (scheduled at 2026-04-03 19:55:37.825276+08:00)
+2026-04-03 19:55:37,950 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:55:40 CST)" executed successfully
+2026-04-03 19:55:40,827 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:55:43 CST)" (scheduled at 2026-04-03 19:55:40.825276+08:00)
+2026-04-03 19:55:41,014 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:55:43 CST)" executed successfully
+2026-04-03 19:55:43,268 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:55:43] "GET /api/status HTTP/1.1" 200 -
+2026-04-03 19:55:43,826 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:55:46 CST)" (scheduled at 2026-04-03 19:55:43.825276+08:00)
+2026-04-03 19:55:43,937 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:55:46 CST)" executed successfully
+2026-04-03 19:55:46,424 - player.player - INFO - Playback stopped.
+2026-04-03 19:55:46,430 - player.player - INFO - Resolved Electron binary: C:\Users\Daniel\Documents\projects\youthPlayer\node_modules\electron\dist\electron.exe
+2026-04-03 19:55:46,827 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:55:49 CST)" (scheduled at 2026-04-03 19:55:46.825276+08:00)
+2026-04-03 19:55:46,975 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:55:49 CST)" executed successfully
+2026-04-03 19:55:47,102 - player.player - INFO - Launching Electron command: ['C:\\Users\\Daniel\\Documents\\projects\\youthPlayer\\node_modules\\electron\\dist\\electron.exe', 'C:\\Users\\Daniel\\Documents\\projects\\youthPlayer\\player\\electron_runner.js', '--', '--url', 'file:///C:/Users/Daniel/Documents/projects/youthPlayer/player/screensaver.html?cfg=eyJ0aXRsZSI6IuagoeWbreeUteinhuaSreaUvuezu-e7nyIsImltYWdlIjoiZmlsZTovLy9DOi9Vc2Vycy9EYW5pZWwvRG9jdW1lbnRzL3Byb2plY3RzL3lvdXRoUGxheWVyL3J1bnRpbWUvc2NyZWVuc2F2ZXJfYXNzZXRzL3NjcmVlbnNhdmVyXzIwMjYwNDAzXzE5NTUxOF80ZTU2YTI4MS5qcGcifQ', '--host', '127.0.0.1', '--port', '18870', '--left', '0', '--top', '0', '--width', '3200', '--height', '2000', '--topmost']
+2026-04-03 19:55:48,615 - player.player - INFO - Web live opened via Electron: file:///C:/Users/Daniel/Documents/projects/youthPlayer/player/screensaver.html?cfg=eyJ0aXRsZSI6IuagoeWbreeUteinhuaSreaUvuezu-e7nyIsImltYWdlIjoiZmlsZTovLy9DOi9Vc2Vycy9EYW5pZWwvRG9jdW1lbnRzL3Byb2plY3RzL3lvdXRoUGxheWVyL3J1bnRpbWUvc2NyZWVuc2F2ZXJfYXNzZXRzL3NjcmVlbnNhdmVyXzIwMjYwNDAzXzE5NTUxOF80ZTU2YTI4MS5qcGcifQ
+2026-04-03 19:55:49,826 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:55:52 CST)" (scheduled at 2026-04-03 19:55:49.825276+08:00)
+2026-04-03 19:55:49,932 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:55:52 CST)" executed successfully
+2026-04-03 19:55:52,827 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:55:55 CST)" (scheduled at 2026-04-03 19:55:52.825276+08:00)
+2026-04-03 19:55:52,827 - player.player - INFO - Playback stopped.
+2026-04-03 19:55:52,849 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:55:52] "[32mPOST /control HTTP/1.1[0m" 302 -
+2026-04-03 19:55:52,904 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:55:52] "GET /dashboard HTTP/1.1" 200 -
+2026-04-03 19:55:52,950 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:55:52] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-03 19:55:52,953 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:55:52] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-03 19:55:52,968 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:55:55 CST)" executed successfully
+2026-04-03 19:55:52,988 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:55:52] "GET /api/status HTTP/1.1" 200 -
+2026-04-03 19:55:55,826 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:55:58 CST)" (scheduled at 2026-04-03 19:55:55.825276+08:00)
+2026-04-03 19:55:55,911 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:55:58 CST)" executed successfully
+2026-04-03 19:55:58,826 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:56:01 CST)" (scheduled at 2026-04-03 19:55:58.825276+08:00)
+2026-04-03 19:55:58,924 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:56:01 CST)" executed successfully
+2026-04-03 19:56:01,826 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:56:04 CST)" (scheduled at 2026-04-03 19:56:01.825276+08:00)
+2026-04-03 19:56:02,088 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:56:04 CST)" executed successfully
+2026-04-03 19:56:03,014 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:56:03] "GET /api/status HTTP/1.1" 200 -
+2026-04-03 19:56:03,620 - player.player - INFO - Playback stopped.
+2026-04-03 19:56:03,623 - player.player - INFO - Resolved Electron binary: C:\Users\Daniel\Documents\projects\youthPlayer\node_modules\electron\dist\electron.exe
+2026-04-03 19:56:03,994 - player.player - INFO - Launching Electron command: ['C:\\Users\\Daniel\\Documents\\projects\\youthPlayer\\node_modules\\electron\\dist\\electron.exe', 'C:\\Users\\Daniel\\Documents\\projects\\youthPlayer\\player\\electron_runner.js', '--', '--url', 'file:///C:/Users/Daniel/Documents/projects/youthPlayer/player/screensaver.html?cfg=eyJ0aXRsZSI6IuagoeWbreeUteinhuaSreaUvuezu-e7nyIsImltYWdlIjoiZmlsZTovLy9DOi9Vc2Vycy9EYW5pZWwvRG9jdW1lbnRzL3Byb2plY3RzL3lvdXRoUGxheWVyL3J1bnRpbWUvc2NyZWVuc2F2ZXJfYXNzZXRzL3NjcmVlbnNhdmVyXzIwMjYwNDAzXzE5NTUxOF80ZTU2YTI4MS5qcGcifQ', '--host', '127.0.0.1', '--port', '18870', '--left', '0', '--top', '0', '--width', '3200', '--height', '2000', '--topmost']
+2026-04-03 19:56:04,826 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:56:07 CST)" (scheduled at 2026-04-03 19:56:04.825276+08:00)
+2026-04-03 19:56:04,947 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:56:07 CST)" executed successfully
+2026-04-03 19:56:05,025 - player.player - INFO - Web live opened via Electron: file:///C:/Users/Daniel/Documents/projects/youthPlayer/player/screensaver.html?cfg=eyJ0aXRsZSI6IuagoeWbreeUteinhuaSreaUvuezu-e7nyIsImltYWdlIjoiZmlsZTovLy9DOi9Vc2Vycy9EYW5pZWwvRG9jdW1lbnRzL3Byb2plY3RzL3lvdXRoUGxheWVyL3J1bnRpbWUvc2NyZWVuc2F2ZXJfYXNzZXRzL3NjcmVlbnNhdmVyXzIwMjYwNDAzXzE5NTUxOF80ZTU2YTI4MS5qcGcifQ
+2026-04-03 19:56:07,662 - player.player - INFO - Playback stopped.
+2026-04-03 19:56:07,683 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:56:07] "[32mPOST /control HTTP/1.1[0m" 302 -
+2026-04-03 19:56:07,762 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:56:07] "GET /dashboard HTTP/1.1" 200 -
+2026-04-03 19:56:07,809 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:56:07] "[36mGET /static/styles.css HTTP/1.1[0m" 304 -
+2026-04-03 19:56:07,820 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:56:07] "[36mGET /static/app.js HTTP/1.1[0m" 304 -
+2026-04-03 19:56:07,826 - apscheduler.executors.default - INFO - Running job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:56:10 CST)" (scheduled at 2026-04-03 19:56:07.825276+08:00)
+2026-04-03 19:56:07,853 - werkzeug - INFO - 192.168.1.24 - - [03/Apr/2026 19:56:07] "GET /api/status HTTP/1.1" 200 -
+2026-04-03 19:56:07,939 - apscheduler.executors.default - INFO - Job "setup_monitor_capture_job.<locals>._capture_job (trigger: interval[0:00:03], next run at: 2026-04-03 19:56:10 CST)" executed successfully
+2026-04-03 19:56:10,344 - apscheduler.scheduler - INFO - Scheduler has been shut down
+2026-04-03 19:56:15,345 - security.watchdog - INFO - 看门狗停止成功

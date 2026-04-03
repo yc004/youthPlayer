@@ -17,7 +17,7 @@
             <h2>播放引擎设置</h2>
             <span class="chip info">管理员</span>
         </div>
-        <form method="post" action="{{ url_for('main.settings') }}" class="schedule-form">
+        <form method="post" action="{{ url_for('main.settings') }}" class="schedule-form" enctype="multipart/form-data">
             <input type="hidden" name="form_action" value="system">
             <label class="check-field">
                 <input type="checkbox" name="all_play_via_electron" {% if all_play_via_electron %}checked{% endif %}>
@@ -27,6 +27,22 @@
                 <span>监控截图频率（秒）</span>
                 <input type="number" name="monitor_capture_interval" min="2" max="3600" value="{{ monitor_capture_interval }}">
             </label>
+            <label class="field">
+                <span>屏保图片（jpg/jpeg/png/bmp/webp）</span>
+                <input type="file" name="screensaver_image" accept=".jpg,.jpeg,.png,.bmp,.webp,image/*">
+            </label>
+            {% if screensaver_image_path %}
+            <div class="field">
+                <span>当前屏保图片</span>
+                <div style="margin-top:8px;">
+                    <img src="{{ url_for('main.screensaver_preview') }}" alt="screensaver preview" style="max-width:100%;max-height:220px;border-radius:10px;border:1px solid rgba(148,163,184,.35);object-fit:contain;background:#0f172a;">
+                </div>
+                <label class="check-field" style="margin-top:10px;">
+                    <input type="checkbox" name="remove_screensaver_image">
+                    <span>删除当前屏保图片（保存后生效）</span>
+                </label>
+            </div>
+            {% endif %}
             <div class="form-actions">
                 <button type="submit" class="btn btn-primary">保存设置</button>
             </div>

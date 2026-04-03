@@ -12,12 +12,28 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      position: relative;
       background:
         radial-gradient(circle at 20% 20%, rgba(59,130,246,.25), transparent 45%),
         radial-gradient(circle at 80% 70%, rgba(168,85,247,.2), transparent 48%),
         linear-gradient(145deg, #030712, #0b1220);
     }
-    .wrap { text-align: center; padding: 30px; }
+    #bgImage {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: .42;
+      display: none;
+    }
+    .overlay {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at center, rgba(0,0,0,.2) 0%, rgba(0,0,0,.58) 100%);
+      display: none;
+    }
+    .wrap { text-align: center; padding: 30px; position: relative; z-index: 2; }
     .title { font-size: clamp(28px, 4vw, 56px); font-weight: 700; letter-spacing: .03em; }
     .sub { margin-top: 14px; opacity: .85; font-size: clamp(14px, 1.6vw, 24px); }
     .clock { margin-top: 28px; font-size: clamp(36px, 6vw, 90px); font-weight: 800; }
@@ -25,6 +41,8 @@
   </style>
 </head>
 <body>
+  <img id="bgImage" alt="" />
+  <div id="overlay" class="overlay"></div>
   <div class="wrap">
     <div id="title" class="title">校园电视播放系统</div>
     <div class="sub">当前没有播放计划</div>
@@ -33,8 +51,34 @@
   </div>
   <script>
     const q = new URLSearchParams(location.search);
-    const t = q.get("title");
+    const cfg = q.get("cfg");
+    let t = q.get("title");
+    let image = q.get("image");
+    if (cfg) {
+      try {
+        const pad = "=".repeat((4 - (cfg.length % 4 || 4)) % 4);
+        const txt = atob((cfg + pad).replace(/-/g, "+").replace(/_/g, "/"));
+        const parsed = JSON.parse(decodeURIComponent(escape(txt)));
+        if (parsed && typeof parsed === "object") {
+          if (parsed.title) t = parsed.title;
+          if (parsed.image) image = parsed.image;
+        }
+      } catch (_) {}
+    }
     if (t) document.getElementById("title").textContent = t;
+    if (image) {
+      const img = document.getElementById("bgImage");
+      const wrap = document.querySelector(".wrap");
+      img.onload = () => {
+        img.style.display = "block";
+        if (wrap) wrap.style.display = "none";
+      };
+      img.onerror = () => {
+        img.style.display = "none";
+        if (wrap) wrap.style.display = "";
+      };
+      img.src = image;
+    }
     function tick() {
       const now = new Date();
       const hh = String(now.getHours()).padStart(2, "0");

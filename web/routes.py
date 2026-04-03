@@ -1,8 +1,10 @@
 import os
+from uuid import uuid4
 from datetime import datetime
 
 from flask import Blueprint, flash, jsonify, redirect, render_template, request, send_file, url_for
 from flask_login import current_user, login_required, login_user, logout_user
+from werkzeug.utils import secure_filename
 
 from config import Config
 from models import OperationAuditLog, Schedule, SettingAuditLog, SystemSetting, User, db
@@ -17,6 +19,9 @@ watchdog = None
 WEEKDAY_LABELS = ["周一", "周二", "周三", "周四", "周五", "周六", "周日"]
 SETTING_KEY_ALL_ELECTRON = "all_play_via_electron"
 SETTING_KEY_MONITOR_INTERVAL = "monitor_capture_interval"
+SETTING_KEY_SCREENSAVER_IMAGE = "idle_screensaver_image"
+SCREENSAVER_ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".bmp", ".webp"}
+SCREENSAVER_MAX_SIZE = 20 * 1024 * 1024
 
 
 def init_routes(player_instance, controller_instance, watchdog_instance):
@@ -131,6 +136,76 @@ def _set_setting_int(key, value):
     else:
         item.value = str(v)
     db.session.commit()
+
+
+def _get_setting_str(key, default=""):
+    item = db.session.get(SystemSetting, key)
+    if not item:
+        return str(default or "")
+    return str(item.value or "").strip()
+
+
+def _set_setting_str(key, value):
+    item = db.session.get(SystemSetting, key)
+    if not item:
+        item = SystemSetting(key=key, value=str(value or ""))
+        db.session.add(item)
+    else:
+        item.value = str(value or "")
+    db.session.commit()
+
+
+def _get_screensaver_assets_dir():
+    target = os.path.join(Config.BASE_DIR, "runtime", "screensaver_assets")
+    os.makedirs(target, exist_ok=True)
+    return target
+
+
+def _is_managed_screensaver_path(path):
+    if not path:
+        return False
+    try:
+        assets_dir = os.path.abspath(_get_screensaver_assets_dir())
+        target = os.path.abspath(path)
+        return os.path.commonpath([assets_dir, target]) == assets_dir
+    except Exception:
+        return False
+
+
+def _cleanup_screensaver_file(path):
+    if not path:
+        return
+    try:
+        if _is_managed_screensaver_path(path) and os.path.exists(path):
+            os.remove(path)
+    except Exception:
+        pass
+
+
+def _save_screensaver_upload(file_storage):
+    filename = secure_filename(file_storage.filename or "")
+    if not filename:
+        raise ValueError("请选择要上传的图片文件。")
+
+    suffix = os.path.splitext(filename)[1].lower()
+    if suffix not in SCREENSAVER_ALLOWED_EXTENSIONS:
+        raise ValueError("仅支持 jpg/jpeg/png/bmp/webp 格式图片。")
+
+    content_length = request.content_length or 0
+    if content_length > SCREENSAVER_MAX_SIZE:
+        raise ValueError("上传文件过大，最大支持 20MB。")
+
+    content_type = (file_storage.content_type or "").lower()
+    if content_type and not content_type.startswith("image/"):
+        raise ValueError("请上传图片文件。")
+
+    target_name = f"screensaver_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{uuid4().hex[:8]}{suffix}"
+    target_path = os.path.join(_get_screensaver_assets_dir(), target_name)
+    file_storage.save(target_path)
+    if os.path.getsize(target_path) > SCREENSAVER_MAX_SIZE:
+        _cleanup_screensaver_file(target_path)
+        raise ValueError("上传文件过大，最大支持 20MB。")
+    return target_path
 
 
 def _append_setting_audit_log(setting_key, old_value, new_value):
@@ -470,6 +545,17 @@ def api_monitor():
     )
 
 
+@main.route("/screensaver/preview")
+@login_required
+def screensaver_preview():
+    if not current_user.is_admin:
+        return ("Forbidden", 403)
+    path = _get_setting_str(SETTING_KEY_SCREENSAVER_IMAGE, Config.IDLE_SCREENSAVER_IMAGE)
+    if not path or not os.path.exists(path):
+        return ("No screensaver image", 404)
+    return send_file(path, conditional=True)
+
+
 @main.route("/api/browse")
 @login_required
 def api_browse():
@@ -577,13 +663,45 @@ def settings():
             monitor_interval = max(2, min(3600, int(monitor_interval)))
         except Exception:
             monitor_interval = int(Config.MONITOR_CAPTURE_INTERVAL)
+
         old_value = "1" if _get_setting_bool(SETTING_KEY_ALL_ELECTRON, Config.ALL_PLAY_VIA_ELECTRON) else "0"
         new_value = "1" if enable_all_electron else "0"
         _set_setting_bool(SETTING_KEY_ALL_ELECTRON, enable_all_electron)
+
         old_interval = str(_get_setting_int(SETTING_KEY_MONITOR_INTERVAL, Config.MONITOR_CAPTURE_INTERVAL))
         _set_setting_int(SETTING_KEY_MONITOR_INTERVAL, monitor_interval)
+
+        old_screensaver_image = _get_setting_str(SETTING_KEY_SCREENSAVER_IMAGE, Config.IDLE_SCREENSAVER_IMAGE)
+        new_screensaver_image = old_screensaver_image
+        remove_screensaver_image = "remove_screensaver_image" in request.form
+        upload_file = request.files.get("screensaver_image")
+
+        try:
+            if remove_screensaver_image:
+                new_screensaver_image = ""
+            if upload_file and (upload_file.filename or "").strip():
+                new_screensaver_image = _save_screensaver_upload(upload_file)
+        except Exception as exc:
+            flash(f"屏保图片更新失败：{exc}", "error")
+            return redirect(url_for("main.settings"))
+
+        _set_setting_str(SETTING_KEY_SCREENSAVER_IMAGE, new_screensaver_image)
+        if old_screensaver_image != new_screensaver_image:
+            _append_setting_audit_log(
+                SETTING_KEY_SCREENSAVER_IMAGE,
+                old_screensaver_image or "<empty>",
+                new_screensaver_image or "<empty>",
+            )
+            _cleanup_screensaver_file(old_screensaver_image)
+            try:
+                player.show_screensaver()
+            except Exception:
+                pass
+
         Config.ALL_PLAY_VIA_ELECTRON = enable_all_electron
         Config.MONITOR_CAPTURE_INTERVAL = monitor_interval
+        Config.IDLE_SCREENSAVER_IMAGE = new_screensaver_image
+
         try:
             controller.scheduler.reschedule_job(
                 "monitor_capture_job",
@@ -605,6 +723,9 @@ def settings():
 
     all_play_via_electron = _get_setting_bool(SETTING_KEY_ALL_ELECTRON, Config.ALL_PLAY_VIA_ELECTRON)
     monitor_capture_interval = _get_setting_int(SETTING_KEY_MONITOR_INTERVAL, Config.MONITOR_CAPTURE_INTERVAL)
+    screensaver_image_path = _get_setting_str(SETTING_KEY_SCREENSAVER_IMAGE, Config.IDLE_SCREENSAVER_IMAGE)
+    if screensaver_image_path and not os.path.exists(screensaver_image_path):
+        screensaver_image_path = ""
     audit_logs = (
         SettingAuditLog.query.order_by(SettingAuditLog.created_at.desc(), SettingAuditLog.id.desc())
         .limit(50)
@@ -619,6 +740,7 @@ def settings():
         "settings.html",
         all_play_via_electron=all_play_via_electron,
         monitor_capture_interval=monitor_capture_interval,
+        screensaver_image_path=screensaver_image_path,
         audit_logs=audit_logs,
         operation_logs=operation_logs,
     )
