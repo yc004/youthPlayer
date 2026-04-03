@@ -19,7 +19,7 @@ class Config:
     # 设为 1 时，local/nas/live 全部优先走 Electron，避免 VLC/Electron 来回切换。
     ALL_PLAY_VIA_ELECTRON = os.environ.get("YP_ALL_PLAY_VIA_ELECTRON", "0") == "1"
     # 留空时优先使用项目内 node_modules/.bin/electron(.cmd)
-    ELECTRON_BIN = os.environ.get("YP_ELECTRON_BIN", "")
+    ELECTRON_BIN = os.environ.get("YP_ELECTRON_BIN", "electron.cmd")
     ELECTRON_CONTROL_HOST = os.environ.get("YP_ELECTRON_HOST", "127.0.0.1")
     ELECTRON_CONTROL_PORT_BASE = int(os.environ.get("YP_ELECTRON_PORT_BASE", 18870))
     ELECTRON_CONTROL_TIMEOUT = float(os.environ.get("YP_ELECTRON_TIMEOUT", 2.0))
