@@ -701,6 +701,15 @@ a {
     .gantt-hours {
         padding-left: 0;
     }
+
+    .gantt-board {
+        overflow-x: auto;
+    }
+
+    .gantt-hours,
+    .gantt-row {
+        min-width: 680px;
+    }
 }
 
 @media (max-width: 720px) {
@@ -716,7 +725,126 @@ a {
         padding: 18px;
     }
 
+    .panel {
+        padding: 16px;
+        border-radius: 14px;
+    }
+
     .nav-links {
         flex-wrap: wrap;
+        gap: 10px 14px;
+    }
+
+    .summary-meta {
+        justify-content: flex-start;
+    }
+
+    .schedule-body {
+        padding: 0 14px 14px;
+    }
+
+    .kv-list div,
+    .schedule-meta div {
+        flex-direction: column;
+        gap: 6px;
+        align-items: flex-start;
+    }
+
+    .button-row {
+        display: grid;
+        grid-template-columns: 1fr;
+    }
+
+    .button-row form,
+    .button-row .btn,
+    .path-picker .btn,
+    .file-browser-toolbar .btn {
+        width: 100%;
+    }
+
+    .path-picker {
+        grid-template-columns: 1fr;
+    }
+
+    .check-field {
+        margin-top: 0;
+    }
+
+    .check-field.check-field-alone {
+        margin-top: 0;
+    }
+
+    .form-actions {
+        justify-content: stretch;
+    }
+
+    .form-actions .btn {
+        width: 100%;
+    }
+
+    .file-browser-modal {
+        width: 100vw;
+        height: 100dvh;
+        max-height: 100dvh;
+        border-radius: 0;
+        padding: 12px;
+    }
+
+    .file-browser-head,
+    .file-browser-toolbar,
+    .file-browser-path {
+        gap: 6px;
+    }
+
+    .file-browser-path input {
+        min-width: 0;
+        width: 100%;
+    }
+
+    .file-browser-list {
+        max-height: calc(100dvh - 240px);
+    }
+
+    .monitor-preview-wrap {
+        min-height: 180px;
+    }
+}
+
+@media (max-width: 520px) {
+    .topbar {
+        padding: 12px 14px;
+    }
+
+    .brand {
+        gap: 10px;
+    }
+
+    .brand-mark {
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+    }
+
+    .page-shell {
+        padding: 12px;
+    }
+
+    .stat-card {
+        padding: 16px;
+    }
+
+    .stat-value {
+        font-size: 24px;
+    }
+
+    .btn {
+        padding: 10px 12px;
+        font-size: 13px;
+    }
+
+    .field input,
+    .field select,
+    .field textarea {
+        padding: 10px 12px;
     }
 }
