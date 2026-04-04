@@ -30,6 +30,12 @@ WEEKDAY_LABELS = ["周一", "周二", "周三", "周四", "周五", "周六", "�
 SETTING_KEY_ALL_ELECTRON = "all_play_via_electron"
 SETTING_KEY_MONITOR_INTERVAL = "monitor_capture_interval"
 SETTING_KEY_SCREENSAVER_IMAGE = "idle_screensaver_image"
+SETTING_KEY_SCREENSAVER_SCREEN_INDEX = "idle_screensaver_screen_index"
+SETTING_KEY_SCREENSAVER_WINDOW_MODE = "idle_screensaver_window_mode"
+SETTING_KEY_SCREENSAVER_WINDOW_LEFT = "idle_screensaver_window_left"
+SETTING_KEY_SCREENSAVER_WINDOW_TOP = "idle_screensaver_window_top"
+SETTING_KEY_SCREENSAVER_WINDOW_WIDTH = "idle_screensaver_window_width"
+SETTING_KEY_SCREENSAVER_WINDOW_HEIGHT = "idle_screensaver_window_height"
 SCREENSAVER_ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".bmp", ".webp"}
 SCREENSAVER_MAX_SIZE = 20 * 1024 * 1024
 PERMISSION_DEFS = [
@@ -820,6 +826,36 @@ def settings():
             monitor_interval = max(2, min(3600, int(monitor_interval)))
         except Exception:
             monitor_interval = int(Config.MONITOR_CAPTURE_INTERVAL)
+        screensaver_screen_index = request.form.get(
+            "screensaver_screen_index",
+            str(Config.IDLE_SCREENSAVER_SCREEN_INDEX),
+        )
+        try:
+            screensaver_screen_index = int(screensaver_screen_index)
+        except Exception:
+            screensaver_screen_index = int(Config.IDLE_SCREENSAVER_SCREEN_INDEX)
+        screensaver_window_mode = (request.form.get("screensaver_window_mode") or "fullscreen").strip().lower()
+        if screensaver_window_mode not in {"fullscreen", "custom"}:
+            screensaver_window_mode = "fullscreen"
+        try:
+            screensaver_window_left = int(request.form.get("screensaver_window_left") or 0)
+        except Exception:
+            screensaver_window_left = 0
+        try:
+            screensaver_window_top = int(request.form.get("screensaver_window_top") or 0)
+        except Exception:
+            screensaver_window_top = 0
+        try:
+            screensaver_window_width = int(request.form.get("screensaver_window_width") or 0)
+        except Exception:
+            screensaver_window_width = 0
+        try:
+            screensaver_window_height = int(request.form.get("screensaver_window_height") or 0)
+        except Exception:
+            screensaver_window_height = 0
+        if screensaver_window_mode == "custom":
+            screensaver_window_width = max(100, screensaver_window_width or 100)
+            screensaver_window_height = max(100, screensaver_window_height or 100)
 
         old_value = "1" if _get_setting_bool(SETTING_KEY_ALL_ELECTRON, Config.ALL_PLAY_VIA_ELECTRON) else "0"
         new_value = "1" if enable_all_electron else "0"
@@ -827,6 +863,23 @@ def settings():
 
         old_interval = str(_get_setting_int(SETTING_KEY_MONITOR_INTERVAL, Config.MONITOR_CAPTURE_INTERVAL))
         _set_setting_int(SETTING_KEY_MONITOR_INTERVAL, monitor_interval)
+        old_ss_screen_index = str(
+            _get_setting_int(SETTING_KEY_SCREENSAVER_SCREEN_INDEX, Config.IDLE_SCREENSAVER_SCREEN_INDEX)
+        )
+        _set_setting_int(SETTING_KEY_SCREENSAVER_SCREEN_INDEX, screensaver_screen_index)
+        old_ss_window_mode = _get_setting_str(
+            SETTING_KEY_SCREENSAVER_WINDOW_MODE,
+            Config.IDLE_SCREENSAVER_WINDOW_MODE,
+        )
+        _set_setting_str(SETTING_KEY_SCREENSAVER_WINDOW_MODE, screensaver_window_mode)
+        old_ss_left = str(_get_setting_int(SETTING_KEY_SCREENSAVER_WINDOW_LEFT, Config.IDLE_SCREENSAVER_WINDOW_LEFT))
+        old_ss_top = str(_get_setting_int(SETTING_KEY_SCREENSAVER_WINDOW_TOP, Config.IDLE_SCREENSAVER_WINDOW_TOP))
+        old_ss_width = str(_get_setting_int(SETTING_KEY_SCREENSAVER_WINDOW_WIDTH, Config.IDLE_SCREENSAVER_WINDOW_WIDTH))
+        old_ss_height = str(_get_setting_int(SETTING_KEY_SCREENSAVER_WINDOW_HEIGHT, Config.IDLE_SCREENSAVER_WINDOW_HEIGHT))
+        _set_setting_int(SETTING_KEY_SCREENSAVER_WINDOW_LEFT, screensaver_window_left)
+        _set_setting_int(SETTING_KEY_SCREENSAVER_WINDOW_TOP, screensaver_window_top)
+        _set_setting_int(SETTING_KEY_SCREENSAVER_WINDOW_WIDTH, screensaver_window_width)
+        _set_setting_int(SETTING_KEY_SCREENSAVER_WINDOW_HEIGHT, screensaver_window_height)
 
         old_screensaver_image = _get_setting_str(SETTING_KEY_SCREENSAVER_IMAGE, Config.IDLE_SCREENSAVER_IMAGE)
         new_screensaver_image = old_screensaver_image
@@ -858,6 +911,12 @@ def settings():
         Config.ALL_PLAY_VIA_ELECTRON = enable_all_electron
         Config.MONITOR_CAPTURE_INTERVAL = monitor_interval
         Config.IDLE_SCREENSAVER_IMAGE = new_screensaver_image
+        Config.IDLE_SCREENSAVER_SCREEN_INDEX = screensaver_screen_index
+        Config.IDLE_SCREENSAVER_WINDOW_MODE = screensaver_window_mode
+        Config.IDLE_SCREENSAVER_WINDOW_LEFT = screensaver_window_left
+        Config.IDLE_SCREENSAVER_WINDOW_TOP = screensaver_window_top
+        Config.IDLE_SCREENSAVER_WINDOW_WIDTH = screensaver_window_width
+        Config.IDLE_SCREENSAVER_WINDOW_HEIGHT = screensaver_window_height
 
         try:
             controller.scheduler.reschedule_job(
@@ -875,14 +934,73 @@ def settings():
                 player.capture_monitor_snapshot()
             except Exception:
                 pass
+        if old_ss_screen_index != str(screensaver_screen_index):
+            _append_setting_audit_log(
+                SETTING_KEY_SCREENSAVER_SCREEN_INDEX,
+                old_ss_screen_index,
+                str(screensaver_screen_index),
+            )
+        if old_ss_window_mode != screensaver_window_mode:
+            _append_setting_audit_log(
+                SETTING_KEY_SCREENSAVER_WINDOW_MODE,
+                old_ss_window_mode,
+                screensaver_window_mode,
+            )
+        if old_ss_left != str(screensaver_window_left):
+            _append_setting_audit_log(SETTING_KEY_SCREENSAVER_WINDOW_LEFT, old_ss_left, str(screensaver_window_left))
+        if old_ss_top != str(screensaver_window_top):
+            _append_setting_audit_log(SETTING_KEY_SCREENSAVER_WINDOW_TOP, old_ss_top, str(screensaver_window_top))
+        if old_ss_width != str(screensaver_window_width):
+            _append_setting_audit_log(
+                SETTING_KEY_SCREENSAVER_WINDOW_WIDTH,
+                old_ss_width,
+                str(screensaver_window_width),
+            )
+        if old_ss_height != str(screensaver_window_height):
+            _append_setting_audit_log(
+                SETTING_KEY_SCREENSAVER_WINDOW_HEIGHT,
+                old_ss_height,
+                str(screensaver_window_height),
+            )
+        try:
+            player.show_screensaver()
+        except Exception:
+            pass
         flash("系统设置已保存。", "success")
         return redirect(url_for("main.settings"))
 
     all_play_via_electron = _get_setting_bool(SETTING_KEY_ALL_ELECTRON, Config.ALL_PLAY_VIA_ELECTRON)
     monitor_capture_interval = _get_setting_int(SETTING_KEY_MONITOR_INTERVAL, Config.MONITOR_CAPTURE_INTERVAL)
+    screensaver_screen_index = _get_setting_int(
+        SETTING_KEY_SCREENSAVER_SCREEN_INDEX,
+        Config.IDLE_SCREENSAVER_SCREEN_INDEX,
+    )
+    screensaver_window_mode = _get_setting_str(
+        SETTING_KEY_SCREENSAVER_WINDOW_MODE,
+        Config.IDLE_SCREENSAVER_WINDOW_MODE,
+    )
+    if screensaver_window_mode not in {"fullscreen", "custom"}:
+        screensaver_window_mode = "fullscreen"
+    screensaver_window_left = _get_setting_int(
+        SETTING_KEY_SCREENSAVER_WINDOW_LEFT,
+        Config.IDLE_SCREENSAVER_WINDOW_LEFT,
+    )
+    screensaver_window_top = _get_setting_int(
+        SETTING_KEY_SCREENSAVER_WINDOW_TOP,
+        Config.IDLE_SCREENSAVER_WINDOW_TOP,
+    )
+    screensaver_window_width = _get_setting_int(
+        SETTING_KEY_SCREENSAVER_WINDOW_WIDTH,
+        Config.IDLE_SCREENSAVER_WINDOW_WIDTH,
+    )
+    screensaver_window_height = _get_setting_int(
+        SETTING_KEY_SCREENSAVER_WINDOW_HEIGHT,
+        Config.IDLE_SCREENSAVER_WINDOW_HEIGHT,
+    )
     screensaver_image_path = _get_setting_str(SETTING_KEY_SCREENSAVER_IMAGE, Config.IDLE_SCREENSAVER_IMAGE)
     if screensaver_image_path and not os.path.exists(screensaver_image_path):
         screensaver_image_path = ""
+    screens = player.get_available_screens() if player else []
     audit_logs = (
         SettingAuditLog.query.order_by(SettingAuditLog.created_at.desc(), SettingAuditLog.id.desc())
         .limit(50)
@@ -897,7 +1015,14 @@ def settings():
         "settings.html",
         all_play_via_electron=all_play_via_electron,
         monitor_capture_interval=monitor_capture_interval,
+        screens=screens,
         screensaver_image_path=screensaver_image_path,
+        screensaver_screen_index=screensaver_screen_index,
+        screensaver_window_mode=screensaver_window_mode,
+        screensaver_window_left=screensaver_window_left,
+        screensaver_window_top=screensaver_window_top,
+        screensaver_window_width=screensaver_window_width,
+        screensaver_window_height=screensaver_window_height,
         audit_logs=audit_logs,
         operation_logs=operation_logs,
     )

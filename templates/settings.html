@@ -31,6 +31,27 @@
                 <span>屏保图片（jpg/jpeg/png/bmp/webp）</span>
                 <input type="file" name="screensaver_image" accept=".jpg,.jpeg,.png,.bmp,.webp,image/*">
             </label>
+            <label class="field">
+                <span>屏保显示屏幕</span>
+                <select name="screensaver_screen_index">
+                    {% for screen in screens %}
+                    <option value="{{ screen.index }}" {% if screen.index == screensaver_screen_index %}selected{% endif %}>
+                        {{ screen.name }}（{{ screen.index }}）
+                    </option>
+                    {% endfor %}
+                </select>
+            </label>
+            <label class="field">
+                <span>屏保窗口模式</span>
+                <select name="screensaver_window_mode">
+                    <option value="fullscreen" {% if screensaver_window_mode != 'custom' %}selected{% endif %}>全屏</option>
+                    <option value="custom" {% if screensaver_window_mode == 'custom' %}selected{% endif %}>自定义</option>
+                </select>
+            </label>
+            <label class="field"><span>屏保窗口 X</span><input type="number" name="screensaver_window_left" value="{{ screensaver_window_left }}"></label>
+            <label class="field"><span>屏保窗口 Y</span><input type="number" name="screensaver_window_top" value="{{ screensaver_window_top }}"></label>
+            <label class="field"><span>屏保窗口宽</span><input type="number" min="100" name="screensaver_window_width" value="{{ screensaver_window_width }}"></label>
+            <label class="field"><span>屏保窗口高</span><input type="number" min="100" name="screensaver_window_height" value="{{ screensaver_window_height }}"></label>
             {% if screensaver_image_path %}
             <div class="field">
                 <span>当前屏保图片</span>

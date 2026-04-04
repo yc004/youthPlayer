@@ -181,6 +181,33 @@ def load_runtime_settings():
             image_path = str(screensaver_image_item.value or "").strip()
             Config.IDLE_SCREENSAVER_IMAGE = image_path if image_path and os.path.exists(image_path) else ""
             logger.info("Loaded setting idle_screensaver_image=%s", Config.IDLE_SCREENSAVER_IMAGE or "<empty>")
+        ss_screen_item = db.session.get(SystemSetting, "idle_screensaver_screen_index")
+        if ss_screen_item:
+            try:
+                Config.IDLE_SCREENSAVER_SCREEN_INDEX = int(str(ss_screen_item.value).strip())
+            except Exception:
+                pass
+            logger.info("Loaded setting idle_screensaver_screen_index=%s", Config.IDLE_SCREENSAVER_SCREEN_INDEX)
+        ss_mode_item = db.session.get(SystemSetting, "idle_screensaver_window_mode")
+        if ss_mode_item:
+            mode = str(ss_mode_item.value or "").strip().lower()
+            if mode in {"fullscreen", "custom"}:
+                Config.IDLE_SCREENSAVER_WINDOW_MODE = mode
+            logger.info("Loaded setting idle_screensaver_window_mode=%s", Config.IDLE_SCREENSAVER_WINDOW_MODE)
+        for key, attr in [
+            ("idle_screensaver_window_left", "IDLE_SCREENSAVER_WINDOW_LEFT"),
+            ("idle_screensaver_window_top", "IDLE_SCREENSAVER_WINDOW_TOP"),
+            ("idle_screensaver_window_width", "IDLE_SCREENSAVER_WINDOW_WIDTH"),
+            ("idle_screensaver_window_height", "IDLE_SCREENSAVER_WINDOW_HEIGHT"),
+        ]:
+            item = db.session.get(SystemSetting, key)
+            if not item:
+                continue
+            try:
+                setattr(Config, attr, int(str(item.value).strip()))
+            except Exception:
+                continue
+            logger.info("Loaded setting %s=%s", key, getattr(Config, attr))
 
 
 def setup_monitor_capture_job():

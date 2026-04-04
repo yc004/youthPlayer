@@ -744,11 +744,13 @@
         position: absolute;
         right: -1px;
         bottom: -1px;
-        width: 12px;
-        height: 12px;
+        width: 18px;
+        height: 18px;
         border-radius: 4px 0 6px 0;
         background: #2563eb;
         cursor: nwse-resize;
+        z-index: 2;
+        touch-action: none;
     }
 
     .window-visual-field.is-fullscreen .window-visual-stage,

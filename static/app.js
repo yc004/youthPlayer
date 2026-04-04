@@ -72,7 +72,7 @@
 
         var label = document.createElement("div");
         label.className = "gantt-row-label";
-        label.textContent = schedule.name + " (閻忕偛绻愮粻?" + schedule.screen_index + ")";
+        label.textContent = schedule.name + " (屏幕 " + schedule.screen_index + ")";
 
         var lane = document.createElement("div");
         lane.className = "gantt-lane";
@@ -127,7 +127,7 @@
         if (!rows.length) {
             var empty = document.createElement("div");
             empty.className = "empty-state";
-            empty.textContent = "No schedules for this day.";
+            empty.textContent = "当天没有计划任务。";
             board.appendChild(empty);
             return;
         }
@@ -752,6 +752,12 @@
 
             if (visual && rect) {
                 var dragState = null;
+                function ensureCustomMode() {
+                    if (modeInput.value === "custom") return;
+                    modeInput.value = "custom";
+                    applyMode();
+                    renderVisual();
+                }
                 function beginDrag(type, ev) {
                     ev.preventDefault();
                     var state = getRectState();
@@ -767,13 +773,26 @@
                     };
                 }
                 rect.addEventListener("mousedown", function (ev) {
-                    if (modeInput.value !== "custom") return;
                     if (ev.target === handle) return;
+                    ensureCustomMode();
                     beginDrag("move", ev);
                 });
                 if (handle) {
                     handle.addEventListener("mousedown", function (ev) {
-                        if (modeInput.value !== "custom") return;
+                        ev.stopPropagation();
+                        ensureCustomMode();
+                        beginDrag("resize", ev);
+                    });
+                }
+                rect.addEventListener("pointerdown", function (ev) {
+                    if (ev.target === handle) return;
+                    ensureCustomMode();
+                    beginDrag("move", ev);
+                });
+                if (handle) {
+                    handle.addEventListener("pointerdown", function (ev) {
+                        ev.stopPropagation();
+                        ensureCustomMode();
                         beginDrag("resize", ev);
                     });
                 }
@@ -803,7 +822,36 @@
                     setState(s);
                     renderVisual();
                 });
+                document.addEventListener("pointermove", function (ev) {
+                    if (!dragState) return;
+                    var sw = Math.max(1, Number(dragState.screen.width || 1920));
+                    var sh = Math.max(1, Number(dragState.screen.height || 1080));
+                    var box = screenBox.getBoundingClientRect();
+                    var pxToW = sw / Math.max(1, box.width);
+                    var pxToH = sh / Math.max(1, box.height);
+                    var dx = (ev.clientX - dragState.sx) * pxToW;
+                    var dy = (ev.clientY - dragState.sy) * pxToH;
+                    var s = {
+                        screen: dragState.screen,
+                        left: dragState.left,
+                        top: dragState.top,
+                        width: dragState.width,
+                        height: dragState.height
+                    };
+                    if (dragState.type === "move") {
+                        s.left = Math.max(0, Math.min(dragState.left + dx, sw - s.width));
+                        s.top = Math.max(0, Math.min(dragState.top + dy, sh - s.height));
+                    } else {
+                        s.width = Math.max(100, Math.min(dragState.width + dx, sw - s.left));
+                        s.height = Math.max(100, Math.min(dragState.height + dy, sh - s.top));
+                    }
+                    setState(s);
+                    renderVisual();
+                });
                 document.addEventListener("mouseup", function () {
+                    dragState = null;
+                });
+                document.addEventListener("pointerup", function () {
                     dragState = null;
                 });
                 visual.querySelectorAll("[data-role='wv-preset']").forEach(function (btn) {

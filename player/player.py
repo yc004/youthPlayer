@@ -199,6 +199,27 @@ class Player:
         with self._op_lock:
             if not Config.IDLE_SCREENSAVER_ENABLED:
                 return False
+            screensaver_mode = (Config.IDLE_SCREENSAVER_WINDOW_MODE or "fullscreen").strip().lower()
+            if screensaver_mode not in {"fullscreen", "custom"}:
+                screensaver_mode = "fullscreen"
+            self.set_screen(Config.IDLE_SCREENSAVER_SCREEN_INDEX)
+            self.set_window_rect(
+                mode=screensaver_mode,
+                left=Config.IDLE_SCREENSAVER_WINDOW_LEFT,
+                top=Config.IDLE_SCREENSAVER_WINDOW_TOP,
+                width=Config.IDLE_SCREENSAVER_WINDOW_WIDTH,
+                height=Config.IDLE_SCREENSAVER_WINDOW_HEIGHT,
+            )
+            mode, bounds = self._resolve_window_rect()
+            target_signature = (
+                int(self.screen_index),
+                str(mode),
+                int(bounds["left"]),
+                int(bounds["top"]),
+                int(bounds["width"]),
+                int(bounds["height"]),
+                bool(Config.WINDOW_TOPMOST),
+            )
             payload = {"title": Config.IDLE_SCREENSAVER_TITLE or "Campus Player"}
             image_path = (Config.IDLE_SCREENSAVER_IMAGE or "").strip()
             if image_path and os.path.exists(image_path):
@@ -214,6 +235,7 @@ class Player:
                 and (self.current_source or "") == target_url
                 and self.electron_process
                 and self.electron_process.poll() is None
+                and self.electron_window_signature == target_signature
             ):
                 return True
             return self._open_web_live_electron(target_url)
