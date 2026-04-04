@@ -150,7 +150,10 @@
 
             <div class="schedule-body">
                 <div class="schedule-meta">
-                    <div><span>默认播放项</span><strong>{{ (schedule.playlist_items[0] if schedule.playlist_items else schedule.content_path) }}</strong></div>
+                    <div class="schedule-meta-path-row">
+                        <span>默认播放项</span>
+                        <strong class="path-text" title="{{ (schedule.playlist_items[0] if schedule.playlist_items else schedule.content_path) }}">{{ (schedule.playlist_items[0] if schedule.playlist_items else schedule.content_path) }}</strong>
+                    </div>
                     <div><span>当前状态</span><strong>{{ "正在播放" if schedule.is_running_now else "等待/已结束" }}</strong></div>
                 </div>
 

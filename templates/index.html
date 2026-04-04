@@ -230,7 +230,10 @@
 
             <div class="schedule-body">
                 <div class="schedule-meta">
-                    <div><span>内容路径</span><strong>{{ schedule.content_path }}</strong></div>
+                    <div class="schedule-meta-path-row">
+                        <span>内容路径</span>
+                        <strong class="path-text" title="{{ schedule.content_path }}">{{ schedule.content_path }}</strong>
+                    </div>
                     <div><span>当前状态</span><strong>{{ "正在播放" if schedule.is_running_now else "等待/已结束" }}</strong></div>
                 </div>
 
