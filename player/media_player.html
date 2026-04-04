@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Media Player</title>
+  <style>
+    html, body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #000;
+    }
+    video {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      background: #000;
+    }
+  </style>
+</head>
+<body>
+  <video id="v" autoplay playsinline controlslist="nodownload noplaybackrate"></video>
+  <script>
+    (function () {
+      function parseCfg() {
+        const q = new URLSearchParams(location.search);
+        const raw = q.get("cfg") || "";
+        if (!raw) return { src: "", loop: false };
+        const pad = "===".slice((raw.length + 3) % 4);
+        try {
+          return JSON.parse(atob((raw + pad).replace(/-/g, "+").replace(/_/g, "/")));
+        } catch (_) {
+          return { src: "", loop: false };
+        }
+      }
+
+      const cfg = parseCfg();
+      const v = document.getElementById("v");
+      v.loop = Boolean(cfg.loop);
+      v.src = String(cfg.src || "");
+      v.muted = false;
+      v.preload = "auto";
+      v.controls = false;
+      const p = v.play();
+      if (p && typeof p.catch === "function") p.catch(() => {});
+    })();
+  </script>
+</body>
+</html>

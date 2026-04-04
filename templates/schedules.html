@@ -82,6 +82,34 @@
                 {% endfor %}
             </select>
         </label>
+        <label class="field"><span>窗口模式</span>
+            <select name="window_mode">
+                <option value="fullscreen" selected>全屏</option>
+                <option value="custom">自定义位置/大小</option>
+            </select>
+        </label>
+        <label class="field"><span>窗口左上 X</span><input type="number" name="window_left" value="0"></label>
+        <label class="field"><span>窗口左上 Y</span><input type="number" name="window_top" value="0"></label>
+        <label class="field"><span>窗口宽度</span><input type="number" name="window_width" min="100" value="1280"></label>
+        <label class="field"><span>窗口高度</span><input type="number" name="window_height" min="100" value="720"></label>
+        <div class="field field-wide window-visual-field" data-role="window-visual">
+            <span>窗口可视化</span>
+            <div class="window-visual-toolbar">
+                <button type="button" class="btn btn-secondary" data-role="wv-preset" data-preset="full">全屏</button>
+                <button type="button" class="btn btn-secondary" data-role="wv-preset" data-preset="center">居中 80%</button>
+                <button type="button" class="btn btn-secondary" data-role="wv-preset" data-preset="left-half">左半屏</button>
+                <button type="button" class="btn btn-secondary" data-role="wv-preset" data-preset="right-half">右半屏</button>
+            </div>
+            <div class="window-visual-stage" data-role="wv-stage">
+                <div class="window-visual-screen" data-role="wv-screen">
+                    <div class="window-visual-rect" data-role="wv-rect">
+                        <span class="window-visual-size" data-role="wv-size">--</span>
+                        <span class="window-visual-handle" data-role="wv-handle"></span>
+                    </div>
+                </div>
+            </div>
+            <small class="field-help">拖动蓝色窗口框可设置位置，右下角可缩放；坐标将自动同步到输入框。</small>
+        </div>
         <div class="form-actions"><button type="submit" class="btn btn-primary">保存计划</button></div>
     </form>
 </section>
@@ -116,6 +144,7 @@
                     <span class="chip {{ 'success' if schedule.is_active else 'muted' }}">{{ "启用" if schedule.is_active else "停用" }}</span>
                     <span class="chip info">{{ "网页直播" if schedule.content_type == 'live' else ("NAS" if schedule.content_type == 'nas' else "本地") }}</span>
                     <span class="chip">屏幕 {{ schedule.screen_index }}</span>
+                    <span class="chip">{{ "全屏" if schedule.window_mode != 'custom' else ("窗口 " ~ schedule.window_width ~ "x" ~ schedule.window_height) }}</span>
                     {% if schedule.is_weekly %}<span class="chip info">周循环</span>{% endif %}
                     {% if schedule.playlist_items %}<span class="chip info">轮播 {{ schedule.playlist_items|length }} 条</span>{% endif %}
                 </div>
@@ -210,6 +239,47 @@
                             {% endfor %}
                         </select>
                     </label>
+                    <label class="field">
+                        <span>窗口模式</span>
+                        <select name="window_mode">
+                            <option value="fullscreen" {% if schedule.window_mode != 'custom' %}selected{% endif %}>全屏</option>
+                            <option value="custom" {% if schedule.window_mode == 'custom' %}selected{% endif %}>自定义位置/大小</option>
+                        </select>
+                    </label>
+                    <label class="field">
+                        <span>窗口左上 X</span>
+                        <input type="number" name="window_left" value="{{ schedule.window_left or 0 }}">
+                    </label>
+                    <label class="field">
+                        <span>窗口左上 Y</span>
+                        <input type="number" name="window_top" value="{{ schedule.window_top or 0 }}">
+                    </label>
+                    <label class="field">
+                        <span>窗口宽度</span>
+                        <input type="number" name="window_width" min="100" value="{{ schedule.window_width or 1280 }}">
+                    </label>
+                    <label class="field">
+                        <span>窗口高度</span>
+                        <input type="number" name="window_height" min="100" value="{{ schedule.window_height or 720 }}">
+                    </label>
+                    <div class="field field-wide window-visual-field" data-role="window-visual">
+                        <span>窗口可视化</span>
+                        <div class="window-visual-toolbar">
+                            <button type="button" class="btn btn-secondary" data-role="wv-preset" data-preset="full">全屏</button>
+                            <button type="button" class="btn btn-secondary" data-role="wv-preset" data-preset="center">居中 80%</button>
+                            <button type="button" class="btn btn-secondary" data-role="wv-preset" data-preset="left-half">左半屏</button>
+                            <button type="button" class="btn btn-secondary" data-role="wv-preset" data-preset="right-half">右半屏</button>
+                        </div>
+                        <div class="window-visual-stage" data-role="wv-stage">
+                            <div class="window-visual-screen" data-role="wv-screen">
+                                <div class="window-visual-rect" data-role="wv-rect">
+                                    <span class="window-visual-size" data-role="wv-size">--</span>
+                                    <span class="window-visual-handle" data-role="wv-handle"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <small class="field-help">拖动蓝色窗口框可设置位置，右下角可缩放；坐标将自动同步到输入框。</small>
+                    </div>
                     <label class="check-field">
                         <input type="checkbox" name="is_active" {% if schedule.is_active %}checked{% endif %}>
                         <span>启用此计划</span>
@@ -226,6 +296,7 @@
 </section>
 
 <script id="timeline-data" type="application/json">{{ timeline_payload|tojson }}</script>
+<script id="screen-data" type="application/json">{{ screens|tojson }}</script>
 
 {% if has_perm('files.browse') %}
 <div class="file-browser-backdrop" data-role="file-browser-backdrop" hidden>

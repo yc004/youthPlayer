@@ -112,6 +112,26 @@ def init_db():
                     conn.exec_driver_sql(
                         "ALTER TABLE schedule ADD COLUMN loop_count INTEGER NOT NULL DEFAULT 0"
                     )
+                if "window_mode" not in columns:
+                    conn.exec_driver_sql(
+                        "ALTER TABLE schedule ADD COLUMN window_mode VARCHAR(20) NOT NULL DEFAULT 'fullscreen'"
+                    )
+                if "window_left" not in columns:
+                    conn.exec_driver_sql(
+                        "ALTER TABLE schedule ADD COLUMN window_left INTEGER NOT NULL DEFAULT 0"
+                    )
+                if "window_top" not in columns:
+                    conn.exec_driver_sql(
+                        "ALTER TABLE schedule ADD COLUMN window_top INTEGER NOT NULL DEFAULT 0"
+                    )
+                if "window_width" not in columns:
+                    conn.exec_driver_sql(
+                        "ALTER TABLE schedule ADD COLUMN window_width INTEGER NOT NULL DEFAULT 0"
+                    )
+                if "window_height" not in columns:
+                    conn.exec_driver_sql(
+                        "ALTER TABLE schedule ADD COLUMN window_height INTEGER NOT NULL DEFAULT 0"
+                    )
                 user_columns = {
                     row[1]
                     for row in conn.exec_driver_sql("PRAGMA table_info(user)").fetchall()

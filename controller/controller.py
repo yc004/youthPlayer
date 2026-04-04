@@ -139,12 +139,30 @@ class Controller:
         logger.info("开始执行时间表 [%s]: %s", source, schedule.name)
         self.manual_stop_schedule_id = None
         self.player.set_screen(schedule.screen_index)
+        self.player.set_window_rect(
+            mode=getattr(schedule, "window_mode", "fullscreen"),
+            left=getattr(schedule, "window_left", 0),
+            top=getattr(schedule, "window_top", 0),
+            width=getattr(schedule, "window_width", 0),
+            height=getattr(schedule, "window_height", 0),
+        )
 
         if schedule.playlist_items:
             success = self.player.play_playlist(
                 schedule.playlist_items,
                 source_type=schedule.content_type,
                 loop_mode=schedule.loop_mode or "list_loop",
+                loop_count=schedule.loop_count or 0,
+            )
+            if success:
+                self.current_schedule_id = schedule.id
+            return success
+
+        if (schedule.loop_mode or "single") != "single":
+            success = self.player.play_playlist(
+                [schedule.content_path],
+                source_type=schedule.content_type,
+                loop_mode=schedule.loop_mode or "single_loop",
                 loop_count=schedule.loop_count or 0,
             )
             if success:

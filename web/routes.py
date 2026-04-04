@@ -446,6 +446,29 @@ def _validate_schedule_form(form):
         loop_count = 0
     loop_count = max(0, loop_count)
     _items, playlist_paths = _parse_playlist_paths(form)
+    window_mode = (form.get("window_mode") or "fullscreen").strip().lower()
+    if window_mode not in {"fullscreen", "custom"}:
+        window_mode = "fullscreen"
+    try:
+        window_left = int(form.get("window_left") or 0)
+    except Exception:
+        window_left = 0
+    try:
+        window_top = int(form.get("window_top") or 0)
+    except Exception:
+        window_top = 0
+    try:
+        window_width = int(form.get("window_width") or 0)
+    except Exception:
+        window_width = 0
+    try:
+        window_height = int(form.get("window_height") or 0)
+    except Exception:
+        window_height = 0
+    if window_mode == "custom":
+        if window_width < 100 or window_height < 100:
+            raise ValueError("窗口宽高最小为 100 像素。")
+
     return (
         start_time,
         end_time,
@@ -454,6 +477,11 @@ def _validate_schedule_form(form):
         loop_mode,
         loop_count,
         playlist_paths,
+        window_mode,
+        window_left,
+        window_top,
+        window_width,
+        window_height,
     )
 
 
@@ -470,6 +498,11 @@ def add_schedule():
             loop_mode,
             loop_count,
             playlist_paths,
+            window_mode,
+            window_left,
+            window_top,
+            window_width,
+            window_height,
         ) = _validate_schedule_form(request.form)
 
         schedule = Schedule(
@@ -485,6 +518,11 @@ def add_schedule():
             playlist_paths=playlist_paths,
             loop_mode=loop_mode,
             loop_count=loop_count,
+            window_mode=window_mode,
+            window_left=window_left,
+            window_top=window_top,
+            window_width=window_width,
+            window_height=window_height,
         )
         success = controller.add_schedule(schedule)
         flash("时间表添加成功。" if success else "时间表添加失败。", "success" if success else "error")
@@ -506,6 +544,11 @@ def update_schedule(schedule_id):
             loop_mode,
             loop_count,
             playlist_paths,
+            window_mode,
+            window_left,
+            window_top,
+            window_width,
+            window_height,
         ) = _validate_schedule_form(request.form)
 
         kwargs = {
@@ -521,6 +564,11 @@ def update_schedule(schedule_id):
             "playlist_paths": playlist_paths,
             "loop_mode": loop_mode,
             "loop_count": loop_count,
+            "window_mode": window_mode,
+            "window_left": window_left,
+            "window_top": window_top,
+            "window_width": window_width,
+            "window_height": window_height,
         }
         success = controller.update_schedule(schedule_id, **kwargs)
         flash("时间表更新成功。" if success else "时间表更新失败。", "success" if success else "error")
@@ -594,6 +642,11 @@ def api_status():
                     "end_time": active_schedule.end_time.isoformat(timespec="minutes"),
                     "is_weekly": active_schedule.is_weekly,
                     "weekly_days": sorted(active_schedule.weekly_day_set),
+                    "window_mode": active_schedule.window_mode,
+                    "window_left": active_schedule.window_left,
+                    "window_top": active_schedule.window_top,
+                    "window_width": active_schedule.window_width,
+                    "window_height": active_schedule.window_height,
                 }
                 if active_schedule
                 else None

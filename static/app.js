@@ -423,12 +423,204 @@
         });
     }
 
+    function initScheduleWindowInputMode() {
+        var screens = [];
+        var screenNode = document.getElementById("screen-data");
+        if (screenNode) {
+            try {
+                screens = JSON.parse(screenNode.textContent || "[]");
+            } catch (_err) {
+                screens = [];
+            }
+        }
+        function getScreenByIndex(index) {
+            for (var i = 0; i < screens.length; i += 1) {
+                if (Number(screens[i].index) === Number(index)) return screens[i];
+            }
+            return screens[0] || { left: 0, top: 0, width: 1920, height: 1080 };
+        }
+        function n(input, fallback) {
+            var v = Number(input && input.value);
+            return Number.isFinite(v) ? v : fallback;
+        }
+
+        document.querySelectorAll(".schedule-form").forEach(function (form) {
+            var modeInput = form.querySelector("select[name='window_mode']");
+            if (!modeInput) return;
+            var screenInput = form.querySelector("select[name='screen_index']");
+            var leftInput = form.querySelector("input[name='window_left']");
+            var topInput = form.querySelector("input[name='window_top']");
+            var widthInput = form.querySelector("input[name='window_width']");
+            var heightInput = form.querySelector("input[name='window_height']");
+            var visual = form.querySelector("[data-role='window-visual']");
+            var screenBox = visual && visual.querySelector("[data-role='wv-screen']");
+            var rect = visual && visual.querySelector("[data-role='wv-rect']");
+            var handle = visual && visual.querySelector("[data-role='wv-handle']");
+            var sizeLabel = visual && visual.querySelector("[data-role='wv-size']");
+            if (!leftInput || !topInput || !widthInput || !heightInput) return;
+
+            function getRectState() {
+                var screen = getScreenByIndex(screenInput ? screenInput.value : 0);
+                var relLeft = n(leftInput, screen.left) - Number(screen.left || 0);
+                var relTop = n(topInput, screen.top) - Number(screen.top || 0);
+                var w = Math.max(100, n(widthInput, Math.round(screen.width * 0.7)));
+                var h = Math.max(100, n(heightInput, Math.round(screen.height * 0.7)));
+                w = Math.min(w, Math.max(100, Number(screen.width || 1920)));
+                h = Math.min(h, Math.max(100, Number(screen.height || 1080)));
+                relLeft = Math.max(0, Math.min(relLeft, Number(screen.width || 1920) - w));
+                relTop = Math.max(0, Math.min(relTop, Number(screen.height || 1080) - h));
+                return { screen: screen, left: relLeft, top: relTop, width: w, height: h };
+            }
+
+            function setState(state) {
+                leftInput.value = Math.round(Number(state.screen.left || 0) + state.left);
+                topInput.value = Math.round(Number(state.screen.top || 0) + state.top);
+                widthInput.value = Math.round(state.width);
+                heightInput.value = Math.round(state.height);
+            }
+
+            function renderVisual() {
+                if (!visual || !screenBox || !rect) return;
+                var state = getRectState();
+                var sw = Math.max(1, Number(state.screen.width || 1920));
+                var sh = Math.max(1, Number(state.screen.height || 1080));
+                var isCustom = modeInput.value === "custom";
+                screenBox.style.aspectRatio = sw + " / " + sh;
+                if (!isCustom) {
+                    rect.style.left = "0%";
+                    rect.style.top = "0%";
+                    rect.style.width = "100%";
+                    rect.style.height = "100%";
+                    if (sizeLabel) sizeLabel.textContent = "FULL";
+                    return;
+                }
+                rect.style.left = (state.left / sw) * 100 + "%";
+                rect.style.top = (state.top / sh) * 100 + "%";
+                rect.style.width = (state.width / sw) * 100 + "%";
+                rect.style.height = (state.height / sh) * 100 + "%";
+                if (sizeLabel) sizeLabel.textContent = Math.round(state.width) + " x " + Math.round(state.height);
+            }
+
+            function applyPreset(name) {
+                var state = getRectState();
+                var sw = Math.max(1, Number(state.screen.width || 1920));
+                var sh = Math.max(1, Number(state.screen.height || 1080));
+                if (name === "full") {
+                    state.left = 0; state.top = 0; state.width = sw; state.height = sh;
+                } else if (name === "left-half") {
+                    state.left = 0; state.top = 0; state.width = Math.round(sw / 2); state.height = sh;
+                } else if (name === "right-half") {
+                    state.left = Math.round(sw / 2); state.top = 0; state.width = Math.round(sw / 2); state.height = sh;
+                } else {
+                    state.width = Math.round(sw * 0.8);
+                    state.height = Math.round(sh * 0.8);
+                    state.left = Math.round((sw - state.width) / 2);
+                    state.top = Math.round((sh - state.height) / 2);
+                }
+                setState(state);
+                renderVisual();
+            }
+
+            function applyMode() {
+                var isCustom = modeInput.value === "custom";
+                [leftInput, topInput, widthInput, heightInput].forEach(function (input) {
+                    input.disabled = !isCustom;
+                });
+                if (visual) visual.classList.toggle("is-fullscreen", !isCustom);
+            }
+
+            if (visual && rect) {
+                var dragState = null;
+                function beginDrag(type, ev) {
+                    ev.preventDefault();
+                    var state = getRectState();
+                    dragState = {
+                        type: type,
+                        sx: ev.clientX,
+                        sy: ev.clientY,
+                        left: state.left,
+                        top: state.top,
+                        width: state.width,
+                        height: state.height,
+                        screen: state.screen
+                    };
+                }
+                rect.addEventListener("mousedown", function (ev) {
+                    if (modeInput.value !== "custom") return;
+                    if (ev.target === handle) return;
+                    beginDrag("move", ev);
+                });
+                if (handle) {
+                    handle.addEventListener("mousedown", function (ev) {
+                        if (modeInput.value !== "custom") return;
+                        beginDrag("resize", ev);
+                    });
+                }
+                document.addEventListener("mousemove", function (ev) {
+                    if (!dragState) return;
+                    var sw = Math.max(1, Number(dragState.screen.width || 1920));
+                    var sh = Math.max(1, Number(dragState.screen.height || 1080));
+                    var box = screenBox.getBoundingClientRect();
+                    var pxToW = sw / Math.max(1, box.width);
+                    var pxToH = sh / Math.max(1, box.height);
+                    var dx = (ev.clientX - dragState.sx) * pxToW;
+                    var dy = (ev.clientY - dragState.sy) * pxToH;
+                    var s = {
+                        screen: dragState.screen,
+                        left: dragState.left,
+                        top: dragState.top,
+                        width: dragState.width,
+                        height: dragState.height
+                    };
+                    if (dragState.type === "move") {
+                        s.left = Math.max(0, Math.min(dragState.left + dx, sw - s.width));
+                        s.top = Math.max(0, Math.min(dragState.top + dy, sh - s.height));
+                    } else {
+                        s.width = Math.max(100, Math.min(dragState.width + dx, sw - s.left));
+                        s.height = Math.max(100, Math.min(dragState.height + dy, sh - s.top));
+                    }
+                    setState(s);
+                    renderVisual();
+                });
+                document.addEventListener("mouseup", function () {
+                    dragState = null;
+                });
+                visual.querySelectorAll("[data-role='wv-preset']").forEach(function (btn) {
+                    btn.addEventListener("click", function () {
+                        var preset = btn.getAttribute("data-preset") || "center";
+                        if (preset === "full") {
+                            modeInput.value = "fullscreen";
+                            applyMode();
+                            renderVisual();
+                            return;
+                        }
+                        if (modeInput.value !== "custom") modeInput.value = "custom";
+                        applyMode();
+                        applyPreset(preset);
+                    });
+                });
+            }
+
+            [leftInput, topInput, widthInput, heightInput].forEach(function (input) {
+                input.addEventListener("input", renderVisual);
+            });
+            if (screenInput) screenInput.addEventListener("change", renderVisual);
+            modeInput.addEventListener("change", function () {
+                applyMode();
+                renderVisual();
+            });
+            applyMode();
+            renderVisual();
+        });
+    }
+
     if (document.querySelector("[data-role='player-state']")) {
         refreshStatus();
         window.setInterval(refreshStatus, 10000);
     }
     initGantt();
     initScheduleWeeklyInputMode();
+    initScheduleWindowInputMode();
     initFileBrowser();
     initMonitorPolling();
 })();

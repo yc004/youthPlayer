@@ -683,6 +683,85 @@
         margin: 24px 0 18px;
     }
 
+    .window-visual-toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 8px;
+    }
+
+    .window-visual-stage {
+        margin-top: 10px;
+        border: 1px solid #dbe4f0;
+        border-radius: 12px;
+        background: linear-gradient(180deg, #f8fbff 0%, #eef4ff 100%);
+        padding: 10px;
+    }
+
+    .window-visual-screen {
+        position: relative;
+        width: 100%;
+        max-width: 420px;
+        aspect-ratio: 16 / 9;
+        border: 1px solid #b6c7e6;
+        border-radius: 10px;
+        background:
+            linear-gradient(90deg, rgba(148, 163, 184, 0.16) 1px, transparent 1px),
+            linear-gradient(0deg, rgba(148, 163, 184, 0.16) 1px, transparent 1px),
+            #f1f6ff;
+        background-size: 8% 8%, 8% 8%, auto;
+        overflow: hidden;
+    }
+
+    .window-visual-rect {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 40%;
+        height: 40%;
+        min-width: 20px;
+        min-height: 20px;
+        border: 2px solid #2563eb;
+        border-radius: 8px;
+        background: rgba(37, 99, 235, 0.14);
+        cursor: move;
+        user-select: none;
+    }
+
+    .window-visual-size {
+        position: absolute;
+        left: 6px;
+        top: 4px;
+        font-size: 12px;
+        color: #1d4ed8;
+        font-weight: 600;
+        background: rgba(255, 255, 255, 0.85);
+        border-radius: 6px;
+        padding: 1px 6px;
+    }
+
+    .window-visual-handle {
+        position: absolute;
+        right: -1px;
+        bottom: -1px;
+        width: 12px;
+        height: 12px;
+        border-radius: 4px 0 6px 0;
+        background: #2563eb;
+        cursor: nwse-resize;
+    }
+
+    .window-visual-field.is-fullscreen .window-visual-stage,
+    .window-visual-field.is-fullscreen .window-visual-toolbar {
+        opacity: 0.55;
+    }
+
+    .field-help {
+        color: #64748b;
+        margin-top: 6px;
+        display: block;
+    }
+
     @media (max-width: 980px) {
         .stats-grid,
         .layout-grid,

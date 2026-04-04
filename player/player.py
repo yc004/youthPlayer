@@ -51,11 +51,14 @@ class Player:
         self.current_backend = "idle"
         self.screen_index = Config.PRIMARY_SCREEN
         self.current_screen = None
+        self.window_mode = "fullscreen"
+        self.window_bounds = {"left": 0, "top": 0, "width": 0, "height": 0}
 
         self.electron_process = None
         self.electron_port = None
         self.electron_log_handle = None
         self.browser_command = []
+        self.electron_window_signature = None
 
         self.last_error = ""
         self.last_started_at = None
@@ -64,20 +67,21 @@ class Player:
         self.playlist_items = []
         self.playlist_index = 0
         self.playlist_mode = "single"
-        self.playlist_loop_count = 0  # 0=无限
-        self.playlist_round = 1
+        self.playlist_loop_count = 0  # 0=閺冪娀妾?        self.playlist_round = 1
         self.playlist_backend = "vlc"
+        self.playlist_native_repeat = None
         self._playlist_stop_event = threading.Event()
         self._playlist_thread = None
         self.monitor_last_capture_at = None
         self.monitor_last_capture_path = ""
         self.screensaver_url = Path(os.path.join(os.path.dirname(__file__), "screensaver.html")).resolve().as_uri()
+        self.media_shell_url = Path(os.path.join(os.path.dirname(__file__), "media_player.html")).resolve().as_uri()
 
         self._init_vlc()
         self.set_screen(Config.PRIMARY_SCREEN)
 
     def _build_electron_env(self):
-        """Electron 主进程不能在 ELECTRON_RUN_AS_NODE=1 下启动。"""
+        # Ensure Electron starts as desktop app, not in NODE mode.
         env = os.environ.copy()
         if env.get("ELECTRON_RUN_AS_NODE") == "1":
             env.pop("ELECTRON_RUN_AS_NODE", None)
@@ -91,9 +95,12 @@ class Player:
             options = [
                 "--no-video-title-show",
                 "--quiet",
-                "--fullscreen",
                 "--video-on-top",
                 "--mouse-hide-timeout=100",
+                "--no-qt-fs-controller",
+                "--qt-minimal-view",
+                "--no-video-deco",
+                "--no-qt-name-in-title",
             ]
             if os.path.exists(Config.VLC_PATH):
                 logger.info("Using VLC at: %s", Config.VLC_PATH)
@@ -143,35 +150,56 @@ class Player:
         logger.info("Target screen set to: %s", self.screen_index)
         return True
 
+    def set_window_rect(self, mode="fullscreen", left=0, top=0, width=0, height=0):
+        mode = (mode or "fullscreen").strip().lower()
+        if mode not in {"fullscreen", "custom"}:
+            mode = "fullscreen"
+        self.window_mode = mode
+        self.window_bounds = {
+            "left": int(left or 0),
+            "top": int(top or 0),
+            "width": max(0, int(width or 0)),
+            "height": max(0, int(height or 0)),
+        }
+        return True
+
+    def _resolve_window_rect(self):
+        screen = self.current_screen or {"left": 0, "top": 0, "width": 1920, "height": 1080}
+        if self.window_mode != "custom":
+            return "fullscreen", {
+                "left": int(screen.get("left", 0)),
+                "top": int(screen.get("top", 0)),
+                "width": max(1, int(screen.get("width", 1920))),
+                "height": max(1, int(screen.get("height", 1080))),
+            }
+
+        left = int(self.window_bounds.get("left", 0))
+        top = int(self.window_bounds.get("top", 0))
+        width = max(100, int(self.window_bounds.get("width", 0) or 0))
+        height = max(100, int(self.window_bounds.get("height", 0) or 0))
+        return "custom", {"left": left, "top": top, "width": width, "height": height}
+
     def play_local(self, file_path):
         with self._op_lock:
             if not os.path.exists(file_path):
                 self.last_error = f"File not found: {file_path}"
                 logger.error(self.last_error)
                 return False
-            if Config.ALL_PLAY_VIA_ELECTRON:
-                return self._open_via_electron(file_path, source_type="local")
-            return self._play_vlc_media(file_path, source_type="local")
+            return self._open_via_electron(file_path, source_type="local")
 
     def play_nas(self, nas_path):
         with self._op_lock:
-            if Config.ALL_PLAY_VIA_ELECTRON:
-                return self._open_via_electron(nas_path, source_type="nas")
-            return self._play_vlc_media(nas_path, source_type="nas")
+            return self._open_via_electron(nas_path, source_type="nas")
 
     def play_live(self, live_url):
         with self._op_lock:
-            if Config.ALL_PLAY_VIA_ELECTRON:
-                return self._open_via_electron(live_url, source_type="live")
-            if self._should_use_browser(live_url):
-                return self._open_web_live_electron(live_url)
-            return self._play_vlc_media(live_url, source_type="stream")
+            return self._open_via_electron(live_url, source_type="live")
 
     def show_screensaver(self):
         with self._op_lock:
             if not Config.IDLE_SCREENSAVER_ENABLED:
                 return False
-            payload = {"title": Config.IDLE_SCREENSAVER_TITLE or "校园电视播放系统"}
+            payload = {"title": Config.IDLE_SCREENSAVER_TITLE or "Campus Player"}
             image_path = (Config.IDLE_SCREENSAVER_IMAGE or "").strip()
             if image_path and os.path.exists(image_path):
                 try:
@@ -201,14 +229,37 @@ class Player:
         except Exception:
             return source
 
-    def _open_via_electron(self, source, source_type="media"):
-        parsed = urlparse(str(source))
-        if parsed.scheme in {"rtsp", "rtmp"}:
-            logger.warning("Electron 对 %s 协议支持有限，回退 VLC: %s", parsed.scheme, source)
-            return self._play_vlc_media(source, source_type=source_type)
+    def _open_via_electron(self, source, source_type="media", loop=False, reset_before_open=False):
         target_url = self._to_electron_url(source)
+        if self._should_use_media_shell(source_type, target_url):
+            target_url = self._build_media_shell_url(target_url, loop=loop)
         logger.info("Using Electron for %s source: %s -> %s", source_type, source, target_url)
-        return self._open_web_live_electron(target_url)
+        return self._open_web_live_electron(
+            target_url,
+            loop=loop,
+            reset_before_open=reset_before_open,
+        )
+
+    def _should_use_media_shell(self, source_type, target_url):
+        parsed = urlparse(str(target_url))
+        scheme = (parsed.scheme or "").lower()
+        path = (parsed.path or "").lower()
+        if source_type in {"local", "nas"}:
+            return True
+        if scheme in {"file"}:
+            return True
+        if path.endswith(STREAM_SUFFIXES):
+            return True
+        return False
+
+    def _build_media_shell_url(self, media_url, loop=False):
+        payload_text = json.dumps(
+            {"src": str(media_url), "loop": bool(loop)},
+            ensure_ascii=False,
+            separators=(",", ":"),
+        )
+        payload_b64 = base64.urlsafe_b64encode(payload_text.encode("utf-8")).decode("ascii").rstrip("=")
+        return f"{self.media_shell_url}?cfg={payload_b64}"
 
     def _play_vlc_media(self, source, source_type="media"):
         return self._play_vlc_media_internal(source, source_type=source_type, reset_before_play=True)
@@ -224,10 +275,61 @@ class Player:
             else:
                 self.player.stop()
             media = self.instance.media_new(source)
+            mode, bounds = self._resolve_window_rect()
+            if mode == "custom":
+                media.add_option(":no-video-deco")
+                media.add_option(":qt-minimal-view")
+                media.add_option(":no-qt-fs-controller")
+                media.add_option(f":video-x={int(bounds['left'])}")
+                media.add_option(f":video-y={int(bounds['top'])}")
+                media.add_option(f":width={int(bounds['width'])}")
+                media.add_option(f":height={int(bounds['height'])}")
+            else:
+                # Explicitly pin fullscreen to the configured monitor on multi-screen setups.
+                media.add_option(f":qt-fullscreen-screennumber={int(self.screen_index)}")
+                # Keep geometry hints for VLC versions/drivers that use pre-fullscreen window position.
+                media.add_option(f":video-x={int(bounds['left'])}")
+                media.add_option(f":video-y={int(bounds['top'])}")
+                media.add_option(f":width={int(bounds['width'])}")
+                media.add_option(f":height={int(bounds['height'])}")
+                media.add_option(":fullscreen")
+            if (
+                source_type == "playlist"
+                and self.playlist_backend == "vlc"
+                and self.playlist_native_repeat is not None
+            ):
+                media.add_option(f"input-repeat={int(self.playlist_native_repeat)}")
             self.player.set_media(media)
             result = self.player.play()
             time.sleep(0.5)
-            self.player.set_fullscreen(True)
+            if mode == "custom":
+                self.player.set_fullscreen(False)
+            else:
+                # 閺屾劒绨?VLC/閺勬儳宕辩紒鍕値缁楃濞喡ょ殶閻劋绗夐悽鐔告櫏閿涘苯浠涢柌宥堢槸绾箽閸掑洤鍩岄崗銊ョ潌
+                for _ in range(6):
+                    self.player.set_fullscreen(True)
+                    time.sleep(0.15)
+                    try:
+                        if bool(self.player.get_fullscreen()):
+                            break
+                    except Exception:
+                        pass
+            if mode == "custom":
+                logger.info(
+                    "Apply VLC custom window rect: left=%s top=%s width=%s height=%s",
+                    bounds["left"],
+                    bounds["top"],
+                    bounds["width"],
+                    bounds["height"],
+                )
+            else:
+                logger.info("Apply VLC fullscreen mode.")
+                logger.info(
+                    "VLC fullscreen target screen_index=%s screen=%s bounds=%s",
+                    self.screen_index,
+                    (self.current_screen or {}).get("name"),
+                    bounds,
+                )
             try:
                 self.player.video_set_mouse_input(False)
                 self.player.video_set_key_input(False)
@@ -259,19 +361,26 @@ class Player:
             self.playlist_mode = loop_mode or "list_loop"
             self.playlist_loop_count = max(0, int(loop_count or 0))
             self.playlist_round = 1
-            self.playlist_backend = "vlc"
+            self.playlist_backend = "electron"
+            self.playlist_native_repeat = None
             self._playlist_stop_event.clear()
 
+            if len(self.playlist_items) == 1 and self.playlist_mode in {"single_loop", "list_loop"}:
+                if self.playlist_loop_count == 0:
+                    self.playlist_native_repeat = -1
+                else:
+                    self.playlist_native_repeat = max(0, self.playlist_loop_count - 1)
+
             first = self.playlist_items[0]
-            use_electron = Config.ALL_PLAY_VIA_ELECTRON and len(self.playlist_items) == 1
-            if use_electron:
-                ok = self._open_via_electron(first, source_type=source_type)
-                self.playlist_backend = "electron"
-            else:
-                if Config.ALL_PLAY_VIA_ELECTRON and len(self.playlist_items) > 1:
-                    logger.info("Playlist rotation uses VLC to guarantee reliable next-track switching.")
-                ok = self._play_vlc_media_internal(first, source_type=source_type, reset_before_play=False)
-                self.playlist_backend = "vlc"
+            should_loop = len(self.playlist_items) == 1 and self.playlist_mode in {"list_loop", "single_loop"} and (
+                self.playlist_loop_count == 0 or self.playlist_loop_count > 1
+            )
+            ok = self._open_via_electron(
+                first,
+                source_type=source_type,
+                loop=should_loop,
+                reset_before_open=False,
+            )
             if not ok:
                 self.playlist_items = []
                 return False
@@ -293,13 +402,20 @@ class Player:
                 if not self.playlist_items:
                     return
 
+                if self.playlist_backend == "electron":
+                    if not self._electron_media_finished():
+                        continue
+                    if not self._advance_playlist_locked():
+                        return
+                    continue
+
                 if self.playlist_backend != "vlc":
                     continue
 
                 if not self.player or vlc is None:
                     continue
                 state = self.player.get_state()
-                if state not in {vlc.State.Ended, vlc.State.Error}:
+                if state not in {vlc.State.Ended, vlc.State.Error, vlc.State.Stopped}:
                     continue
                 if not self._advance_playlist_locked():
                     return
@@ -341,6 +457,13 @@ class Player:
 
         self.playlist_index = next_index
         source = self.playlist_items[self.playlist_index]
+        if self.playlist_backend == "electron":
+            return self._open_via_electron(
+                source,
+                source_type="playlist",
+                loop=False,
+                reset_before_open=False,
+            )
         return self._play_vlc_media_internal(source, source_type="playlist", reset_before_play=False)
 
     def _should_use_browser(self, url):
@@ -350,7 +473,39 @@ class Player:
             return False
         return url.startswith(("http://", "https://")) and any(h in url.lower() for h in WEBPAGE_HINTS)
 
-    def _open_web_live_electron(self, url):
+    def _open_web_live_electron(self, url, loop=False, reset_before_open=True):
+        mode, bounds = self._resolve_window_rect()
+        target_signature = (
+            int(self.screen_index),
+            str(mode),
+            int(bounds["left"]),
+            int(bounds["top"]),
+            int(bounds["width"]),
+            int(bounds["height"]),
+            bool(Config.WINDOW_TOPMOST),
+        )
+        can_reuse_window = (
+            not reset_before_open
+            and self.electron_process
+            and self.electron_process.poll() is None
+            and self.electron_port
+            and self.electron_window_signature == target_signature
+        )
+        if can_reuse_window:
+            out = self._electron_request_json(
+                "POST",
+                "/navigate",
+                payload={"url": url, "loop": bool(loop)},
+                ignore_error=True,
+            ) or {}
+            if out.get("ok"):
+                self.current_source = url
+                self.current_backend = "electron"
+                self.expected_playing = True
+                self.last_started_at = time.time()
+                self.last_error = ""
+                return True
+
         self.stop()
         runtime_dir = os.path.join(Config.BASE_DIR, "runtime")
         os.makedirs(runtime_dir, exist_ok=True)
@@ -373,7 +528,6 @@ class Player:
         if not self._validate_electron_bin(electron_bin):
             return False
 
-        screen = self.current_screen or {"left": 0, "top": 0, "width": 1920, "height": 1080}
         runner_path = os.path.join(os.path.dirname(__file__), "electron_runner.js")
         command = [
             electron_bin,
@@ -387,17 +541,25 @@ class Player:
             str(self.electron_port),
             "--screen-index",
             str(self.screen_index),
+            "--screen-left",
+            str((self.current_screen or {}).get("left", 0)),
+            "--screen-top",
+            str((self.current_screen or {}).get("top", 0)),
+            "--window-mode",
+            mode,
             "--left",
-            str(screen["left"]),
+            str(bounds["left"]),
             "--top",
-            str(screen["top"]),
+            str(bounds["top"]),
             "--width",
-            str(screen["width"]),
+            str(bounds["width"]),
             "--height",
-            str(screen["height"]),
+            str(bounds["height"]),
         ]
         if Config.WINDOW_TOPMOST:
             command.append("--topmost")
+        if loop:
+            command.append("--loop")
 
         try:
             self.electron_process = subprocess.Popen(
@@ -417,6 +579,7 @@ class Player:
             self.expected_playing = True
             self.last_started_at = time.time()
             self.last_error = ""
+            self.electron_window_signature = target_signature
             logger.info("Web live opened via Electron: %s", url)
             return True
         except Exception as exc:
@@ -520,6 +683,45 @@ class Player:
                 logger.warning("Electron request failed: %s %s", method, path)
             return False
 
+    def _electron_request_json(self, method, path, payload=None, ignore_error=False):
+        if not self.electron_port:
+            return None
+        url = f"http://{Config.ELECTRON_CONTROL_HOST}:{self.electron_port}{path}"
+        data = None
+        headers = {}
+        if payload is not None:
+            data = json.dumps(payload, ensure_ascii=False).encode("utf-8")
+            headers["Content-Type"] = "application/json; charset=utf-8"
+        req = urllib.request.Request(url=url, method=method, data=data, headers=headers)
+        try:
+            with urllib.request.urlopen(req, timeout=Config.ELECTRON_CONTROL_TIMEOUT) as resp:
+                if resp.getcode() < 200 or resp.getcode() >= 300:
+                    return None
+                payload = resp.read()
+                if not payload:
+                    return None
+                return json.loads(payload.decode("utf-8", errors="replace"))
+        except (urllib.error.URLError, TimeoutError, ValueError, OSError, ConnectionResetError, json.JSONDecodeError):
+            if not ignore_error:
+                logger.warning("Electron JSON request failed: %s %s", method, path)
+            return None
+
+    def _electron_media_finished(self):
+        if not self.electron_process:
+            return True
+        if self.electron_process.poll() is not None:
+            return True
+        status = self._electron_request_json("GET", "/probe/media_status", ignore_error=True) or {}
+        if not status.get("ok"):
+            return False
+        media = status.get("status") or {}
+        videos = int(media.get("videos", 0) or 0)
+        any_playing = bool(media.get("any_playing", False))
+        all_ended = bool(media.get("all_ended", False))
+        if videos <= 0:
+            return False
+        return all_ended and not any_playing
+
     def inject_web_play(self):
         if self.current_backend != "electron":
             self.last_error = "Current backend is not Electron."
@@ -538,7 +740,10 @@ class Player:
 
     def ensure_foreground(self):  # pragma: no cover
         if self.current_backend == "electron":
-            self._electron_request("POST", "/inject/fullscreen", ignore_error=True)
+            if self.window_mode == "custom":
+                self._electron_request("POST", "/focus", ignore_error=True)
+            else:
+                self._electron_request("POST", "/inject/fullscreen", ignore_error=True)
 
     def stop(self):
         with self._op_lock:
@@ -548,20 +753,24 @@ class Player:
                 self.playlist_index = 0
                 self.playlist_round = 1
                 self.playlist_backend = "vlc"
-                if self.player:
-                    self.player.stop()
-                self.current_media = None
-                if self.electron_process:
-                    self._stop_electron_process()
-                self.current_source = None
-                self.current_backend = "idle"
-                self.expected_playing = False
+                self.playlist_native_repeat = None
+                self._stop_active_backend_only()
                 logger.info("Playback stopped.")
                 return True
             except Exception as exc:
                 self.last_error = str(exc)
                 logger.error("Stop playback failed: %s", exc)
                 return False
+
+    def _stop_active_backend_only(self):
+        if self.player:
+            self.player.stop()
+        self.current_media = None
+        if self.electron_process:
+            self._stop_electron_process()
+        self.current_source = None
+        self.current_backend = "idle"
+        self.expected_playing = False
 
     def _stop_electron_process(self):
         try:
@@ -581,6 +790,7 @@ class Player:
         finally:
             self.electron_process = None
             self.electron_port = None
+            self.electron_window_signature = None
             if self.electron_log_handle:
                 try:
                     self.electron_log_handle.close()
@@ -646,6 +856,8 @@ class Player:
             "current_source": self.current_source,
             "screen_index": self.screen_index,
             "screen_name": self.current_screen["name"] if self.current_screen else f"Screen {self.screen_index}",
+            "window_mode": self.window_mode,
+            "window_bounds": self.window_bounds,
             "last_error": self.last_error,
             "last_started_at": self.last_started_at,
             "playlist_size": len(self.playlist_items),
@@ -658,7 +870,7 @@ class Player:
         }
 
     def capture_monitor_snapshot(self):
-        """捕获当前目标屏幕截图，保存为 runtime/monitor_latest.bmp"""
+        """Capture current target monitor screenshot to runtime/monitor_latest.bmp."""
         if not win32gui or not win32ui or not win32con:
             self.last_error = "pywin32 screenshot modules unavailable."
             return False, self.last_error
@@ -695,7 +907,7 @@ class Player:
             screenshot.SaveBitmapFile(mem_dc, target_path)
             self.monitor_last_capture_at = time.strftime("%Y-%m-%d %H:%M:%S")
             self.monitor_last_capture_path = target_path
-            # 清理旧截图，避免磁盘累积；保留最近 20 张
+            # 濞撳懐鎮婇弮褎鍩呴崶鎾呯礉闁灝鍘ょ壕浣烘磸缁毙濋敍娑楃箽閻ｆ瑦娓舵潻?20 瀵?
             try:
                 files = sorted(
                     [os.path.join(frames_dir, x) for x in os.listdir(frames_dir) if x.lower().endswith(".bmp")],
@@ -733,3 +945,5 @@ class Player:
                     win32gui.ReleaseDC(hdesktop, desktop_dc)
             except Exception:
                 pass
+
+

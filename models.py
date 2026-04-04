@@ -97,6 +97,11 @@ class Schedule(db.Model):
     playlist_paths = db.Column(db.Text, default="", nullable=False)  # 多视频，一行一个路径/URL
     loop_mode = db.Column(db.String(20), default="single", nullable=False)  # single/list_loop/single_loop/once
     loop_count = db.Column(db.Integer, default=0, nullable=False)  # 0=无限循环
+    window_mode = db.Column(db.String(20), default="fullscreen", nullable=False)  # fullscreen/custom
+    window_left = db.Column(db.Integer, default=0, nullable=False)
+    window_top = db.Column(db.Integer, default=0, nullable=False)
+    window_width = db.Column(db.Integer, default=0, nullable=False)
+    window_height = db.Column(db.Integer, default=0, nullable=False)
 
     def __repr__(self):
         return f"<Schedule {self.name}>"
