@@ -597,6 +597,7 @@
         var userInput = document.querySelector("input[name='nextcloud_username']");
         var passInput = document.querySelector("input[name='nextcloud_password']");
         var rootInput = document.querySelector("input[name='nextcloud_root']");
+        var skipSslInput = document.querySelector("input[name='nextcloud_skip_ssl_verify']");
         if (!testBtn || !previewBtn || !openBtn || !resultNode || !pathNode || !listNode) return;
 
         function currentQuery(extra) {
@@ -605,10 +606,12 @@
             var username = (userInput && userInput.value || "").trim();
             var password = (passInput && passInput.value || "").trim();
             var root = (rootInput && rootInput.value || "").trim();
+            var skipSsl = !!(skipSslInput && skipSslInput.checked);
             if (url) q.push("url=" + encodeURIComponent(url));
             if (username) q.push("username=" + encodeURIComponent(username));
             if (password) q.push("password=" + encodeURIComponent(password));
             if (root) q.push("root=" + encodeURIComponent(root));
+            q.push("skip_ssl_verify=" + (skipSsl ? "1" : "0"));
             if (extra) q.push(extra);
             return q.join("&");
         }

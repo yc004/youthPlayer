@@ -57,6 +57,7 @@ class Config:
     NEXTCLOUD_USERNAME = os.environ.get("YP_NEXTCLOUD_USERNAME", "").strip()
     NEXTCLOUD_PASSWORD = os.environ.get("YP_NEXTCLOUD_PASSWORD", "").strip()
     NEXTCLOUD_ROOT = os.environ.get("YP_NEXTCLOUD_ROOT", "/").strip() or "/"
+    NEXTCLOUD_SKIP_SSL_VERIFY = os.environ.get("YP_NEXTCLOUD_SKIP_SSL_VERIFY", "0") == "1"
 
     # Web 配置
     WEB_PORT = int(os.environ.get("YP_WEB_PORT", 5000))

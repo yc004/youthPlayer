@@ -3,6 +3,7 @@ import base64
 import urllib.error
 import urllib.request
 import xml.etree.ElementTree as ET
+import ssl
 from uuid import uuid4
 from datetime import datetime
 from functools import wraps
@@ -46,6 +47,7 @@ SETTING_KEY_NEXTCLOUD_URL = "nextcloud_url"
 SETTING_KEY_NEXTCLOUD_USERNAME = "nextcloud_username"
 SETTING_KEY_NEXTCLOUD_PASSWORD = "nextcloud_password"
 SETTING_KEY_NEXTCLOUD_ROOT = "nextcloud_root"
+SETTING_KEY_NEXTCLOUD_SKIP_SSL_VERIFY = "nextcloud_skip_ssl_verify"
 SCREENSAVER_ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".bmp", ".webp"}
 SCREENSAVER_MAX_SIZE = 20 * 1024 * 1024
 PERMISSION_DEFS = [
@@ -217,12 +219,14 @@ def _nextcloud_settings():
     username = _get_setting_str(SETTING_KEY_NEXTCLOUD_USERNAME, Config.NEXTCLOUD_USERNAME).strip()
     password = _get_setting_str(SETTING_KEY_NEXTCLOUD_PASSWORD, Config.NEXTCLOUD_PASSWORD).strip()
     root = _get_setting_str(SETTING_KEY_NEXTCLOUD_ROOT, Config.NEXTCLOUD_ROOT).strip() or "/"
+    skip_ssl_verify = _get_setting_bool(SETTING_KEY_NEXTCLOUD_SKIP_SSL_VERIFY, Config.NEXTCLOUD_SKIP_SSL_VERIFY)
     return {
         "enabled": bool(enabled),
         "url": url,
         "username": username,
         "password": password,
         "root": root,
+        "skip_ssl_verify": bool(skip_ssl_verify),
     }
 
 
@@ -286,7 +290,8 @@ def _nextcloud_browse(raw_path, cfg=None):
         b'<?xml version="1.0" encoding="utf-8"?>'
         b"<d:propfind xmlns:d='DAV:'><d:prop><d:displayname/><d:resourcetype/></d:prop></d:propfind>"
     )
-    with urllib.request.urlopen(req, data=body, timeout=15) as resp:
+    ctx = ssl._create_unverified_context() if cfg.get("skip_ssl_verify") else None
+    with urllib.request.urlopen(req, data=body, timeout=15, context=ctx) as resp:
         xml_text = resp.read().decode("utf-8", errors="ignore")
 
     ns = {"d": "DAV:"}
@@ -338,6 +343,7 @@ def _nextcloud_cfg_from_request_args():
     username = (request.args.get("username") or "").strip()
     password = (request.args.get("password") or "").strip()
     root = (request.args.get("root") or "").strip()
+    skip_ssl = (request.args.get("skip_ssl_verify") or "").strip().lower()
     if url:
         base["url"] = url
     if username:
@@ -346,6 +352,10 @@ def _nextcloud_cfg_from_request_args():
         base["password"] = password
     if root:
         base["root"] = root
+    if skip_ssl in {"1", "true", "yes", "on"}:
+        base["skip_ssl_verify"] = True
+    elif skip_ssl in {"0", "false", "no", "off"}:
+        base["skip_ssl_verify"] = False
     base["enabled"] = bool(base["url"] and base["username"] and base["password"])
     return base
 
@@ -1105,6 +1115,7 @@ def settings():
         nextcloud_username = (request.form.get("nextcloud_username") or "").strip()
         nextcloud_password = (request.form.get("nextcloud_password") or "").strip()
         nextcloud_root = (request.form.get("nextcloud_root") or "/").strip() or "/"
+        nextcloud_skip_ssl_verify = "nextcloud_skip_ssl_verify" in request.form
         if not nextcloud_root.startswith("/"):
             nextcloud_root = "/" + nextcloud_root
         if nextcloud_enabled and (not nextcloud_url or not nextcloud_username or not nextcloud_password):
@@ -1139,11 +1150,15 @@ def settings():
         old_nc_username = _get_setting_str(SETTING_KEY_NEXTCLOUD_USERNAME, Config.NEXTCLOUD_USERNAME)
         old_nc_password = _get_setting_str(SETTING_KEY_NEXTCLOUD_PASSWORD, Config.NEXTCLOUD_PASSWORD)
         old_nc_root = _get_setting_str(SETTING_KEY_NEXTCLOUD_ROOT, Config.NEXTCLOUD_ROOT)
+        old_nc_skip_ssl = (
+            "1" if _get_setting_bool(SETTING_KEY_NEXTCLOUD_SKIP_SSL_VERIFY, Config.NEXTCLOUD_SKIP_SSL_VERIFY) else "0"
+        )
         _set_setting_bool(SETTING_KEY_NEXTCLOUD_ENABLED, nextcloud_enabled)
         _set_setting_str(SETTING_KEY_NEXTCLOUD_URL, nextcloud_url)
         _set_setting_str(SETTING_KEY_NEXTCLOUD_USERNAME, nextcloud_username)
         _set_setting_str(SETTING_KEY_NEXTCLOUD_PASSWORD, nextcloud_password)
         _set_setting_str(SETTING_KEY_NEXTCLOUD_ROOT, nextcloud_root)
+        _set_setting_bool(SETTING_KEY_NEXTCLOUD_SKIP_SSL_VERIFY, nextcloud_skip_ssl_verify)
 
         old_screensaver_image = _get_setting_str(SETTING_KEY_SCREENSAVER_IMAGE, Config.IDLE_SCREENSAVER_IMAGE)
         new_screensaver_image = old_screensaver_image
@@ -1186,6 +1201,7 @@ def settings():
         Config.NEXTCLOUD_USERNAME = nextcloud_username
         Config.NEXTCLOUD_PASSWORD = nextcloud_password
         Config.NEXTCLOUD_ROOT = nextcloud_root
+        Config.NEXTCLOUD_SKIP_SSL_VERIFY = nextcloud_skip_ssl_verify
 
         try:
             controller.scheduler.reschedule_job(
@@ -1249,6 +1265,12 @@ def settings():
             )
         if old_nc_root != nextcloud_root:
             _append_setting_audit_log(SETTING_KEY_NEXTCLOUD_ROOT, old_nc_root or "<empty>", nextcloud_root or "<empty>")
+        if old_nc_skip_ssl != ("1" if nextcloud_skip_ssl_verify else "0"):
+            _append_setting_audit_log(
+                SETTING_KEY_NEXTCLOUD_SKIP_SSL_VERIFY,
+                old_nc_skip_ssl,
+                "1" if nextcloud_skip_ssl_verify else "0",
+            )
         try:
             player.show_screensaver()
         except Exception:
@@ -1292,6 +1314,10 @@ def settings():
     nextcloud_username = _get_setting_str(SETTING_KEY_NEXTCLOUD_USERNAME, Config.NEXTCLOUD_USERNAME)
     nextcloud_password = _get_setting_str(SETTING_KEY_NEXTCLOUD_PASSWORD, Config.NEXTCLOUD_PASSWORD)
     nextcloud_root = _get_setting_str(SETTING_KEY_NEXTCLOUD_ROOT, Config.NEXTCLOUD_ROOT) or "/"
+    nextcloud_skip_ssl_verify = _get_setting_bool(
+        SETTING_KEY_NEXTCLOUD_SKIP_SSL_VERIFY,
+        Config.NEXTCLOUD_SKIP_SSL_VERIFY,
+    )
     screens = player.get_available_screens() if player else []
     audit_logs = (
         SettingAuditLog.query.order_by(SettingAuditLog.created_at.desc(), SettingAuditLog.id.desc())
@@ -1320,6 +1346,7 @@ def settings():
         nextcloud_username=nextcloud_username,
         nextcloud_password=nextcloud_password,
         nextcloud_root=nextcloud_root,
+        nextcloud_skip_ssl_verify=nextcloud_skip_ssl_verify,
         audit_logs=audit_logs,
         operation_logs=operation_logs,
     )

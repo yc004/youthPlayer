@@ -47,6 +47,10 @@
                 <span>Nextcloud 根目录</span>
                 <input type="text" name="nextcloud_root" value="{{ nextcloud_root }}" placeholder="/">
             </label>
+            <label class="check-field">
+                <input type="checkbox" name="nextcloud_skip_ssl_verify" {% if nextcloud_skip_ssl_verify %}checked{% endif %}>
+                <span>跳过 SSL 证书校验（仅内网自签证书场景）</span>
+            </label>
             <div class="field field-wide">
                 <span>Nextcloud 连接测试与云端预览</span>
                 <div class="playlist-tools">
