@@ -120,6 +120,24 @@
             <div class="form-actions"><button type="submit" class="btn btn-primary">修改密码</button></div>
         </form>
     </article>
+
+    <article class="panel">
+        <div class="panel-head">
+            <h2>Nextcloud Cache</h2>
+            <span class="chip info">{{ nextcloud_cache_stats.file_count }} files</span>
+        </div>
+        <div class="kv-list">
+            <div><span>Cache Folder</span><strong>{{ nextcloud_cache_stats.folder }}</strong></div>
+            <div><span>Total Size</span><strong>{{ nextcloud_cache_stats.total_size_text }}</strong></div>
+            <div><span>Oldest File</span><strong>{{ nextcloud_cache_stats.oldest_at }}</strong></div>
+            <div><span>Newest File</span><strong>{{ nextcloud_cache_stats.newest_at }}</strong></div>
+        </div>
+        <form method="post" action="{{ url_for('main.settings') }}" class="button-row" onsubmit="return confirm('Clear all Nextcloud cache files?');">
+            <input type="hidden" name="form_action" value="nextcloud_cache">
+            <input type="hidden" name="cache_action" value="clear">
+            <button type="submit" class="btn btn-danger">Clear Cache</button>
+        </form>
+    </article>
 </section>
 
 <section class="panel">

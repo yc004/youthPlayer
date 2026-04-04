@@ -8,10 +8,13 @@ import threading
 import time
 import base64
 import json
+import hashlib
+import shutil
+import ssl
 import urllib.error
 import urllib.request
 from pathlib import Path
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urlsplit, urlunsplit, unquote
 from shutil import which
 
 from config import Config
@@ -67,8 +70,10 @@ class Player:
         self.playlist_items = []
         self.playlist_index = 0
         self.playlist_mode = "single"
-        self.playlist_loop_count = 0  # 0=閺冪娀妾?        self.playlist_round = 1
+        self.playlist_loop_count = 0  # 0=infinite
+        self.playlist_round = 1
         self.playlist_backend = "vlc"
+        self.playlist_source_type = "playlist"
         self.playlist_native_repeat = None
         self._playlist_stop_event = threading.Event()
         self._playlist_thread = None
@@ -251,7 +256,79 @@ class Player:
         except Exception:
             return source
 
+    def _is_nextcloud_source(self, source):
+        text = str(source or "").strip().lower()
+        if not text.startswith(("http://", "https://")):
+            return False
+        if "/remote.php/dav/" in text:
+            return True
+        base = str(getattr(Config, "NEXTCLOUD_URL", "") or "").strip().lower()
+        if not base:
+            return False
+        try:
+            source_host = (urlsplit(text).hostname or "").lower()
+            base_host = (urlsplit(base).hostname or "").lower()
+            return bool(source_host and base_host and source_host == base_host)
+        except Exception:
+            return False
+
+    def _cache_nextcloud_source(self, source):
+        text = str(source or "").strip()
+        if not self._is_nextcloud_source(text):
+            return text
+
+        split = urlsplit(text)
+        source_url = text
+        username = unquote(split.username or "") if split.username else ""
+        password = unquote(split.password or "") if split.password else ""
+        if split.username or split.password:
+            host = split.hostname or ""
+            port = f":{split.port}" if split.port else ""
+            netloc = f"{host}{port}"
+            source_url = urlunsplit((split.scheme, netloc, split.path, split.query, split.fragment))
+        else:
+            username = str(getattr(Config, "NEXTCLOUD_USERNAME", "") or "").strip()
+            password = str(getattr(Config, "NEXTCLOUD_PASSWORD", "") or "").strip()
+
+        if not username or not password:
+            self.last_error = "Nextcloud auth missing for cache download."
+            logger.error(self.last_error)
+            return text
+
+        runtime_dir = os.path.join(Config.BASE_DIR, "runtime", "nextcloud_cache")
+        os.makedirs(runtime_dir, exist_ok=True)
+        ext = os.path.splitext((urlsplit(source_url).path or ""))[1].lower()
+        if not ext:
+            ext = ".mp4"
+        key = hashlib.sha256(source_url.encode("utf-8")).hexdigest()
+        target = os.path.join(runtime_dir, f"{key}{ext}")
+        if os.path.exists(target) and os.path.getsize(target) > 0:
+            return target
+
+        tmp = target + ".part"
+        req = urllib.request.Request(source_url, method="GET")
+        auth = base64.b64encode(f"{username}:{password}".encode("utf-8")).decode("ascii")
+        req.add_header("Authorization", f"Basic {auth}")
+        req.add_header("User-Agent", "youthPlayer/nextcloud-cache")
+        ctx = ssl._create_unverified_context() if getattr(Config, "NEXTCLOUD_SKIP_SSL_VERIFY", False) else None
+        try:
+            with urllib.request.urlopen(req, timeout=120, context=ctx) as resp, open(tmp, "wb") as f:
+                shutil.copyfileobj(resp, f)
+            os.replace(tmp, target)
+            logger.info("Nextcloud cached: %s -> %s", source_url, target)
+            return target
+        except Exception as exc:
+            try:
+                if os.path.exists(tmp):
+                    os.remove(tmp)
+            except Exception:
+                pass
+            self.last_error = f"Nextcloud cache download failed: {exc}"
+            logger.error(self.last_error)
+            return text
+
     def _open_via_electron(self, source, source_type="media", loop=False, reset_before_open=False):
+        source = self._cache_nextcloud_source(source)
         target_url = self._to_electron_url(source)
         if self._should_use_media_shell(source_type, target_url):
             target_url = self._build_media_shell_url(target_url, loop=loop)
@@ -266,7 +343,10 @@ class Player:
         parsed = urlparse(str(target_url))
         scheme = (parsed.scheme or "").lower()
         path = (parsed.path or "").lower()
+        whole = str(target_url or "").lower()
         if source_type in {"local", "nas"}:
+            return True
+        if "/remote.php/dav/" in whole:
             return True
         if scheme in {"file"}:
             return True
@@ -384,6 +464,7 @@ class Player:
             self.playlist_loop_count = max(0, int(loop_count or 0))
             self.playlist_round = 1
             self.playlist_backend = "electron"
+            self.playlist_source_type = source_type or "playlist"
             self.playlist_native_repeat = None
             self._playlist_stop_event.clear()
 
@@ -482,7 +563,7 @@ class Player:
         if self.playlist_backend == "electron":
             return self._open_via_electron(
                 source,
-                source_type="playlist",
+                source_type=self.playlist_source_type or "playlist",
                 loop=False,
                 reset_before_open=False,
             )
@@ -785,6 +866,7 @@ class Player:
                 self.playlist_index = 0
                 self.playlist_round = 1
                 self.playlist_backend = "vlc"
+                self.playlist_source_type = "playlist"
                 self.playlist_native_repeat = None
                 self._stop_active_backend_only()
                 logger.info("Playback stopped.")

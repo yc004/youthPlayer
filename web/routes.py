@@ -360,6 +360,68 @@ def _nextcloud_cfg_from_request_args():
     return base
 
 
+def _nextcloud_cache_dir():
+    target = os.path.join(Config.BASE_DIR, "runtime", "nextcloud_cache")
+    os.makedirs(target, exist_ok=True)
+    return target
+
+
+def _format_size(num_bytes):
+    size = float(max(0, int(num_bytes or 0)))
+    units = ["B", "KB", "MB", "GB", "TB"]
+    idx = 0
+    while size >= 1024 and idx < len(units) - 1:
+        size /= 1024.0
+        idx += 1
+    return f"{size:.2f} {units[idx]}"
+
+
+def _nextcloud_cache_stats():
+    folder = _nextcloud_cache_dir()
+    total_size = 0
+    file_count = 0
+    newest_mtime = 0
+    oldest_mtime = 0
+    for name in os.listdir(folder):
+        path = os.path.join(folder, name)
+        if not os.path.isfile(path):
+            continue
+        try:
+            stat = os.stat(path)
+        except OSError:
+            continue
+        file_count += 1
+        total_size += int(stat.st_size or 0)
+        mtime = int(stat.st_mtime or 0)
+        newest_mtime = max(newest_mtime, mtime)
+        oldest_mtime = mtime if oldest_mtime == 0 else min(oldest_mtime, mtime)
+    return {
+        "folder": folder,
+        "file_count": file_count,
+        "total_size": total_size,
+        "total_size_text": _format_size(total_size),
+        "newest_at": datetime.fromtimestamp(newest_mtime).strftime("%Y-%m-%d %H:%M:%S") if newest_mtime else "-",
+        "oldest_at": datetime.fromtimestamp(oldest_mtime).strftime("%Y-%m-%d %H:%M:%S") if oldest_mtime else "-",
+    }
+
+
+def _clear_nextcloud_cache():
+    folder = _nextcloud_cache_dir()
+    removed = 0
+    reclaimed = 0
+    for name in os.listdir(folder):
+        path = os.path.join(folder, name)
+        if not os.path.isfile(path):
+            continue
+        try:
+            reclaimed += int(os.path.getsize(path) or 0)
+            os.remove(path)
+            removed += 1
+        except OSError:
+            continue
+    return removed, reclaimed
+
+
 def _get_setting_bool(key, default=False):
     item = db.session.get(SystemSetting, key)
     if not item:
@@ -1050,6 +1112,25 @@ def manage_users():
 def settings():
     if request.method == "POST":
         form_action = (request.form.get("form_action") or "system").strip()
+        if form_action == "nextcloud_cache":
+            cache_action = (request.form.get("cache_action") or "").strip()
+            if cache_action == "clear":
+                removed, reclaimed = _clear_nextcloud_cache()
+                _append_operation_audit_log(
+                    action="nextcloud_cache_clear",
+                    success=True,
+                    target_type="cache",
+                    target_id="nextcloud",
+                    detail=f"removed={removed}, reclaimed={reclaimed}",
+                )
+                flash(
+                    f"Nextcloud 缓存已清理：删除 {removed} 个文件，释放 {_format_size(reclaimed)}。",
+                    "success",
+                )
+            else:
+                flash("未知缓存操作。", "error")
+            return redirect(url_for("main.settings"))
+
         if form_action == "password":
             old_password = request.form.get("old_password", "")
             new_password = request.form.get("new_password", "")
@@ -1329,6 +1410,7 @@ def settings():
         .limit(100)
         .all()
     )
+    nextcloud_cache_stats = _nextcloud_cache_stats()
     return render_template(
         "settings.html",
         all_play_via_electron=all_play_via_electron,
@@ -1347,6 +1429,7 @@ def settings():
         nextcloud_password=nextcloud_password,
         nextcloud_root=nextcloud_root,
         nextcloud_skip_ssl_verify=nextcloud_skip_ssl_verify,
+        nextcloud_cache_stats=nextcloud_cache_stats,
         audit_logs=audit_logs,
         operation_logs=operation_logs,
     )
