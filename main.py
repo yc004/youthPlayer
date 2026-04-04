@@ -7,7 +7,7 @@ from flask import Flask
 from flask_login import LoginManager
 
 from config import Config
-from models import SystemSetting, User, db
+from models import DEFAULT_USER_PERMISSIONS, SystemSetting, User, db
 
 
 app = Flask(__name__)
@@ -112,6 +112,14 @@ def init_db():
                     conn.exec_driver_sql(
                         "ALTER TABLE schedule ADD COLUMN loop_count INTEGER NOT NULL DEFAULT 0"
                     )
+                user_columns = {
+                    row[1]
+                    for row in conn.exec_driver_sql("PRAGMA table_info(user)").fetchall()
+                }
+                if "permissions" not in user_columns:
+                    conn.exec_driver_sql(
+                        "ALTER TABLE user ADD COLUMN permissions TEXT NOT NULL DEFAULT ''"
+                    )
 
         admin = User.query.filter_by(username="admin").first()
         if not admin:
@@ -120,6 +128,14 @@ def init_db():
             db.session.add(admin)
             db.session.commit()
             logger.info("已创建默认管理员账户：admin / admin123")
+
+        updated = False
+        for user in User.query.filter_by(is_admin=False).all():
+            if not user.permissions:
+                user.set_permissions(DEFAULT_USER_PERMISSIONS)
+                updated = True
+        if updated:
+            db.session.commit()
 
 
 def load_runtime_settings():

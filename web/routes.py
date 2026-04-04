@@ -1,13 +1,23 @@
 import os
 from uuid import uuid4
 from datetime import datetime
+from functools import wraps
 
 from flask import Blueprint, flash, jsonify, redirect, render_template, request, send_file, url_for
 from flask_login import current_user, login_required, login_user, logout_user
 from werkzeug.utils import secure_filename
 
 from config import Config
-from models import OperationAuditLog, Schedule, SettingAuditLog, SystemSetting, User, db
+from models import (
+    ALL_PERMISSIONS,
+    DEFAULT_USER_PERMISSIONS,
+    OperationAuditLog,
+    Schedule,
+    SettingAuditLog,
+    SystemSetting,
+    User,
+    db,
+)
 
 
 main = Blueprint("main", __name__)
@@ -22,6 +32,18 @@ SETTING_KEY_MONITOR_INTERVAL = "monitor_capture_interval"
 SETTING_KEY_SCREENSAVER_IMAGE = "idle_screensaver_image"
 SCREENSAVER_ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".bmp", ".webp"}
 SCREENSAVER_MAX_SIZE = 20 * 1024 * 1024
+PERMISSION_DEFS = [
+    ("dashboard.view", "查看控制台"),
+    ("playback.control", "控制播放"),
+    ("schedule.view", "查看播放计划"),
+    ("schedule.manage", "管理播放计划"),
+    ("monitor.view", "查看画面监控"),
+    ("monitor.capture", "手动截图"),
+    ("files.browse", "浏览服务器文件"),
+    ("users.manage", "用户管理"),
+    ("settings.manage", "系统设置"),
+]
+PERMISSION_LABEL_MAP = dict(PERMISSION_DEFS)
 
 
 def init_routes(player_instance, controller_instance, watchdog_instance):
@@ -29,6 +51,45 @@ def init_routes(player_instance, controller_instance, watchdog_instance):
     player = player_instance
     controller = controller_instance
     watchdog = watchdog_instance
+
+
+def _has_permission(permission_code):
+    if not getattr(current_user, "is_authenticated", False):
+        return False
+    return current_user.has_permission(permission_code)
+
+
+def _permission_required(permission_code):
+    def decorator(view_func):
+        @wraps(view_func)
+        def wrapped(*args, **kwargs):
+            if not _has_permission(permission_code):
+                flash("当前账户无此操作权限。", "error")
+                return redirect(url_for("main.index"))
+            return view_func(*args, **kwargs)
+
+        return wrapped
+
+    return decorator
+
+
+def _first_available_page():
+    if _has_permission("dashboard.view"):
+        return "main.dashboard"
+    if _has_permission("schedule.view"):
+        return "main.schedules_page"
+    if _has_permission("monitor.view"):
+        return "main.monitor_page"
+    if _has_permission("users.manage"):
+        return "main.manage_users"
+    if _has_permission("settings.manage"):
+        return "main.settings"
+    return "main.logout"
+
+
+def _parse_user_permissions(form):
+    selected = form.getlist("permissions")
+    return sorted({item for item in selected if item in ALL_PERMISSIONS})
 
 
 def _parse_datetime(value, allow_time_only=False):
@@ -91,6 +152,15 @@ def _build_dashboard_context():
         "summary": controller.get_runtime_summary(),
         "weekday_labels": WEEKDAY_LABELS,
         "timeline_payload": _build_timeline_payload(schedules),
+    }
+
+
+@main.app_context_processor
+def inject_permission_helpers():
+    return {
+        "has_perm": _has_permission,
+        "permission_defs": PERMISSION_DEFS,
+        "permission_labels": PERMISSION_LABEL_MAP,
     }
 
 
@@ -294,29 +364,36 @@ def logout():
 @main.route("/")
 @login_required
 def index():
-    return redirect(url_for("main.dashboard"))
+    endpoint = _first_available_page()
+    if endpoint == "main.logout":
+        flash("当前账号未分配任何可访问权限，请联系管理员。", "error")
+    return redirect(url_for(endpoint))
 
 
 @main.route("/dashboard")
 @login_required
+@_permission_required("dashboard.view")
 def dashboard():
     return render_template("dashboard.html", **_build_dashboard_context())
 
 
 @main.route("/schedules")
 @login_required
+@_permission_required("schedule.view")
 def schedules_page():
     return render_template("schedules.html", **_build_dashboard_context())
 
 
 @main.route("/monitor")
 @login_required
+@_permission_required("monitor.view")
 def monitor_page():
     return render_template("monitor.html", **_build_dashboard_context())
 
 
 @main.route("/monitor/capture", methods=["POST"])
 @login_required
+@_permission_required("monitor.capture")
 def monitor_capture_now():
     ok, msg = player.capture_monitor_snapshot()
     flash("已手动截图。" if ok else f"手动截图失败：{msg}", "success" if ok else "error")
@@ -325,6 +402,7 @@ def monitor_capture_now():
 
 @main.route("/control", methods=["POST"])
 @login_required
+@_permission_required("playback.control")
 def control():
     action = request.form.get("action", "")
     schedule_id = request.form.get("schedule_id")
@@ -381,6 +459,7 @@ def _validate_schedule_form(form):
 
 @main.route("/schedule/add", methods=["POST"])
 @login_required
+@_permission_required("schedule.manage")
 def add_schedule():
     try:
         (
@@ -416,6 +495,7 @@ def add_schedule():
 
 @main.route("/schedule/update/<int:schedule_id>", methods=["POST"])
 @login_required
+@_permission_required("schedule.manage")
 def update_schedule(schedule_id):
     try:
         (
@@ -451,6 +531,7 @@ def update_schedule(schedule_id):
 
 @main.route("/schedule/delete/<int:schedule_id>", methods=["POST"])
 @login_required
+@_permission_required("schedule.manage")
 def delete_schedule(schedule_id):
     success = controller.delete_schedule(schedule_id)
     _append_operation_audit_log(
@@ -465,6 +546,7 @@ def delete_schedule(schedule_id):
 
 @main.route("/schedule/toggle/<int:schedule_id>", methods=["POST"])
 @login_required
+@_permission_required("schedule.manage")
 def toggle_schedule(schedule_id):
     schedule = db.session.get(Schedule, schedule_id)
     if not schedule:
@@ -478,6 +560,7 @@ def toggle_schedule(schedule_id):
 
 @main.route("/schedule/play/<int:schedule_id>", methods=["POST"])
 @login_required
+@_permission_required("playback.control")
 def play_schedule_now(schedule_id):
     success = controller.control_playback("start", schedule_id=schedule_id)
     _append_operation_audit_log(
@@ -494,6 +577,8 @@ def play_schedule_now(schedule_id):
 @main.route("/api/status")
 @login_required
 def api_status():
+    if not (_has_permission("dashboard.view") or _has_permission("monitor.view")):
+        return jsonify({"ok": False, "error": "forbidden"}), 403
     active_schedule = controller.get_current_schedule() or controller.get_active_schedule_now()
     return jsonify(
         {
@@ -526,6 +611,8 @@ def api_status():
 @main.route("/monitor/frame")
 @login_required
 def monitor_frame():
+    if not _has_permission("monitor.view"):
+        return ("Forbidden", 403)
     path = player.monitor_last_capture_path
     if not path or not os.path.exists(path):
         ok, _ = player.capture_monitor_snapshot()
@@ -539,6 +626,8 @@ def monitor_frame():
 @main.route("/api/monitor")
 @login_required
 def api_monitor():
+    if not _has_permission("monitor.view"):
+        return jsonify({"ok": False, "error": "forbidden"}), 403
     path = player.monitor_last_capture_path
     exists = bool(path and os.path.exists(path))
     if not exists:
@@ -558,7 +647,7 @@ def api_monitor():
 @main.route("/screensaver/preview")
 @login_required
 def screensaver_preview():
-    if not current_user.is_admin:
+    if not _has_permission("settings.manage"):
         return ("Forbidden", 403)
     path = _get_setting_str(SETTING_KEY_SCREENSAVER_IMAGE, Config.IDLE_SCREENSAVER_IMAGE)
     if not path or not os.path.exists(path):
@@ -569,6 +658,8 @@ def screensaver_preview():
 @main.route("/api/browse")
 @login_required
 def api_browse():
+    if not _has_permission("files.browse"):
+        return jsonify({"ok": False, "error": "forbidden"}), 403
     raw_path = (request.args.get("path") or "").strip().strip('"')
 
     # 不传路径时返回系统盘符根列表
@@ -621,26 +712,29 @@ def api_browse():
 @main.route("/status")
 @login_required
 def legacy_status():
+    if not (_has_permission("dashboard.view") or _has_permission("monitor.view")):
+        return jsonify({"ok": False, "error": "forbidden"}), 403
     return jsonify(player.get_status())
 
 
 @main.route("/users")
 @login_required
+@_permission_required("users.manage")
 def manage_users():
-    if not current_user.is_admin:
-        flash("只有管理员可以访问用户管理。", "error")
-        return redirect(url_for("main.index"))
     users = User.query.order_by(User.username.asc()).all()
-    return render_template("users.html", users=users)
+    return render_template(
+        "users.html",
+        users=users,
+        permission_defs=PERMISSION_DEFS,
+        permission_labels=PERMISSION_LABEL_MAP,
+        default_user_permissions=set(DEFAULT_USER_PERMISSIONS),
+    )
 
 
 @main.route("/settings", methods=["GET", "POST"])
 @login_required
+@_permission_required("settings.manage")
 def settings():
-    if not current_user.is_admin:
-        flash("只有管理员可以访问系统设置。", "error")
-        return redirect(url_for("main.index"))
-
     if request.method == "POST":
         form_action = (request.form.get("form_action") or "system").strip()
         if form_action == "password":
@@ -758,11 +852,8 @@ def settings():
 
 @main.route("/user/add", methods=["POST"])
 @login_required
+@_permission_required("users.manage")
 def add_user():
-    if not current_user.is_admin:
-        flash("只有管理员可以创建用户。", "error")
-        return redirect(url_for("main.index"))
-
     username = request.form.get("username", "").strip()
     password = request.form.get("password", "")
     if not username or not password:
@@ -773,11 +864,17 @@ def add_user():
         flash("用户名已存在。", "error")
         return redirect(url_for("main.manage_users"))
 
+    make_admin = "is_admin" in request.form
+    if make_admin and not current_user.is_admin:
+        flash("仅管理员可以创建新的管理员账号。", "error")
+        return redirect(url_for("main.manage_users"))
+
     user = User(
         username=username,
-        is_admin="is_admin" in request.form,
+        is_admin=make_admin,
         is_active="is_active" in request.form,
     )
+    user.set_permissions(_parse_user_permissions(request.form) or DEFAULT_USER_PERMISSIONS)
     user.set_password(password)
     db.session.add(user)
     db.session.commit()
@@ -785,16 +882,35 @@ def add_user():
     return redirect(url_for("main.manage_users"))
 
 
-@main.route("/user/toggle/<int:user_id>", methods=["POST"])
+@main.route("/user/permissions/<int:user_id>", methods=["POST"])
 @login_required
-def toggle_user(user_id):
-    if not current_user.is_admin:
-        flash("只有管理员可以变更用户状态。", "error")
-        return redirect(url_for("main.index"))
-
+@_permission_required("users.manage")
+def update_user_permissions(user_id):
     user = db.session.get(User, user_id)
     if not user:
         flash("用户不存在。", "error")
+        return redirect(url_for("main.manage_users"))
+
+    if user.is_admin:
+        flash("管理员默认拥有全部权限，无需单独配置。", "info")
+        return redirect(url_for("main.manage_users"))
+
+    user.set_permissions(_parse_user_permissions(request.form))
+    db.session.commit()
+    flash("用户权限已更新。", "success")
+    return redirect(url_for("main.manage_users"))
+
+
+@main.route("/user/toggle/<int:user_id>", methods=["POST"])
+@login_required
+@_permission_required("users.manage")
+def toggle_user(user_id):
+    user = db.session.get(User, user_id)
+    if not user:
+        flash("用户不存在。", "error")
+        return redirect(url_for("main.manage_users"))
+    if user.is_admin and not current_user.is_admin:
+        flash("仅管理员可以操作管理员账号。", "error")
         return redirect(url_for("main.manage_users"))
     if user.id == current_user.id:
         flash("不能停用当前登录账户。", "error")
@@ -808,13 +924,13 @@ def toggle_user(user_id):
 
 @main.route("/user/delete/<int:user_id>", methods=["POST"])
 @login_required
+@_permission_required("users.manage")
 def delete_user(user_id):
-    if not current_user.is_admin:
-        flash("只有管理员可以删除用户。", "error")
-        return redirect(url_for("main.index"))
-
     user = db.session.get(User, user_id)
     if user and user.id != current_user.id:
+        if user.is_admin and not current_user.is_admin:
+            flash("仅管理员可以删除管理员账号。", "error")
+            return redirect(url_for("main.manage_users"))
         db.session.delete(user)
         db.session.commit()
         flash("用户已删除。", "success")

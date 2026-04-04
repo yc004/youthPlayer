@@ -28,14 +28,27 @@
             <span>密码</span>
             <input type="password" name="password" required>
         </label>
+        {% if current_user.is_admin %}
         <label class="check-field">
             <input type="checkbox" name="is_admin">
             <span>授予管理员权限</span>
         </label>
+        {% endif %}
         <label class="check-field">
             <input type="checkbox" name="is_active" checked>
             <span>创建后立即启用</span>
         </label>
+        <div class="field field-wide">
+            <span>逐条权限</span>
+            <div class="weekday-group">
+                {% for code, label in permission_defs %}
+                <label>
+                    <input type="checkbox" name="permissions" value="{{ code }}" {% if code in default_user_permissions %}checked{% endif %}>
+                    {{ label }}
+                </label>
+                {% endfor %}
+            </div>
+        </div>
         <div class="form-actions">
             <button type="submit" class="btn btn-primary">创建用户</button>
         </div>
@@ -57,14 +70,50 @@
                 <span class="chip {{ 'success' if user.is_active else 'muted' }}">{{ "启用中" if user.is_active else "已停用" }}</span>
                 <span class="chip info">{{ "管理员" if user.is_admin else "普通用户" }}</span>
             </div>
+            {% if user.is_admin %}
+            <p>管理员拥有全部权限。</p>
+            {% else %}
+            <div class="summary-meta">
+                {% set ns = namespace(has_item=false) %}
+                {% for code, label in permission_defs %}
+                    {% if code in user.permission_set %}
+                    {% set ns.has_item = true %}
+                    <span class="chip">{{ label }}</span>
+                    {% endif %}
+                {% endfor %}
+                {% if not ns.has_item %}
+                <span class="chip muted">无权限</span>
+                {% endif %}
+            </div>
+            <form method="post" action="{{ url_for('main.update_user_permissions', user_id=user.id) }}" class="schedule-form embedded">
+                <div class="field field-wide">
+                    <span>权限配置</span>
+                    <div class="weekday-group">
+                        {% for code, label in permission_defs %}
+                        <label>
+                            <input type="checkbox" name="permissions" value="{{ code }}" {% if code in user.permission_set %}checked{% endif %}>
+                            {{ label }}
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-secondary">保存权限</button>
+                </div>
+            </form>
+            {% endif %}
             <div class="button-row compact">
                 {% if user.id != current_user.id %}
+                {% if user.is_admin and not current_user.is_admin %}
+                <span class="self-tip">管理员账号仅管理员可操作</span>
+                {% else %}
                 <form method="post" action="{{ url_for('main.toggle_user', user_id=user.id) }}">
                     <button class="btn btn-secondary" type="submit">{{ "停用" if user.is_active else "启用" }}</button>
                 </form>
                 <form method="post" action="{{ url_for('main.delete_user', user_id=user.id) }}" onsubmit="return confirm('确认删除该用户吗？');">
                     <button class="btn btn-danger" type="submit">删除</button>
                 </form>
+                {% endif %}
                 {% else %}
                 <span class="self-tip">当前登录账户</span>
                 {% endif %}

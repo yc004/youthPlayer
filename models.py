@@ -1,4 +1,5 @@
 # 数据库模型
+import json
 from datetime import datetime
 
 from flask_login import UserMixin
@@ -9,12 +10,36 @@ from werkzeug.security import check_password_hash, generate_password_hash
 db = SQLAlchemy()
 
 
+ALL_PERMISSIONS = (
+    "dashboard.view",
+    "playback.control",
+    "schedule.view",
+    "schedule.manage",
+    "monitor.view",
+    "monitor.capture",
+    "users.manage",
+    "settings.manage",
+    "files.browse",
+)
+
+DEFAULT_USER_PERMISSIONS = (
+    "dashboard.view",
+    "playback.control",
+    "schedule.view",
+    "schedule.manage",
+    "monitor.view",
+    "monitor.capture",
+    "files.browse",
+)
+
+
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(50), unique=True, nullable=False)
     password = db.Column(db.String(255), nullable=False)
     is_admin = db.Column(db.Boolean, default=False)
     is_active = db.Column(db.Boolean, default=True)
+    permissions = db.Column(db.Text, nullable=False, default="")
 
     def __repr__(self):
         return f"<User {self.username}>"
@@ -32,6 +57,30 @@ class User(UserMixin, db.Model):
     @property
     def role_name(self):
         return "管理员" if self.is_admin else "普通用户"
+
+    @property
+    def permission_set(self):
+        if self.is_admin:
+            return set(ALL_PERMISSIONS)
+        raw = (self.permissions or "").strip()
+        if not raw:
+            return set()
+        try:
+            data = json.loads(raw)
+        except Exception:
+            data = [item.strip() for item in raw.split(",") if item.strip()]
+        if not isinstance(data, list):
+            return set()
+        return {str(item).strip() for item in data if str(item).strip() in ALL_PERMISSIONS}
+
+    def set_permissions(self, permissions):
+        clean = sorted({str(item).strip() for item in (permissions or []) if str(item).strip() in ALL_PERMISSIONS})
+        self.permissions = json.dumps(clean, ensure_ascii=False)
+
+    def has_permission(self, permission_code):
+        if self.is_admin:
+            return True
+        return permission_code in self.permission_set
 
 
 class Schedule(db.Model):

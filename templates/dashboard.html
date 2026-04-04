@@ -38,6 +38,7 @@
 </section>
 
 <section class="layout-grid">
+    {% if has_perm('playback.control') %}
     <article class="panel">
         <div class="panel-head">
             <h2>播放控制</h2>
@@ -54,6 +55,7 @@
             <button class="btn btn-secondary" type="submit" name="action" value="web_fullscreen">网页注入全屏</button>
         </form>
     </article>
+    {% endif %}
 
     <article class="panel">
         <div class="panel-head">

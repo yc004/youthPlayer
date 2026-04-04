@@ -18,9 +18,11 @@
     <div class="panel-head">
         <h2>实时画面</h2>
         <div class="button-row compact">
+            {% if has_perm('monitor.capture') %}
             <form method="post" action="{{ url_for('main.monitor_capture_now') }}">
                 <button class="btn btn-secondary" type="submit">手动截图</button>
             </form>
+            {% endif %}
         </div>
     </div>
     <div class="monitor-preview-wrap">
@@ -28,6 +30,7 @@
     </div>
 </section>
 
+{% if has_perm('playback.control') %}
 <section class="panel">
     <div class="panel-head">
         <h2>快速控制</h2>
@@ -38,4 +41,5 @@
         <button class="btn btn-secondary" type="submit" name="action" value="resume">恢复</button>
     </form>
 </section>
+{% endif %}
 {% endblock %}

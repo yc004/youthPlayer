@@ -27,6 +27,7 @@
     <div class="gantt-board" data-role="gantt-board"></div>
 </section>
 
+{% if has_perm('schedule.manage') %}
 <section class="panel">
     <div class="panel-head">
         <h2>新建计划</h2>
@@ -56,7 +57,9 @@
             <span>内容地址</span>
             <div class="path-picker">
                 <input type="text" name="content_path" class="content-path-input" required>
+                {% if has_perm('files.browse') %}
                 <button type="button" class="btn btn-secondary btn-path-browse">浏览...</button>
+                {% endif %}
             </div>
         </label>
         <label class="field field-wide">
@@ -82,6 +85,7 @@
         <div class="form-actions"><button type="submit" class="btn btn-primary">保存计划</button></div>
     </form>
 </section>
+{% endif %}
 
 <section class="panel">
     <div class="panel-head">
@@ -124,11 +128,16 @@
                 </div>
 
                 <div class="button-row compact">
+                    {% if has_perm('playback.control') %}
                     <form method="post" action="{{ url_for('main.play_schedule_now', schedule_id=schedule.id) }}"><button class="btn btn-primary" type="submit">立即播放</button></form>
+                    {% endif %}
+                    {% if has_perm('schedule.manage') %}
                     <form method="post" action="{{ url_for('main.toggle_schedule', schedule_id=schedule.id) }}"><button class="btn btn-secondary" type="submit">{{ "停用" if schedule.is_active else "启用" }}</button></form>
                     <form method="post" action="{{ url_for('main.delete_schedule', schedule_id=schedule.id) }}" onsubmit="return confirm('确认删除该计划吗？');"><button class="btn btn-danger" type="submit">删除</button></form>
+                    {% endif %}
                 </div>
 
+                {% if has_perm('schedule.manage') %}
                 <form method="post" action="{{ url_for('main.update_schedule', schedule_id=schedule.id) }}" class="schedule-form embedded">
                     <label class="field">
                         <span>计划名称</span>
@@ -169,7 +178,9 @@
                         <span>内容地址</span>
                         <div class="path-picker">
                             <input type="text" name="content_path" class="content-path-input" value="{{ schedule.content_path }}" required>
+                            {% if has_perm('files.browse') %}
                             <button type="button" class="btn btn-secondary btn-path-browse">浏览...</button>
+                            {% endif %}
                         </div>
                     </label>
                     <label class="field field-wide">
@@ -205,6 +216,7 @@
                     </label>
                     <div class="form-actions"><button type="submit" class="btn btn-secondary">保存修改</button></div>
                 </form>
+                {% endif %}
             </div>
         </details>
         {% else %}
@@ -215,6 +227,7 @@
 
 <script id="timeline-data" type="application/json">{{ timeline_payload|tojson }}</script>
 
+{% if has_perm('files.browse') %}
 <div class="file-browser-backdrop" data-role="file-browser-backdrop" hidden>
     <div class="file-browser-modal">
         <div class="file-browser-head">
@@ -234,4 +247,5 @@
         <div class="file-browser-list" data-role="fb-list"></div>
     </div>
 </div>
+{% endif %}
 {% endblock %}

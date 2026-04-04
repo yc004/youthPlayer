@@ -18,11 +18,19 @@
             </div>
         </div>
         <nav class="nav-links">
+            {% if has_perm('dashboard.view') %}
             <a href="{{ url_for('main.dashboard') }}">控制台</a>
+            {% endif %}
+            {% if has_perm('schedule.view') %}
             <a href="{{ url_for('main.schedules_page') }}">播放计划</a>
+            {% endif %}
+            {% if has_perm('monitor.view') %}
             <a href="{{ url_for('main.monitor_page') }}">画面监控</a>
-            {% if current_user.is_admin %}
+            {% endif %}
+            {% if has_perm('users.manage') %}
             <a href="{{ url_for('main.manage_users') }}">用户管理</a>
+            {% endif %}
+            {% if has_perm('settings.manage') %}
             <a href="{{ url_for('main.settings') }}">系统设置</a>
             {% endif %}
             <a href="{{ url_for('main.logout') }}">退出</a>
