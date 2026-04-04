@@ -1,7 +1,12 @@
 import os
+import base64
+import urllib.error
+import urllib.request
+import xml.etree.ElementTree as ET
 from uuid import uuid4
 from datetime import datetime
 from functools import wraps
+from urllib.parse import quote, unquote, urlsplit, urlunsplit
 
 from flask import Blueprint, flash, jsonify, redirect, render_template, request, send_file, url_for
 from flask_login import current_user, login_required, login_user, logout_user
@@ -36,6 +41,11 @@ SETTING_KEY_SCREENSAVER_WINDOW_LEFT = "idle_screensaver_window_left"
 SETTING_KEY_SCREENSAVER_WINDOW_TOP = "idle_screensaver_window_top"
 SETTING_KEY_SCREENSAVER_WINDOW_WIDTH = "idle_screensaver_window_width"
 SETTING_KEY_SCREENSAVER_WINDOW_HEIGHT = "idle_screensaver_window_height"
+SETTING_KEY_NEXTCLOUD_ENABLED = "nextcloud_enabled"
+SETTING_KEY_NEXTCLOUD_URL = "nextcloud_url"
+SETTING_KEY_NEXTCLOUD_USERNAME = "nextcloud_username"
+SETTING_KEY_NEXTCLOUD_PASSWORD = "nextcloud_password"
+SETTING_KEY_NEXTCLOUD_ROOT = "nextcloud_root"
 SCREENSAVER_ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".bmp", ".webp"}
 SCREENSAVER_MAX_SIZE = 20 * 1024 * 1024
 PERMISSION_DEFS = [
@@ -161,6 +171,7 @@ def _build_timeline_payload(schedules):
 
 def _build_dashboard_context():
     schedules = controller.get_schedules()
+    nextcloud = _nextcloud_settings()
     return {
         "status": player.get_status(),
         "screens": player.get_available_screens(),
@@ -169,6 +180,9 @@ def _build_dashboard_context():
         "summary": controller.get_runtime_summary(),
         "weekday_labels": WEEKDAY_LABELS,
         "timeline_payload": _build_timeline_payload(schedules),
+        "nextcloud_enabled": bool(
+            nextcloud["enabled"] and nextcloud["url"] and nextcloud["username"] and nextcloud["password"]
+        ),
     }
 
 
@@ -195,6 +209,127 @@ def _list_windows_roots():
         if os.path.exists(drive):
             roots.append(drive)
     return roots
+
+
+def _nextcloud_settings():
+    enabled = _get_setting_bool(SETTING_KEY_NEXTCLOUD_ENABLED, Config.NEXTCLOUD_ENABLED)
+    url = _get_setting_str(SETTING_KEY_NEXTCLOUD_URL, Config.NEXTCLOUD_URL).strip()
+    username = _get_setting_str(SETTING_KEY_NEXTCLOUD_USERNAME, Config.NEXTCLOUD_USERNAME).strip()
+    password = _get_setting_str(SETTING_KEY_NEXTCLOUD_PASSWORD, Config.NEXTCLOUD_PASSWORD).strip()
+    root = _get_setting_str(SETTING_KEY_NEXTCLOUD_ROOT, Config.NEXTCLOUD_ROOT).strip() or "/"
+    return {
+        "enabled": bool(enabled),
+        "url": url,
+        "username": username,
+        "password": password,
+        "root": root,
+    }
+
+
+def _nextcloud_norm_path(raw_path):
+    parts = [p for p in str(raw_path or "/").replace("\\", "/").split("/") if p]
+    return "/" + "/".join(parts) if parts else "/"
+
+
+def _nextcloud_webdav_base(url, username):
+    base = (url or "").strip().rstrip("/")
+    if not base:
+        return ""
+    if "/remote.php/dav/" in base:
+        return base
+    return f"{base}/remote.php/dav/files/{quote(username, safe='')}"
+
+
+def _nextcloud_join_webdav_url(base, remote_path):
+    base = (base or "").rstrip("/")
+    segs = [quote(p, safe="") for p in str(remote_path or "/").split("/") if p]
+    if not segs:
+        return base + "/"
+    return base + "/" + "/".join(segs)
+
+
+def _url_with_basic_auth(url, username, password):
+    parsed = urlsplit(url)
+    if not parsed.scheme or not parsed.netloc:
+        return url
+    user = quote(username or "", safe="")
+    pwd = quote(password or "", safe="")
+    host = parsed.hostname or ""
+    port = f":{parsed.port}" if parsed.port else ""
+    auth = f"{user}:{pwd}@" if (user or pwd) else ""
+    netloc = f"{auth}{host}{port}"
+    return urlunsplit((parsed.scheme, netloc, parsed.path, parsed.query, parsed.fragment))
+
+
+def _nextcloud_browse(raw_path):
+    cfg = _nextcloud_settings()
+    if not cfg["enabled"]:
+        raise ValueError("Nextcloud is not enabled.")
+    if not cfg["url"] or not cfg["username"] or not cfg["password"]:
+        raise ValueError("Nextcloud config is incomplete.")
+
+    webdav_base = _nextcloud_webdav_base(cfg["url"], cfg["username"])
+    if not webdav_base:
+        raise ValueError("Invalid Nextcloud URL.")
+
+    root_path = _nextcloud_norm_path(cfg["root"])
+    rel_path = _nextcloud_norm_path(raw_path)
+    merged_path = root_path if rel_path == "/" else (root_path.rstrip("/") + rel_path)
+    target_url = _nextcloud_join_webdav_url(webdav_base, merged_path)
+
+    req = urllib.request.Request(target_url, method="PROPFIND")
+    auth = f"{cfg['username']}:{cfg['password']}".encode("utf-8")
+    req.add_header("Authorization", "Basic " + base64.b64encode(auth).decode("ascii"))
+    req.add_header("Depth", "1")
+    req.add_header("Content-Type", "application/xml; charset=utf-8")
+    body = (
+        b'<?xml version="1.0" encoding="utf-8"?>'
+        b"<d:propfind xmlns:d='DAV:'><d:prop><d:displayname/><d:resourcetype/></d:prop></d:propfind>"
+    )
+    with urllib.request.urlopen(req, data=body, timeout=15) as resp:
+        xml_text = resp.read().decode("utf-8", errors="ignore")
+
+    ns = {"d": "DAV:"}
+    payload = ET.fromstring(xml_text)
+    responses = payload.findall("d:response", ns)
+    entries = []
+    current_path = rel_path
+    dav_base_path = urlsplit(webdav_base).path.rstrip("/")
+
+    for idx, node in enumerate(responses):
+        href_node = node.find("d:href", ns)
+        href = unquote((href_node.text or "").strip()) if href_node is not None else ""
+        if not href:
+            continue
+        if idx == 0:
+            continue
+
+        href_path = urlsplit(href).path
+        rel = href_path
+        if rel.startswith(dav_base_path):
+            rel = rel[len(dav_base_path):]
+        rel = _nextcloud_norm_path(rel)
+        if rel == current_path:
+            continue
+
+        rt = node.find("d:propstat/d:prop/d:resourcetype", ns)
+        is_dir = rt is not None and rt.find("d:collection", ns) is not None
+        display = node.find("d:propstat/d:prop/d:displayname", ns)
+        name = (display.text or "").strip() if display is not None and display.text else rel.rstrip("/").split("/")[-1]
+        if not name:
+            continue
+
+        if is_dir:
+            path_value = rel
+        else:
+            full_remote = root_path if rel == "/" else (root_path.rstrip("/") + rel)
+            file_webdav_url = _nextcloud_join_webdav_url(webdav_base, full_remote)
+            path_value = _url_with_basic_auth(file_webdav_url, cfg["username"], cfg["password"])
+        entries.append({"name": name, "path": path_value, "is_dir": bool(is_dir)})
+
+    entries.sort(key=lambda x: (not x["is_dir"], x["name"].lower()))
+    parent = "/" if current_path in {"", "/"} else (os.path.dirname(current_path.rstrip("/")) or "/")
+    return {"ok": True, "source": "nextcloud", "cwd": current_path, "parent": parent, "entries": entries}
 
 
 def _get_setting_bool(key, default=False):
@@ -738,14 +873,29 @@ def screensaver_preview():
 def api_browse():
     if not _has_permission("files.browse"):
         return jsonify({"ok": False, "error": "forbidden"}), 403
+
+    source = (request.args.get("source") or "local").strip().lower()
     raw_path = (request.args.get("path") or "").strip().strip('"')
 
-    # 不传路径时返回系统盘符根列表
+    if source == "nextcloud":
+        try:
+            return jsonify(_nextcloud_browse(raw_path))
+        except ValueError as exc:
+            return jsonify({"ok": False, "error": str(exc)}), 400
+        except urllib.error.HTTPError as exc:
+            message = f"Nextcloud request failed: HTTP {exc.code}"
+            if exc.code in {401, 403}:
+                message = "Nextcloud authentication failed."
+            return jsonify({"ok": False, "error": message}), 502
+        except Exception as exc:
+            return jsonify({"ok": False, "error": f"Nextcloud request failed: {exc}"}), 502
+
     if not raw_path:
         roots = _list_windows_roots()
         return jsonify(
             {
                 "ok": True,
+                "source": "local",
                 "cwd": "",
                 "parent": "",
                 "entries": [{"name": root, "path": root, "is_dir": True} for root in roots],
@@ -757,10 +907,9 @@ def api_browse():
         target = os.path.dirname(target)
 
     if not os.path.exists(target):
-        return jsonify({"ok": False, "error": "路径不存在"}), 404
-
+        return jsonify({"ok": False, "error": "Path not found."}), 404
     if not os.path.isdir(target):
-        return jsonify({"ok": False, "error": "不是目录"}), 400
+        return jsonify({"ok": False, "error": "Not a directory."}), 400
 
     entries = []
     try:
@@ -777,14 +926,13 @@ def api_browse():
                 except PermissionError:
                     continue
     except PermissionError:
-        return jsonify({"ok": False, "error": "无权限访问该目录"}), 403
+        return jsonify({"ok": False, "error": "Permission denied."}), 403
 
     entries.sort(key=lambda x: (not x["is_dir"], x["name"].lower()))
     parent = os.path.dirname(target.rstrip("\\/")) if target else ""
     if parent == target:
         parent = ""
-
-    return jsonify({"ok": True, "cwd": target, "parent": parent, "entries": entries})
+    return jsonify({"ok": True, "source": "local", "cwd": target, "parent": parent, "entries": entries})
 
 
 @main.route("/status")
@@ -875,6 +1023,16 @@ def settings():
         if screensaver_window_mode == "custom":
             screensaver_window_width = max(100, screensaver_window_width or 100)
             screensaver_window_height = max(100, screensaver_window_height or 100)
+        nextcloud_enabled = "nextcloud_enabled" in request.form
+        nextcloud_url = (request.form.get("nextcloud_url") or "").strip()
+        nextcloud_username = (request.form.get("nextcloud_username") or "").strip()
+        nextcloud_password = (request.form.get("nextcloud_password") or "").strip()
+        nextcloud_root = (request.form.get("nextcloud_root") or "/").strip() or "/"
+        if not nextcloud_root.startswith("/"):
+            nextcloud_root = "/" + nextcloud_root
+        if nextcloud_enabled and (not nextcloud_url or not nextcloud_username or not nextcloud_password):
+            flash("启用 Nextcloud 前请完整填写地址、用户名和应用密码。", "error")
+            return redirect(url_for("main.settings"))
 
         old_value = "1" if _get_setting_bool(SETTING_KEY_ALL_ELECTRON, Config.ALL_PLAY_VIA_ELECTRON) else "0"
         new_value = "1" if enable_all_electron else "0"
@@ -899,6 +1057,16 @@ def settings():
         _set_setting_int(SETTING_KEY_SCREENSAVER_WINDOW_TOP, screensaver_window_top)
         _set_setting_int(SETTING_KEY_SCREENSAVER_WINDOW_WIDTH, screensaver_window_width)
         _set_setting_int(SETTING_KEY_SCREENSAVER_WINDOW_HEIGHT, screensaver_window_height)
+        old_nc_enabled = "1" if _get_setting_bool(SETTING_KEY_NEXTCLOUD_ENABLED, Config.NEXTCLOUD_ENABLED) else "0"
+        old_nc_url = _get_setting_str(SETTING_KEY_NEXTCLOUD_URL, Config.NEXTCLOUD_URL)
+        old_nc_username = _get_setting_str(SETTING_KEY_NEXTCLOUD_USERNAME, Config.NEXTCLOUD_USERNAME)
+        old_nc_password = _get_setting_str(SETTING_KEY_NEXTCLOUD_PASSWORD, Config.NEXTCLOUD_PASSWORD)
+        old_nc_root = _get_setting_str(SETTING_KEY_NEXTCLOUD_ROOT, Config.NEXTCLOUD_ROOT)
+        _set_setting_bool(SETTING_KEY_NEXTCLOUD_ENABLED, nextcloud_enabled)
+        _set_setting_str(SETTING_KEY_NEXTCLOUD_URL, nextcloud_url)
+        _set_setting_str(SETTING_KEY_NEXTCLOUD_USERNAME, nextcloud_username)
+        _set_setting_str(SETTING_KEY_NEXTCLOUD_PASSWORD, nextcloud_password)
+        _set_setting_str(SETTING_KEY_NEXTCLOUD_ROOT, nextcloud_root)
 
         old_screensaver_image = _get_setting_str(SETTING_KEY_SCREENSAVER_IMAGE, Config.IDLE_SCREENSAVER_IMAGE)
         new_screensaver_image = old_screensaver_image
@@ -936,6 +1104,11 @@ def settings():
         Config.IDLE_SCREENSAVER_WINDOW_TOP = screensaver_window_top
         Config.IDLE_SCREENSAVER_WINDOW_WIDTH = screensaver_window_width
         Config.IDLE_SCREENSAVER_WINDOW_HEIGHT = screensaver_window_height
+        Config.NEXTCLOUD_ENABLED = nextcloud_enabled
+        Config.NEXTCLOUD_URL = nextcloud_url
+        Config.NEXTCLOUD_USERNAME = nextcloud_username
+        Config.NEXTCLOUD_PASSWORD = nextcloud_password
+        Config.NEXTCLOUD_ROOT = nextcloud_root
 
         try:
             controller.scheduler.reschedule_job(
@@ -981,6 +1154,24 @@ def settings():
                 old_ss_height,
                 str(screensaver_window_height),
             )
+        if old_nc_enabled != ("1" if nextcloud_enabled else "0"):
+            _append_setting_audit_log(SETTING_KEY_NEXTCLOUD_ENABLED, old_nc_enabled, "1" if nextcloud_enabled else "0")
+        if old_nc_url != nextcloud_url:
+            _append_setting_audit_log(SETTING_KEY_NEXTCLOUD_URL, old_nc_url or "<empty>", nextcloud_url or "<empty>")
+        if old_nc_username != nextcloud_username:
+            _append_setting_audit_log(
+                SETTING_KEY_NEXTCLOUD_USERNAME,
+                old_nc_username or "<empty>",
+                nextcloud_username or "<empty>",
+            )
+        if old_nc_password != nextcloud_password:
+            _append_setting_audit_log(
+                SETTING_KEY_NEXTCLOUD_PASSWORD,
+                "<hidden>" if old_nc_password else "<empty>",
+                "<hidden>" if nextcloud_password else "<empty>",
+            )
+        if old_nc_root != nextcloud_root:
+            _append_setting_audit_log(SETTING_KEY_NEXTCLOUD_ROOT, old_nc_root or "<empty>", nextcloud_root or "<empty>")
         try:
             player.show_screensaver()
         except Exception:
@@ -1019,6 +1210,11 @@ def settings():
     screensaver_image_path = _get_setting_str(SETTING_KEY_SCREENSAVER_IMAGE, Config.IDLE_SCREENSAVER_IMAGE)
     if screensaver_image_path and not os.path.exists(screensaver_image_path):
         screensaver_image_path = ""
+    nextcloud_enabled = _get_setting_bool(SETTING_KEY_NEXTCLOUD_ENABLED, Config.NEXTCLOUD_ENABLED)
+    nextcloud_url = _get_setting_str(SETTING_KEY_NEXTCLOUD_URL, Config.NEXTCLOUD_URL)
+    nextcloud_username = _get_setting_str(SETTING_KEY_NEXTCLOUD_USERNAME, Config.NEXTCLOUD_USERNAME)
+    nextcloud_password = _get_setting_str(SETTING_KEY_NEXTCLOUD_PASSWORD, Config.NEXTCLOUD_PASSWORD)
+    nextcloud_root = _get_setting_str(SETTING_KEY_NEXTCLOUD_ROOT, Config.NEXTCLOUD_ROOT) or "/"
     screens = player.get_available_screens() if player else []
     audit_logs = (
         SettingAuditLog.query.order_by(SettingAuditLog.created_at.desc(), SettingAuditLog.id.desc())
@@ -1042,6 +1238,11 @@ def settings():
         screensaver_window_top=screensaver_window_top,
         screensaver_window_width=screensaver_window_width,
         screensaver_window_height=screensaver_window_height,
+        nextcloud_enabled=nextcloud_enabled,
+        nextcloud_url=nextcloud_url,
+        nextcloud_username=nextcloud_username,
+        nextcloud_password=nextcloud_password,
+        nextcloud_root=nextcloud_root,
         audit_logs=audit_logs,
         operation_logs=operation_logs,
     )

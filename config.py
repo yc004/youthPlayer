@@ -52,6 +52,11 @@ class Config:
     IDLE_SCREENSAVER_WINDOW_TOP = int(os.environ.get("YP_IDLE_SCREENSAVER_WINDOW_TOP", 0))
     IDLE_SCREENSAVER_WINDOW_WIDTH = int(os.environ.get("YP_IDLE_SCREENSAVER_WINDOW_WIDTH", 1280))
     IDLE_SCREENSAVER_WINDOW_HEIGHT = int(os.environ.get("YP_IDLE_SCREENSAVER_WINDOW_HEIGHT", 720))
+    NEXTCLOUD_ENABLED = os.environ.get("YP_NEXTCLOUD_ENABLED", "0") == "1"
+    NEXTCLOUD_URL = os.environ.get("YP_NEXTCLOUD_URL", "").strip()
+    NEXTCLOUD_USERNAME = os.environ.get("YP_NEXTCLOUD_USERNAME", "").strip()
+    NEXTCLOUD_PASSWORD = os.environ.get("YP_NEXTCLOUD_PASSWORD", "").strip()
+    NEXTCLOUD_ROOT = os.environ.get("YP_NEXTCLOUD_ROOT", "/").strip() or "/"
 
     # Web 配置
     WEB_PORT = int(os.environ.get("YP_WEB_PORT", 5000))

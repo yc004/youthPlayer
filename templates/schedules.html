@@ -303,6 +303,9 @@
         </div>
         <div class="file-browser-toolbar">
             <button type="button" class="btn btn-secondary" data-role="fb-roots">盘符</button>
+            {% if nextcloud_enabled %}
+            <button type="button" class="btn btn-secondary" data-role="fb-nextcloud">Nextcloud</button>
+            {% endif %}
             <button type="button" class="btn btn-secondary" data-role="fb-up">上级</button>
             <button type="button" class="btn btn-secondary" data-role="fb-use-dir">使用当前目录</button>
             <button type="button" class="btn btn-secondary" data-role="fb-import-files" hidden>一键导入本目录视频</button>

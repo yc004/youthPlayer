@@ -27,6 +27,26 @@
                 <span>监控截图频率（秒）</span>
                 <input type="number" name="monitor_capture_interval" min="2" max="3600" value="{{ monitor_capture_interval }}">
             </label>
+            <label class="check-field">
+                <input type="checkbox" name="nextcloud_enabled" {% if nextcloud_enabled %}checked{% endif %}>
+                <span>启用 Nextcloud WebDAV 资源浏览</span>
+            </label>
+            <label class="field">
+                <span>Nextcloud 地址</span>
+                <input type="text" name="nextcloud_url" value="{{ nextcloud_url }}" placeholder="https://cloud.example.com">
+            </label>
+            <label class="field">
+                <span>Nextcloud 用户名</span>
+                <input type="text" name="nextcloud_username" value="{{ nextcloud_username }}">
+            </label>
+            <label class="field">
+                <span>Nextcloud 应用密码</span>
+                <input type="password" name="nextcloud_password" value="{{ nextcloud_password }}">
+            </label>
+            <label class="field">
+                <span>Nextcloud 根目录</span>
+                <input type="text" name="nextcloud_root" value="{{ nextcloud_root }}" placeholder="/">
+            </label>
             <label class="field">
                 <span>屏保图片（jpg/jpeg/png/bmp/webp）</span>
                 <input type="file" name="screensaver_image" accept=".jpg,.jpeg,.png,.bmp,.webp,image/*">

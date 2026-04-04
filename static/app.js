@@ -205,9 +205,11 @@
         var cwdNode = backdrop.querySelector("[data-role='fb-cwd']");
         var pathInput = backdrop.querySelector("[data-role='fb-path-input']");
         var importBtn = backdrop.querySelector("[data-role='fb-import-files']");
+        var nextcloudBtn = backdrop.querySelector("[data-role='fb-nextcloud']");
         var currentPath = "";
         var currentParent = "";
         var currentEntries = [];
+        var currentSource = "local";
         var activeInput = null;
         var activeMode = "single";
 
@@ -251,6 +253,7 @@
             backdrop.hidden = true;
             activeInput = null;
             activeMode = "single";
+            currentSource = "local";
             if (importBtn) importBtn.hidden = true;
         }
 
@@ -259,7 +262,7 @@
             activeMode = mode || "single";
             backdrop.hidden = false;
             if (importBtn) importBtn.hidden = activeMode !== "playlist";
-            loadPath(input.value || "");
+            loadPath("", "local");
         }
 
         function renderEntries(entries) {
@@ -303,11 +306,16 @@
             });
         }
 
-        function loadPath(path) {
+        function loadPath(path, source) {
+            var targetSource = source || currentSource || "local";
+            currentSource = targetSource;
             var url = "/api/browse";
-            if (path) {
-                url += "?path=" + encodeURIComponent(path);
+            var query = [];
+            if (targetSource && targetSource !== "local") {
+                query.push("source=" + encodeURIComponent(targetSource));
             }
+            if (path) query.push("path=" + encodeURIComponent(path));
+            if (query.length) url += "?" + query.join("&");
             var request = new XMLHttpRequest();
             request.open("GET", url, true);
             request.onreadystatechange = function () {
@@ -321,8 +329,9 @@
                     currentPath = payload.cwd || "";
                     currentParent = payload.parent || "";
                     currentEntries = payload.entries || [];
+                    currentSource = payload.source || targetSource;
                     pathInput.value = currentPath;
-                    cwdNode.textContent = "Current path: " + (currentPath || "drives");
+                    cwdNode.textContent = "Current path (" + currentSource + "): " + (currentPath || "root");
                     renderEntries(currentEntries);
                 } catch (_err) {
                     listNode.innerHTML = "<div class='empty-state'>Data parse failed</div>";
@@ -348,17 +357,22 @@
 
         backdrop.querySelector("[data-role='fb-close']").addEventListener("click", closeBrowser);
         backdrop.querySelector("[data-role='fb-roots']").addEventListener("click", function () {
-            loadPath("");
+            loadPath("", "local");
         });
+        if (nextcloudBtn) {
+            nextcloudBtn.addEventListener("click", function () {
+                loadPath("/", "nextcloud");
+            });
+        }
         backdrop.querySelector("[data-role='fb-up']").addEventListener("click", function () {
             if (currentParent) {
-                loadPath(currentParent);
+                loadPath(currentParent, currentSource);
             } else {
-                loadPath("");
+                loadPath("", currentSource);
             }
         });
         backdrop.querySelector("[data-role='fb-go']").addEventListener("click", function () {
-            loadPath(pathInput.value.trim());
+            loadPath(pathInput.value.trim(), currentSource);
         });
         backdrop.querySelector("[data-role='fb-use-dir']").addEventListener("click", function () {
             if (activeInput) {

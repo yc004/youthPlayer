@@ -528,7 +528,11 @@ class Player:
                 self.last_error = ""
                 return True
 
-        self.stop()
+        if reset_before_open:
+            self.stop()
+        else:
+            # Keep playlist state when switching items; only restart backend process/window.
+            self._stop_active_backend_only()
         runtime_dir = os.path.join(Config.BASE_DIR, "runtime")
         os.makedirs(runtime_dir, exist_ok=True)
         self.electron_port = self._reserve_port(Config.ELECTRON_CONTROL_HOST, Config.ELECTRON_CONTROL_PORT_BASE)

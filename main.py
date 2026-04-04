@@ -208,6 +208,18 @@ def load_runtime_settings():
             except Exception:
                 continue
             logger.info("Loaded setting %s=%s", key, getattr(Config, attr))
+        nc_enabled_item = db.session.get(SystemSetting, "nextcloud_enabled")
+        nc_url_item = db.session.get(SystemSetting, "nextcloud_url")
+        nc_user_item = db.session.get(SystemSetting, "nextcloud_username")
+        nc_pass_item = db.session.get(SystemSetting, "nextcloud_password")
+        nc_root_item = db.session.get(SystemSetting, "nextcloud_root")
+        Config.NEXTCLOUD_ENABLED = str(
+            nc_enabled_item.value if nc_enabled_item else Config.NEXTCLOUD_ENABLED
+        ).strip().lower() in {"1", "true", "yes", "on"}
+        Config.NEXTCLOUD_URL = str(nc_url_item.value if nc_url_item else Config.NEXTCLOUD_URL).strip()
+        Config.NEXTCLOUD_USERNAME = str(nc_user_item.value if nc_user_item else Config.NEXTCLOUD_USERNAME).strip()
+        Config.NEXTCLOUD_PASSWORD = str(nc_pass_item.value if nc_pass_item else Config.NEXTCLOUD_PASSWORD).strip()
+        Config.NEXTCLOUD_ROOT = str(nc_root_item.value if nc_root_item else Config.NEXTCLOUD_ROOT).strip() or "/"
 
 
 def setup_monitor_capture_job():
