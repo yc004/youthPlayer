@@ -196,12 +196,25 @@ ensureDir(RUNTIME_PROFILE_ROOT);
 ensureDir(path.join(RUNTIME_PROFILE_ROOT, "userData"));
 ensureDir(path.join(RUNTIME_PROFILE_ROOT, "cache"));
 ensureDir(path.join(RUNTIME_PROFILE_ROOT, "gpuCache"));
-app.setPath("userData", path.join(RUNTIME_PROFILE_ROOT, "userData"));
-app.setPath("sessionData", path.join(RUNTIME_PROFILE_ROOT, "userData"));
-app.setPath("cache", path.join(RUNTIME_PROFILE_ROOT, "cache"));
-app.setPath("logs", path.join(RUNTIME_PROFILE_ROOT, "logs"));
-app.commandLine.appendSwitch("disk-cache-dir", path.join(RUNTIME_PROFILE_ROOT, "cache"));
-app.commandLine.appendSwitch("gpu-program-cache-dir", path.join(RUNTIME_PROFILE_ROOT, "gpuCache"));
+
+function safeSetPath(name, targetPath) {
+  try {
+    ensureDir(targetPath);
+    app.setPath(name, targetPath);
+    return true;
+  } catch (_) {
+    return false;
+  }
+}
+
+safeSetPath("userData", path.join(RUNTIME_PROFILE_ROOT, "userData"));
+safeSetPath("cache", path.join(RUNTIME_PROFILE_ROOT, "cache"));
+safeSetPath("logs", path.join(RUNTIME_PROFILE_ROOT, "logs"));
+safeSetPath("sessionData", path.join(RUNTIME_PROFILE_ROOT, "sessionData"));
+try {
+  app.commandLine.appendSwitch("disk-cache-dir", path.join(RUNTIME_PROFILE_ROOT, "cache"));
+  app.commandLine.appendSwitch("gpu-program-cache-dir", path.join(RUNTIME_PROFILE_ROOT, "gpuCache"));
+} catch (_) {}
 
 if (params.ignoreCertificateErrors) {
   app.commandLine.appendSwitch("ignore-certificate-errors");
