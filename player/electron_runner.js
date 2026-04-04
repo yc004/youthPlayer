@@ -19,6 +19,7 @@ function parseArgs() {
     topmost: false,
     windowMode: "fullscreen",
     loop: false,
+    ignoreCertificateErrors: false,
   };
 
   for (let i = 0; i < args.length; i += 1) {
@@ -38,6 +39,7 @@ function parseArgs() {
     if (k === "--height") out.height = Number(v);
     if (k === "--topmost") out.topmost = true;
     if (k === "--loop") out.loop = true;
+    if (k === "--ignore-certificate-errors") out.ignoreCertificateErrors = true;
   }
   return out;
 }
@@ -183,6 +185,10 @@ let currentLoop = Boolean(params.loop);
 const fullscreenWindow = String(params.windowMode || "fullscreen").toLowerCase() !== "custom";
 const TRACE_LOG = path.join(__dirname, "..", "runtime", "electron_trace.log");
 
+if (params.ignoreCertificateErrors) {
+  app.commandLine.appendSwitch("ignore-certificate-errors");
+}
+
 function trace(...args) {
   try {
     const line = `[${new Date().toISOString()}] ${args
@@ -198,6 +204,13 @@ process.on("uncaughtException", (err) => {
 
 process.on("unhandledRejection", (err) => {
   trace("unhandledRejection", String(err && err.stack ? err.stack : err));
+});
+
+app.on("certificate-error", (event, webContents, url, error, certificate, callback) => {
+  if (!params.ignoreCertificateErrors) return;
+  event.preventDefault();
+  trace("certificate-error ignored", { url, error });
+  callback(true);
 });
 
 function writeJson(res, statusCode, payload) {

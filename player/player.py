@@ -497,6 +497,9 @@ class Player:
 
     def _open_web_live_electron(self, url, loop=False, reset_before_open=True):
         mode, bounds = self._resolve_window_rect()
+        ignore_cert_errors = bool(
+            getattr(Config, "NEXTCLOUD_SKIP_SSL_VERIFY", False) and str(url or "").lower().startswith("https://")
+        )
         target_signature = (
             int(self.screen_index),
             str(mode),
@@ -505,6 +508,7 @@ class Player:
             int(bounds["width"]),
             int(bounds["height"]),
             bool(Config.WINDOW_TOPMOST),
+            bool(ignore_cert_errors),
         )
         can_reuse_window = (
             not reset_before_open
@@ -586,6 +590,8 @@ class Player:
             command.append("--topmost")
         if loop:
             command.append("--loop")
+        if ignore_cert_errors:
+            command.append("--ignore-certificate-errors")
 
         try:
             self.electron_process = subprocess.Popen(
