@@ -313,22 +313,29 @@ def _nextcloud_browse(raw_path, cfg=None):
         rel = href_path
         if rel.startswith(dav_base_path):
             rel = rel[len(dav_base_path):]
-        rel = _nextcloud_norm_path(rel)
-        if rel == current_path:
+        abs_remote_path = _nextcloud_norm_path(rel)  # absolute path under /remote.php/dav/files/<user>
+        # Map DAV absolute path to UI-relative path under configured root.
+        if root_path != "/" and abs_remote_path.startswith(root_path + "/"):
+            ui_rel = "/" + abs_remote_path[len(root_path) + 1 :]
+        elif abs_remote_path == root_path:
+            ui_rel = "/"
+        else:
+            ui_rel = abs_remote_path
+        ui_rel = _nextcloud_norm_path(ui_rel)
+        if ui_rel == current_path:
             continue
 
         rt = node.find("d:propstat/d:prop/d:resourcetype", ns)
         is_dir = rt is not None and rt.find("d:collection", ns) is not None
         display = node.find("d:propstat/d:prop/d:displayname", ns)
-        name = (display.text or "").strip() if display is not None and display.text else rel.rstrip("/").split("/")[-1]
+        name = (display.text or "").strip() if display is not None and display.text else ui_rel.rstrip("/").split("/")[-1]
         if not name:
             continue
 
         if is_dir:
-            path_value = rel
+            path_value = ui_rel
         else:
-            full_remote = root_path if rel == "/" else (root_path.rstrip("/") + rel)
-            file_webdav_url = _nextcloud_join_webdav_url(webdav_base, full_remote)
+            file_webdav_url = _nextcloud_join_webdav_url(webdav_base, abs_remote_path)
             path_value = _url_with_basic_auth(file_webdav_url, cfg["username"], cfg["password"])
         entries.append({"name": name, "path": path_value, "is_dir": bool(is_dir)})
 
