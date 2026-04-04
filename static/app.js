@@ -416,6 +416,7 @@
         document.querySelectorAll(".schedule-form").forEach(function (form) {
             var textarea = form.querySelector("textarea[name='playlist_paths']");
             if (!textarea) return;
+            var primaryInput = form.querySelector("input[name='content_path']");
             var field = textarea.closest(".field");
             var list = field && field.querySelector("[data-role='playlist-order-list']");
             if (!list) return;
@@ -427,7 +428,9 @@
             }
 
             function setItems(items) {
-                textarea.value = dedupe(items).join("\n");
+                var normalized = dedupe(items);
+                textarea.value = normalized.join("\n");
+                if (primaryInput) primaryInput.value = normalized[0] || "";
                 textarea.dispatchEvent(new Event("input", { bubbles: true }));
             }
 
@@ -441,6 +444,7 @@
 
             function render() {
                 var items = getItems();
+                if (primaryInput) primaryInput.value = items[0] || "";
                 list.innerHTML = "";
                 if (!items.length) {
                     var empty = document.createElement("div");

@@ -53,32 +53,23 @@
                 <option value="live">网络直播 / 直播页</option>
             </select>
         </label>
+        <input type="hidden" name="content_path" value="">
         <label class="field field-wide">
-            <span>内容地址</span>
-            <div class="path-picker">
-                <input type="text" name="content_path" class="content-path-input" required>
-                {% if has_perm('files.browse') %}
-                <button type="button" class="btn btn-secondary btn-path-browse">浏览...</button>
-                {% endif %}
-            </div>
-        </label>
-        <label class="field field-wide">
-            <span>轮播列表（可选，一行一个）</span>
-            <textarea name="playlist_paths" rows="4"></textarea>
+            <span>播放列表（一行一个，单视频也填这里）</span>
+            <textarea name="playlist_paths" rows="4" required></textarea>
             <div class="playlist-tools">
                 {% if has_perm('files.browse') %}
                 <button type="button" class="btn btn-secondary btn-playlist-import">批量导入视频</button>
                 {% endif %}
-                <small class="field-help">支持拖拽排序；排序结果会自动同步到文本框。</small>
+                <small class="field-help">支持一键导入和拖拽排序；首行会作为默认播放项。</small>
             </div>
             <div class="playlist-order-list" data-role="playlist-order-list"></div>
         </label>
         <label class="field"><span>循环模式</span>
             <select name="loop_mode">
-                <option value="single">单个播放</option>
-                <option value="list_loop">列表循环</option>
+                <option value="once">按列表播放一次</option>
+                <option value="list_loop">列表循环播放</option>
                 <option value="single_loop">单条循环</option>
-                <option value="once">列表播完停止</option>
             </select>
         </label>
         <label class="field"><span>循环次数（0=无限）</span><input type="number" name="loop_count" min="0" value="0"></label>
@@ -159,7 +150,7 @@
 
             <div class="schedule-body">
                 <div class="schedule-meta">
-                    <div><span>内容路径</span><strong>{{ schedule.content_path }}</strong></div>
+                    <div><span>默认播放项</span><strong>{{ (schedule.playlist_items[0] if schedule.playlist_items else schedule.content_path) }}</strong></div>
                     <div><span>当前状态</span><strong>{{ "正在播放" if schedule.is_running_now else "等待/已结束" }}</strong></div>
                 </div>
 
@@ -210,33 +201,24 @@
                             <option value="live" {% if schedule.content_type == 'live' %}selected{% endif %}>网络直播 / 直播页</option>
                         </select>
                     </label>
+                    <input type="hidden" name="content_path" value="{{ schedule.content_path }}">
                     <label class="field field-wide">
-                        <span>内容地址</span>
-                        <div class="path-picker">
-                            <input type="text" name="content_path" class="content-path-input" value="{{ schedule.content_path }}" required>
-                            {% if has_perm('files.browse') %}
-                            <button type="button" class="btn btn-secondary btn-path-browse">浏览...</button>
-                            {% endif %}
-                        </div>
-                    </label>
-                    <label class="field field-wide">
-                        <span>轮播列表（可选，一行一个）</span>
-                        <textarea name="playlist_paths" rows="4">{{ schedule.playlist_paths }}</textarea>
+                        <span>播放列表（一行一个，单视频也填这里）</span>
+                        <textarea name="playlist_paths" rows="4" required>{{ (schedule.playlist_paths if schedule.playlist_paths else schedule.content_path) }}</textarea>
                         <div class="playlist-tools">
                             {% if has_perm('files.browse') %}
                             <button type="button" class="btn btn-secondary btn-playlist-import">批量导入视频</button>
                             {% endif %}
-                            <small class="field-help">支持拖拽排序；排序结果会自动同步到文本框。</small>
+                            <small class="field-help">支持一键导入和拖拽排序；首行会作为默认播放项。</small>
                         </div>
                         <div class="playlist-order-list" data-role="playlist-order-list"></div>
                     </label>
                     <label class="field">
                         <span>循环模式</span>
                         <select name="loop_mode">
-                            <option value="single" {% if schedule.loop_mode == 'single' %}selected{% endif %}>单个播放</option>
-                            <option value="list_loop" {% if schedule.loop_mode == 'list_loop' %}selected{% endif %}>列表循环</option>
+                            <option value="once" {% if schedule.loop_mode in ['once', 'single'] %}selected{% endif %}>按列表播放一次</option>
+                            <option value="list_loop" {% if schedule.loop_mode == 'list_loop' %}selected{% endif %}>列表循环播放</option>
                             <option value="single_loop" {% if schedule.loop_mode == 'single_loop' %}selected{% endif %}>单条循环</option>
-                            <option value="once" {% if schedule.loop_mode == 'once' %}selected{% endif %}>列表播完停止</option>
                         </select>
                     </label>
                     <label class="field">

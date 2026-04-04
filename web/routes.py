@@ -124,7 +124,18 @@ def _parse_weekdays(form):
 
 def _parse_playlist_paths(form):
     raw = (form.get("playlist_paths") or "").replace("\r\n", "\n")
+    primary = (form.get("content_path") or "").strip()
     items = [line.strip() for line in raw.split("\n") if line.strip()]
+    if primary:
+        items.insert(0, primary)
+    deduped = []
+    seen = set()
+    for item in items:
+        if item in seen:
+            continue
+        seen.add(item)
+        deduped.append(item)
+    items = deduped
     return items, "\n".join(items)
 
 
@@ -443,15 +454,20 @@ def _validate_schedule_form(form):
     elif end_time <= start_time:
         raise ValueError("结束时间必须晚于开始时间。")
 
-    loop_mode = (form.get("loop_mode") or "single").strip()
+    loop_mode = (form.get("loop_mode") or "once").strip()
     if loop_mode not in {"single", "list_loop", "single_loop", "once"}:
-        loop_mode = "single"
+        loop_mode = "once"
+    if loop_mode == "single":
+        loop_mode = "once"
     try:
         loop_count = int(form.get("loop_count") or 0)
     except Exception:
         loop_count = 0
     loop_count = max(0, loop_count)
-    _items, playlist_paths = _parse_playlist_paths(form)
+    items, playlist_paths = _parse_playlist_paths(form)
+    if not items:
+        raise ValueError("请至少配置 1 条播放内容。")
+    content_path = items[0]
     window_mode = (form.get("window_mode") or "fullscreen").strip().lower()
     if window_mode not in {"fullscreen", "custom"}:
         window_mode = "fullscreen"
@@ -480,6 +496,7 @@ def _validate_schedule_form(form):
         end_time,
         is_weekly,
         ",".join(str(day) for day in weekdays),
+        content_path,
         loop_mode,
         loop_count,
         playlist_paths,
@@ -501,6 +518,7 @@ def add_schedule():
             end_time,
             is_weekly,
             weekly_days,
+            content_path,
             loop_mode,
             loop_count,
             playlist_paths,
@@ -516,7 +534,7 @@ def add_schedule():
             start_time=start_time,
             end_time=end_time,
             content_type=request.form["content_type"],
-            content_path=request.form["content_path"].strip(),
+            content_path=content_path,
             screen_index=int(request.form["screen_index"]),
             is_active=True,
             is_weekly=is_weekly,
@@ -547,6 +565,7 @@ def update_schedule(schedule_id):
             end_time,
             is_weekly,
             weekly_days,
+            content_path,
             loop_mode,
             loop_count,
             playlist_paths,
@@ -562,7 +581,7 @@ def update_schedule(schedule_id):
             "start_time": start_time,
             "end_time": end_time,
             "content_type": request.form["content_type"],
-            "content_path": request.form["content_path"].strip(),
+            "content_path": content_path,
             "screen_index": int(request.form["screen_index"]),
             "is_active": "is_active" in request.form,
             "is_weekly": is_weekly,
