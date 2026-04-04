@@ -47,6 +47,19 @@
                 <span>Nextcloud 根目录</span>
                 <input type="text" name="nextcloud_root" value="{{ nextcloud_root }}" placeholder="/">
             </label>
+            <div class="field field-wide">
+                <span>Nextcloud 连接测试与云端预览</span>
+                <div class="playlist-tools">
+                    <button type="button" class="btn btn-secondary" data-role="nc-test-btn">测试连接</button>
+                    <button type="button" class="btn btn-secondary" data-role="nc-preview-btn">预览目录</button>
+                    <small class="field-help" data-role="nc-test-result">可直接使用当前输入值测试，无需先保存。</small>
+                </div>
+                <div class="file-browser-path" style="margin-top:8px;">
+                    <input type="text" data-role="nc-preview-path" placeholder="输入云端路径，如 / 或 /videos">
+                    <button type="button" class="btn btn-primary" data-role="nc-preview-open">打开</button>
+                </div>
+                <div class="playlist-order-list" data-role="nc-preview-list"></div>
+            </div>
             <label class="field">
                 <span>屏保图片（jpg/jpeg/png/bmp/webp）</span>
                 <input type="file" name="screensaver_image" accept=".jpg,.jpeg,.png,.bmp,.webp,image/*">

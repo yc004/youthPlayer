@@ -586,6 +586,139 @@
         window.setInterval(refreshMonitorOnly, 5000);
     }
 
+    function initNextcloudSettingsTools() {
+        var testBtn = document.querySelector("[data-role='nc-test-btn']");
+        var previewBtn = document.querySelector("[data-role='nc-preview-btn']");
+        var openBtn = document.querySelector("[data-role='nc-preview-open']");
+        var resultNode = document.querySelector("[data-role='nc-test-result']");
+        var pathNode = document.querySelector("[data-role='nc-preview-path']");
+        var listNode = document.querySelector("[data-role='nc-preview-list']");
+        var urlInput = document.querySelector("input[name='nextcloud_url']");
+        var userInput = document.querySelector("input[name='nextcloud_username']");
+        var passInput = document.querySelector("input[name='nextcloud_password']");
+        var rootInput = document.querySelector("input[name='nextcloud_root']");
+        if (!testBtn || !previewBtn || !openBtn || !resultNode || !pathNode || !listNode) return;
+
+        function currentQuery(extra) {
+            var q = [];
+            var url = (urlInput && urlInput.value || "").trim();
+            var username = (userInput && userInput.value || "").trim();
+            var password = (passInput && passInput.value || "").trim();
+            var root = (rootInput && rootInput.value || "").trim();
+            if (url) q.push("url=" + encodeURIComponent(url));
+            if (username) q.push("username=" + encodeURIComponent(username));
+            if (password) q.push("password=" + encodeURIComponent(password));
+            if (root) q.push("root=" + encodeURIComponent(root));
+            if (extra) q.push(extra);
+            return q.join("&");
+        }
+
+        function renderPreview(payload) {
+            listNode.innerHTML = "";
+            var items = (payload && payload.entries) || [];
+            if (!items.length) {
+                var empty = document.createElement("div");
+                empty.className = "playlist-order-empty";
+                empty.textContent = "No files or folders.";
+                listNode.appendChild(empty);
+                return;
+            }
+
+            items.forEach(function (item) {
+                var row = document.createElement("div");
+                row.className = "playlist-order-item";
+
+                var icon = document.createElement("span");
+                icon.className = "playlist-order-handle";
+                icon.textContent = item.is_dir ? "DIR" : "FILE";
+
+                var text = document.createElement("span");
+                text.className = "playlist-order-path";
+                text.textContent = item.name + (item.is_dir ? "/" : "");
+                text.title = item.path || "";
+
+                var actions = document.createElement("div");
+                actions.className = "playlist-order-actions";
+                if (item.is_dir) {
+                    var open = document.createElement("button");
+                    open.type = "button";
+                    open.className = "btn btn-secondary";
+                    open.textContent = "Open";
+                    open.addEventListener("click", function () {
+                        pathNode.value = item.path || "/";
+                        loadPreview(item.path || "/");
+                    });
+                    actions.appendChild(open);
+                }
+
+                row.appendChild(icon);
+                row.appendChild(text);
+                row.appendChild(actions);
+                listNode.appendChild(row);
+            });
+        }
+
+        function loadPreview(path) {
+            var safePath = (path || "/").trim() || "/";
+            var query = currentQuery("path=" + encodeURIComponent(safePath));
+            var req = new XMLHttpRequest();
+            req.open("GET", "/api/nextcloud/preview?" + query, true);
+            req.onreadystatechange = function () {
+                if (req.readyState !== 4) return;
+                if (req.status !== 200) {
+                    try {
+                        var fail = JSON.parse(req.responseText || "{}");
+                        resultNode.textContent = fail.error || "Preview failed.";
+                    } catch (_err) {
+                        resultNode.textContent = "Preview failed.";
+                    }
+                    return;
+                }
+                try {
+                    var payload = JSON.parse(req.responseText || "{}");
+                    pathNode.value = payload.cwd || safePath;
+                    resultNode.textContent = "Preview loaded: " + (payload.cwd || safePath);
+                    renderPreview(payload);
+                } catch (_err2) {
+                    resultNode.textContent = "Preview parse failed.";
+                }
+            };
+            req.send();
+        }
+
+        testBtn.addEventListener("click", function () {
+            var req = new XMLHttpRequest();
+            var query = currentQuery();
+            req.open("GET", "/api/nextcloud/test" + (query ? "?" + query : ""), true);
+            req.onreadystatechange = function () {
+                if (req.readyState !== 4) return;
+                if (req.status !== 200) {
+                    try {
+                        var fail = JSON.parse(req.responseText || "{}");
+                        resultNode.textContent = fail.error || "Connection test failed.";
+                    } catch (_err) {
+                        resultNode.textContent = "Connection test failed.";
+                    }
+                    return;
+                }
+                try {
+                    var payload = JSON.parse(req.responseText || "{}");
+                    resultNode.textContent = payload.message + " folders=" + payload.folder_count + ", entries=" + payload.entry_count;
+                } catch (_err2) {
+                    resultNode.textContent = "Connection test parse failed.";
+                }
+            };
+            req.send();
+        });
+
+        previewBtn.addEventListener("click", function () {
+            loadPreview(pathNode.value || "/");
+        });
+        openBtn.addEventListener("click", function () {
+            loadPreview(pathNode.value || "/");
+        });
+    }
+
     function extractTimePart(value) {
         if (!value) return "";
         if (value.indexOf("T") >= 0) {
@@ -911,4 +1044,5 @@
     initPlaylistEditor();
     initFileBrowser();
     initMonitorPolling();
+    initNextcloudSettingsTools();
 })();

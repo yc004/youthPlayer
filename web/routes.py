@@ -261,8 +261,8 @@ def _url_with_basic_auth(url, username, password):
     return urlunsplit((parsed.scheme, netloc, parsed.path, parsed.query, parsed.fragment))
 
 
-def _nextcloud_browse(raw_path):
-    cfg = _nextcloud_settings()
+def _nextcloud_browse(raw_path, cfg=None):
+    cfg = cfg or _nextcloud_settings()
     if not cfg["enabled"]:
         raise ValueError("Nextcloud is not enabled.")
     if not cfg["url"] or not cfg["username"] or not cfg["password"]:
@@ -330,6 +330,24 @@ def _nextcloud_browse(raw_path):
     entries.sort(key=lambda x: (not x["is_dir"], x["name"].lower()))
     parent = "/" if current_path in {"", "/"} else (os.path.dirname(current_path.rstrip("/")) or "/")
     return {"ok": True, "source": "nextcloud", "cwd": current_path, "parent": parent, "entries": entries}
+
+
+def _nextcloud_cfg_from_request_args():
+    base = _nextcloud_settings()
+    url = (request.args.get("url") or "").strip()
+    username = (request.args.get("username") or "").strip()
+    password = (request.args.get("password") or "").strip()
+    root = (request.args.get("root") or "").strip()
+    if url:
+        base["url"] = url
+    if username:
+        base["username"] = username
+    if password:
+        base["password"] = password
+    if root:
+        base["root"] = root
+    base["enabled"] = bool(base["url"] and base["username"] and base["password"])
+    return base
 
 
 def _get_setting_bool(key, default=False):
@@ -941,6 +959,65 @@ def legacy_status():
     if not (_has_permission("dashboard.view") or _has_permission("monitor.view")):
         return jsonify({"ok": False, "error": "forbidden"}), 403
     return jsonify(player.get_status())
+
+
+@main.route("/api/nextcloud/test")
+@login_required
+@_permission_required("settings.manage")
+def api_nextcloud_test():
+    cfg = _nextcloud_cfg_from_request_args()
+    try:
+        result = _nextcloud_browse("/", cfg=cfg)
+    except ValueError as exc:
+        return jsonify({"ok": False, "error": str(exc)}), 400
+    except urllib.error.HTTPError as exc:
+        message = f"Nextcloud request failed: HTTP {exc.code}"
+        if exc.code in {401, 403}:
+            message = "Nextcloud authentication failed."
+        return jsonify({"ok": False, "error": message}), 502
+    except Exception as exc:
+        return jsonify({"ok": False, "error": f"Nextcloud request failed: {exc}"}), 502
+
+    entries = result.get("entries") or []
+    folders = [item for item in entries if item.get("is_dir")]
+    return jsonify(
+        {
+            "ok": True,
+            "cwd": result.get("cwd", "/"),
+            "folder_count": len(folders),
+            "entry_count": len(entries),
+            "message": "Nextcloud connection is healthy.",
+        }
+    )
+
+
+@main.route("/api/nextcloud/preview")
+@login_required
+@_permission_required("settings.manage")
+def api_nextcloud_preview():
+    cfg = _nextcloud_cfg_from_request_args()
+    path = (request.args.get("path") or "/").strip() or "/"
+    try:
+        result = _nextcloud_browse(path, cfg=cfg)
+    except ValueError as exc:
+        return jsonify({"ok": False, "error": str(exc)}), 400
+    except urllib.error.HTTPError as exc:
+        message = f"Nextcloud request failed: HTTP {exc.code}"
+        if exc.code in {401, 403}:
+            message = "Nextcloud authentication failed."
+        return jsonify({"ok": False, "error": message}), 502
+    except Exception as exc:
+        return jsonify({"ok": False, "error": f"Nextcloud request failed: {exc}"}), 502
+
+    entries = result.get("entries") or []
+    return jsonify(
+        {
+            "ok": True,
+            "cwd": result.get("cwd", "/"),
+            "parent": result.get("parent", "/"),
+            "entries": entries[:300],
+        }
+    )
 
 
 @main.route("/users")
