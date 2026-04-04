@@ -184,6 +184,24 @@ const params = parseArgs();
 let currentLoop = Boolean(params.loop);
 const fullscreenWindow = String(params.windowMode || "fullscreen").toLowerCase() !== "custom";
 const TRACE_LOG = path.join(__dirname, "..", "runtime", "electron_trace.log");
+const RUNTIME_PROFILE_ROOT = path.join(__dirname, "..", "runtime", "electron_profile");
+
+function ensureDir(dirPath) {
+  try {
+    fs.mkdirSync(dirPath, { recursive: true });
+  } catch (_) {}
+}
+
+ensureDir(RUNTIME_PROFILE_ROOT);
+ensureDir(path.join(RUNTIME_PROFILE_ROOT, "userData"));
+ensureDir(path.join(RUNTIME_PROFILE_ROOT, "cache"));
+ensureDir(path.join(RUNTIME_PROFILE_ROOT, "gpuCache"));
+app.setPath("userData", path.join(RUNTIME_PROFILE_ROOT, "userData"));
+app.setPath("sessionData", path.join(RUNTIME_PROFILE_ROOT, "userData"));
+app.setPath("cache", path.join(RUNTIME_PROFILE_ROOT, "cache"));
+app.setPath("logs", path.join(RUNTIME_PROFILE_ROOT, "logs"));
+app.commandLine.appendSwitch("disk-cache-dir", path.join(RUNTIME_PROFILE_ROOT, "cache"));
+app.commandLine.appendSwitch("gpu-program-cache-dir", path.join(RUNTIME_PROFILE_ROOT, "gpuCache"));
 
 if (params.ignoreCertificateErrors) {
   app.commandLine.appendSwitch("ignore-certificate-errors");

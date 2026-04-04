@@ -293,7 +293,7 @@ class Player:
         if not username or not password:
             self.last_error = "Nextcloud auth missing for cache download."
             logger.error(self.last_error)
-            return text
+            return None
 
         runtime_dir = os.path.join(Config.BASE_DIR, "runtime", "nextcloud_cache")
         os.makedirs(runtime_dir, exist_ok=True)
@@ -313,7 +313,12 @@ class Player:
         ctx = ssl._create_unverified_context() if getattr(Config, "NEXTCLOUD_SKIP_SSL_VERIFY", False) else None
         try:
             with urllib.request.urlopen(req, timeout=120, context=ctx) as resp, open(tmp, "wb") as f:
+                content_type = str(resp.headers.get("Content-Type", "") or "").lower()
+                if "text/html" in content_type or "application/json" in content_type:
+                    raise RuntimeError(f"unexpected content-type: {content_type}")
                 shutil.copyfileobj(resp, f)
+            if not os.path.exists(tmp) or os.path.getsize(tmp) <= 0:
+                raise RuntimeError("empty download")
             os.replace(tmp, target)
             logger.info("Nextcloud cached: %s -> %s", source_url, target)
             return target
@@ -325,10 +330,12 @@ class Player:
                 pass
             self.last_error = f"Nextcloud cache download failed: {exc}"
             logger.error(self.last_error)
-            return text
+            return None
 
     def _open_via_electron(self, source, source_type="media", loop=False, reset_before_open=False):
         source = self._cache_nextcloud_source(source)
+        if source is None:
+            return False
         target_url = self._to_electron_url(source)
         if self._should_use_media_shell(source_type, target_url):
             target_url = self._build_media_shell_url(target_url, loop=loop)
