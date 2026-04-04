@@ -347,11 +347,88 @@
         window.setInterval(refreshMonitorOnly, 5000);
     }
 
+    function extractTimePart(value) {
+        if (!value) return "";
+        if (value.indexOf("T") >= 0) {
+            return value.split("T")[1].slice(0, 5);
+        }
+        return value.slice(0, 5);
+    }
+
+    function todayDatePart() {
+        var now = new Date();
+        var y = now.getFullYear();
+        var m = String(now.getMonth() + 1).padStart(2, "0");
+        var d = String(now.getDate()).padStart(2, "0");
+        return y + "-" + m + "-" + d;
+    }
+
+    function switchToTimeInput(input) {
+        if (!input) return;
+        if (input.value && input.value.indexOf("T") >= 0) {
+            input.dataset.datetimeValue = input.value;
+        }
+        var from = input.value || input.dataset.datetimeValue || "";
+        var timePart = extractTimePart(from);
+        input.type = "time";
+        input.value = timePart;
+    }
+
+    function switchToDatetimeInput(input) {
+        if (!input) return;
+        var previous = input.dataset.datetimeValue || "";
+        if (!input.value && !previous) {
+            input.type = "datetime-local";
+            input.value = "";
+            return;
+        }
+        var timePart = extractTimePart(input.value || previous) || "00:00";
+        var datePart = previous && previous.indexOf("T") >= 0 ? previous.split("T")[0] : todayDatePart();
+        var next = datePart + "T" + timePart;
+        input.type = "datetime-local";
+        input.value = next;
+        input.dataset.datetimeValue = next;
+    }
+
+    function initScheduleWeeklyInputMode() {
+        document.querySelectorAll(".schedule-form").forEach(function (form) {
+            var weeklyToggle = form.querySelector("input[name='is_weekly']");
+            var startInput = form.querySelector("input[name='start_time']");
+            var endInput = form.querySelector("input[name='end_time']");
+            if (!weeklyToggle || !startInput || !endInput) return;
+
+            [startInput, endInput].forEach(function (input) {
+                if (input.type === "datetime-local" && input.value) {
+                    input.dataset.datetimeValue = input.value;
+                }
+                input.addEventListener("change", function () {
+                    if (input.type === "datetime-local" && input.value) {
+                        input.dataset.datetimeValue = input.value;
+                    }
+                });
+            });
+
+            function applyMode() {
+                if (weeklyToggle.checked) {
+                    switchToTimeInput(startInput);
+                    switchToTimeInput(endInput);
+                } else {
+                    switchToDatetimeInput(startInput);
+                    switchToDatetimeInput(endInput);
+                }
+            }
+
+            weeklyToggle.addEventListener("change", applyMode);
+            applyMode();
+        });
+    }
+
     if (document.querySelector("[data-role='player-state']")) {
         refreshStatus();
         window.setInterval(refreshStatus, 10000);
     }
     initGantt();
+    initScheduleWeeklyInputMode();
     initFileBrowser();
     initMonitorPolling();
 })();

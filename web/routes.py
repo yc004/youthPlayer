@@ -31,8 +31,18 @@ def init_routes(player_instance, controller_instance, watchdog_instance):
     watchdog = watchdog_instance
 
 
-def _parse_datetime(value):
-    return datetime.strptime(value, "%Y-%m-%dT%H:%M")
+def _parse_datetime(value, allow_time_only=False):
+    raw = (value or "").strip()
+    if not raw:
+        raise ValueError("时间不能为空。")
+    try:
+        return datetime.strptime(raw, "%Y-%m-%dT%H:%M")
+    except ValueError:
+        if allow_time_only:
+            t = datetime.strptime(raw, "%H:%M").time()
+            now = datetime.now()
+            return datetime(now.year, now.month, now.day, t.hour, t.minute)
+        raise
 
 
 def _parse_weekdays(form):
@@ -334,9 +344,9 @@ def control():
 
 
 def _validate_schedule_form(form):
-    start_time = _parse_datetime(form["start_time"])
-    end_time = _parse_datetime(form["end_time"])
     is_weekly = "is_weekly" in form
+    start_time = _parse_datetime(form["start_time"], allow_time_only=is_weekly)
+    end_time = _parse_datetime(form["end_time"], allow_time_only=is_weekly)
     weekdays = _parse_weekdays(form)
 
     if is_weekly:
