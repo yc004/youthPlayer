@@ -65,6 +65,13 @@
         <label class="field field-wide">
             <span>轮播列表（可选，一行一个）</span>
             <textarea name="playlist_paths" rows="4"></textarea>
+            <div class="playlist-tools">
+                {% if has_perm('files.browse') %}
+                <button type="button" class="btn btn-secondary btn-playlist-import">批量导入视频</button>
+                {% endif %}
+                <small class="field-help">支持拖拽排序；排序结果会自动同步到文本框。</small>
+            </div>
+            <div class="playlist-order-list" data-role="playlist-order-list"></div>
         </label>
         <label class="field"><span>循环模式</span>
             <select name="loop_mode">
@@ -215,6 +222,13 @@
                     <label class="field field-wide">
                         <span>轮播列表（可选，一行一个）</span>
                         <textarea name="playlist_paths" rows="4">{{ schedule.playlist_paths }}</textarea>
+                        <div class="playlist-tools">
+                            {% if has_perm('files.browse') %}
+                            <button type="button" class="btn btn-secondary btn-playlist-import">批量导入视频</button>
+                            {% endif %}
+                            <small class="field-help">支持拖拽排序；排序结果会自动同步到文本框。</small>
+                        </div>
+                        <div class="playlist-order-list" data-role="playlist-order-list"></div>
                     </label>
                     <label class="field">
                         <span>循环模式</span>
@@ -309,6 +323,7 @@
             <button type="button" class="btn btn-secondary" data-role="fb-roots">盘符</button>
             <button type="button" class="btn btn-secondary" data-role="fb-up">上级</button>
             <button type="button" class="btn btn-secondary" data-role="fb-use-dir">使用当前目录</button>
+            <button type="button" class="btn btn-secondary" data-role="fb-import-files" hidden>一键导入本目录视频</button>
         </div>
         <div class="file-browser-path">
             <input type="text" data-role="fb-path-input" placeholder="输入路径并回车">

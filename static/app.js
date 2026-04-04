@@ -22,15 +22,15 @@
                 var active = payload.active_schedule;
                 var monitor = payload.monitor || {};
 
-                setText("[data-role='player-state']", player.is_playing ? "播放中" : "空闲");
-                setText("[data-role='screen-name']", player.screen_name || "未知屏幕");
-                setText("[data-role='current-source']", player.current_source || "暂无播放内容");
+                setText("[data-role='player-state']", player.is_playing ? "Playing" : "Idle");
+                setText("[data-role='screen-name']", player.screen_name || "Unknown screen");
+                setText("[data-role='current-source']", player.current_source || "No source");
                 setText("[data-role='state-detail']", player.state || "Idle");
                 setText("[data-role='backend']", player.backend || "idle");
-                setText("[data-role='last-error']", player.last_error || "无");
+                setText("[data-role='last-error']", player.last_error || "None");
                 setText("[data-role='server-time']", payload.server_time || "--");
-                setText("[data-role='active-schedule']", active ? active.name : "无");
-                setText("[data-role='monitor-time']", monitor.captured_at || "等待截图");
+                setText("[data-role='active-schedule']", active ? active.name : "None");
+                setText("[data-role='monitor-time']", monitor.captured_at || "Waiting capture");
 
                 var monitorImg = document.querySelector("[data-role='monitor-preview']");
                 if (monitorImg && monitor.frame_url) {
@@ -39,7 +39,7 @@
 
                 var badge = document.querySelector("[data-role='play-badge']");
                 if (badge) {
-                    badge.textContent = player.is_playing ? "播放中" : "待机";
+                    badge.textContent = player.is_playing ? "Playing" : "Standby";
                     badge.className = "chip " + (player.is_playing ? "success" : "muted");
                 }
             } catch (_err) {
@@ -72,7 +72,7 @@
 
         var label = document.createElement("div");
         label.className = "gantt-row-label";
-        label.textContent = schedule.name + " (屏幕 " + schedule.screen_index + ")";
+        label.textContent = schedule.name + " (閻忕偛绻愮粻?" + schedule.screen_index + ")";
 
         var lane = document.createElement("div");
         lane.className = "gantt-lane";
@@ -127,7 +127,7 @@
         if (!rows.length) {
             var empty = document.createElement("div");
             empty.className = "empty-state";
-            empty.textContent = "当天没有计划任务。";
+            empty.textContent = "No schedules for this day.";
             board.appendChild(empty);
             return;
         }
@@ -204,18 +204,61 @@
         var listNode = backdrop.querySelector("[data-role='fb-list']");
         var cwdNode = backdrop.querySelector("[data-role='fb-cwd']");
         var pathInput = backdrop.querySelector("[data-role='fb-path-input']");
+        var importBtn = backdrop.querySelector("[data-role='fb-import-files']");
         var currentPath = "";
         var currentParent = "";
+        var currentEntries = [];
         var activeInput = null;
+        var activeMode = "single";
+
+        function parseLines(text) {
+            return String(text || "")
+                .replace(/\r\n/g, "\n")
+                .split("\n")
+                .map(function (line) { return line.trim(); })
+                .filter(Boolean);
+        }
+
+        function normalizeLines(lines) {
+            var out = [];
+            var seen = {};
+            lines.forEach(function (line) {
+                var key = String(line || "").trim();
+                if (!key || seen[key]) return;
+                seen[key] = true;
+                out.push(key);
+            });
+            return out;
+        }
+
+        function setPlaylistValue(input, lines) {
+            if (!input) return;
+            input.value = normalizeLines(lines).join("\n");
+            input.dispatchEvent(new Event("input", { bubbles: true }));
+        }
+
+        function appendPlaylistItems(input, paths) {
+            if (!input || !paths || !paths.length) return;
+            var merged = parseLines(input.value).concat(paths);
+            setPlaylistValue(input, merged);
+        }
+
+        function isLikelyVideoPath(path) {
+            return /\.(mp4|mkv|avi|mov|wmv|flv|m3u8|ts|webm|mpg|mpeg)$/i.test(String(path || ""));
+        }
 
         function closeBrowser() {
             backdrop.hidden = true;
             activeInput = null;
+            activeMode = "single";
+            if (importBtn) importBtn.hidden = true;
         }
 
-        function openBrowser(input) {
+        function openBrowser(input, mode) {
             activeInput = input;
+            activeMode = mode || "single";
             backdrop.hidden = false;
+            if (importBtn) importBtn.hidden = activeMode !== "playlist";
             loadPath(input.value || "");
         }
 
@@ -224,7 +267,7 @@
             if (!entries.length) {
                 var empty = document.createElement("div");
                 empty.className = "empty-state";
-                empty.textContent = "目录为空";
+                empty.textContent = "Empty directory";
                 listNode.appendChild(empty);
                 return;
             }
@@ -234,19 +277,23 @@
 
                 var label = document.createElement("span");
                 label.className = "fb-name" + (item.is_dir ? " dir" : " file");
-                label.textContent = (item.is_dir ? "📁 " : "📄 ") + item.name;
+                label.textContent = (item.is_dir ? "[DIR] " : "[FILE] ") + item.name;
                 label.title = item.path;
 
                 var action = document.createElement("button");
                 action.type = "button";
                 action.className = "btn btn-secondary";
-                action.textContent = item.is_dir ? "打开" : "选择";
+                action.textContent = item.is_dir ? "Open" : (activeMode === "playlist" ? "Add" : "Select");
                 action.addEventListener("click", function () {
                     if (item.is_dir) {
                         loadPath(item.path);
                     } else if (activeInput) {
-                        activeInput.value = item.path;
-                        closeBrowser();
+                        if (activeMode === "playlist") {
+                            appendPlaylistItems(activeInput, [item.path]);
+                        } else {
+                            activeInput.value = item.path;
+                            closeBrowser();
+                        }
                     }
                 });
 
@@ -266,18 +313,19 @@
             request.onreadystatechange = function () {
                 if (request.readyState !== 4) return;
                 if (request.status !== 200) {
-                    listNode.innerHTML = "<div class='empty-state'>路径访问失败</div>";
+                    listNode.innerHTML = "<div class='empty-state'>Path access failed</div>";
                     return;
                 }
                 try {
                     var payload = JSON.parse(request.responseText);
                     currentPath = payload.cwd || "";
                     currentParent = payload.parent || "";
+                    currentEntries = payload.entries || [];
                     pathInput.value = currentPath;
-                    cwdNode.textContent = "当前位置：" + (currentPath || "盘符列表");
-                    renderEntries(payload.entries || []);
+                    cwdNode.textContent = "Current path: " + (currentPath || "drives");
+                    renderEntries(currentEntries);
                 } catch (_err) {
-                    listNode.innerHTML = "<div class='empty-state'>数据解析失败</div>";
+                    listNode.innerHTML = "<div class='empty-state'>Data parse failed</div>";
                 }
             };
             request.send();
@@ -285,8 +333,16 @@
 
         document.querySelectorAll(".btn-path-browse").forEach(function (btn) {
             btn.addEventListener("click", function () {
-                var input = btn.closest(".path-picker").querySelector(".content-path-input");
-                if (input) openBrowser(input);
+                var picker = btn.closest(".path-picker");
+                var input = picker && picker.querySelector(".content-path-input");
+                if (input) openBrowser(input, "single");
+            });
+        });
+        document.querySelectorAll(".btn-playlist-import").forEach(function (btn) {
+            btn.addEventListener("click", function () {
+                var field = btn.closest(".field");
+                var input = field && field.querySelector("textarea[name='playlist_paths']");
+                if (input) openBrowser(input, "playlist");
             });
         });
 
@@ -306,10 +362,26 @@
         });
         backdrop.querySelector("[data-role='fb-use-dir']").addEventListener("click", function () {
             if (activeInput) {
-                activeInput.value = currentPath;
-                closeBrowser();
+                if (activeMode === "playlist") {
+                    var allVideos = currentEntries
+                        .filter(function (item) { return !item.is_dir && isLikelyVideoPath(item.path); })
+                        .map(function (item) { return item.path; });
+                    appendPlaylistItems(activeInput, allVideos);
+                } else {
+                    activeInput.value = currentPath;
+                    closeBrowser();
+                }
             }
         });
+        if (importBtn) {
+            importBtn.addEventListener("click", function () {
+                if (!activeInput || activeMode !== "playlist") return;
+                var allVideos = currentEntries
+                    .filter(function (item) { return !item.is_dir && isLikelyVideoPath(item.path); })
+                    .map(function (item) { return item.path; });
+                appendPlaylistItems(activeInput, allVideos);
+            });
+        }
         pathInput.addEventListener("keydown", function (e) {
             if (e.key === "Enter") {
                 e.preventDefault();
@@ -318,6 +390,155 @@
         });
         backdrop.addEventListener("click", function (e) {
             if (e.target === backdrop) closeBrowser();
+        });
+    }
+
+    function initPlaylistEditor() {
+        function parseLines(text) {
+            return String(text || "")
+                .replace(/\r\n/g, "\n")
+                .split("\n")
+                .map(function (line) { return line.trim(); })
+                .filter(Boolean);
+        }
+
+        function dedupe(lines) {
+            var out = [];
+            var seen = {};
+            lines.forEach(function (line) {
+                if (!line || seen[line]) return;
+                seen[line] = true;
+                out.push(line);
+            });
+            return out;
+        }
+
+        document.querySelectorAll(".schedule-form").forEach(function (form) {
+            var textarea = form.querySelector("textarea[name='playlist_paths']");
+            if (!textarea) return;
+            var field = textarea.closest(".field");
+            var list = field && field.querySelector("[data-role='playlist-order-list']");
+            if (!list) return;
+
+            var dragIndex = -1;
+
+            function getItems() {
+                return dedupe(parseLines(textarea.value));
+            }
+
+            function setItems(items) {
+                textarea.value = dedupe(items).join("\n");
+                textarea.dispatchEvent(new Event("input", { bubbles: true }));
+            }
+
+            function moveItem(items, from, to) {
+                if (from === to || from < 0 || to < 0 || from >= items.length || to >= items.length) return items;
+                var next = items.slice();
+                var moved = next.splice(from, 1)[0];
+                next.splice(to, 0, moved);
+                return next;
+            }
+
+            function render() {
+                var items = getItems();
+                list.innerHTML = "";
+                if (!items.length) {
+                    var empty = document.createElement("div");
+                    empty.className = "playlist-order-empty";
+                    empty.textContent = "No playlist items yet.";
+                    list.appendChild(empty);
+                    return;
+                }
+                items.forEach(function (path, index) {
+                    var row = document.createElement("div");
+                    row.className = "playlist-order-item";
+                    row.draggable = true;
+                    row.dataset.index = String(index);
+
+                    var handle = document.createElement("span");
+                    handle.className = "playlist-order-handle";
+                    handle.textContent = "drag";
+
+                    var text = document.createElement("span");
+                    text.className = "playlist-order-path";
+                    text.textContent = path;
+                    text.title = path;
+
+                    var actions = document.createElement("div");
+                    actions.className = "playlist-order-actions";
+
+                    var upBtn = document.createElement("button");
+                    upBtn.type = "button";
+                    upBtn.className = "btn btn-secondary";
+                    upBtn.dataset.action = "up";
+                    upBtn.dataset.index = String(index);
+                    upBtn.textContent = "Up";
+
+                    var downBtn = document.createElement("button");
+                    downBtn.type = "button";
+                    downBtn.className = "btn btn-secondary";
+                    downBtn.dataset.action = "down";
+                    downBtn.dataset.index = String(index);
+                    downBtn.textContent = "Down";
+
+                    var removeBtn = document.createElement("button");
+                    removeBtn.type = "button";
+                    removeBtn.className = "btn btn-danger";
+                    removeBtn.dataset.action = "remove";
+                    removeBtn.dataset.index = String(index);
+                    removeBtn.textContent = "Remove";
+
+                    actions.appendChild(upBtn);
+                    actions.appendChild(downBtn);
+                    actions.appendChild(removeBtn);
+                    row.appendChild(handle);
+                    row.appendChild(text);
+                    row.appendChild(actions);
+
+                    row.addEventListener("dragstart", function () {
+                        dragIndex = index;
+                        row.classList.add("dragging");
+                    });
+                    row.addEventListener("dragend", function () {
+                        dragIndex = -1;
+                        row.classList.remove("dragging");
+                    });
+                    row.addEventListener("dragover", function (ev) {
+                        ev.preventDefault();
+                    });
+                    row.addEventListener("drop", function (ev) {
+                        ev.preventDefault();
+                        if (dragIndex < 0) return;
+                        var dropIndex = Number(row.dataset.index);
+                        setItems(moveItem(getItems(), dragIndex, dropIndex));
+                    });
+
+                    list.appendChild(row);
+                });
+            }
+
+            list.addEventListener("click", function (ev) {
+                var btn = ev.target.closest("button[data-action]");
+                if (!btn) return;
+                var action = btn.dataset.action;
+                var index = Number(btn.dataset.index);
+                var items = getItems();
+                if (action === "remove") {
+                    items.splice(index, 1);
+                    setItems(items);
+                    return;
+                }
+                if (action === "up") {
+                    setItems(moveItem(items, index, Math.max(0, index - 1)));
+                    return;
+                }
+                if (action === "down") {
+                    setItems(moveItem(items, index, Math.min(items.length - 1, index + 1)));
+                }
+            });
+
+            textarea.addEventListener("input", render);
+            render();
         });
     }
 
@@ -330,7 +551,7 @@
             if (request.readyState !== 4 || request.status !== 200) return;
             try {
                 var payload = JSON.parse(request.responseText);
-                setText("[data-role='monitor-time']", payload.captured_at || "等待截图");
+                setText("[data-role='monitor-time']", payload.captured_at || "Waiting capture");
                 if (payload.frame_url) {
                     monitorImg.src = payload.frame_url + "?t=" + Date.now();
                 }
@@ -621,6 +842,7 @@
     initGantt();
     initScheduleWeeklyInputMode();
     initScheduleWindowInputMode();
+    initPlaylistEditor();
     initFileBrowser();
     initMonitorPolling();
 })();

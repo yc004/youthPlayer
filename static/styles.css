@@ -762,6 +762,74 @@
         display: block;
     }
 
+    .playlist-tools {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px 12px;
+        align-items: center;
+        margin-top: 8px;
+    }
+
+    .playlist-order-list {
+        margin-top: 8px;
+        border: 1px solid #dbe4f0;
+        border-radius: 10px;
+        background: #f8fbff;
+        min-height: 44px;
+        max-height: 220px;
+        overflow: auto;
+    }
+
+    .playlist-order-empty {
+        color: #64748b;
+        padding: 10px 12px;
+        font-size: 13px;
+    }
+
+    .playlist-order-item {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        gap: 10px;
+        align-items: center;
+        padding: 8px 10px;
+        border-bottom: 1px dashed #d9e3f3;
+        background: #fff;
+    }
+
+    .playlist-order-item:last-child {
+        border-bottom: none;
+    }
+
+    .playlist-order-item.dragging {
+        opacity: 0.5;
+    }
+
+    .playlist-order-handle {
+        cursor: grab;
+        color: #64748b;
+        font-size: 12px;
+        user-select: none;
+    }
+
+    .playlist-order-path {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-size: 13px;
+        color: #0f172a;
+    }
+
+    .playlist-order-actions {
+        display: flex;
+        gap: 6px;
+    }
+
+    .playlist-order-actions .btn {
+        padding: 4px 8px;
+        min-height: unset;
+        font-size: 12px;
+    }
+
     @media (max-width: 980px) {
         .stats-grid,
         .layout-grid,
