@@ -216,7 +216,16 @@ const params = parseArgs();
 let currentLoop = Boolean(params.loop);
 const fullscreenWindow = String(params.windowMode || "fullscreen").toLowerCase() !== "custom";
 const TRACE_LOG = path.join(__dirname, "..", "runtime", "electron_trace.log");
-const RUNTIME_PROFILE_ROOT = path.join(__dirname, "..", "runtime", "electron_profile");
+const PROFILE_BASE_ROOT = path.join(__dirname, "..", "runtime", "electron_profile");
+
+function safeSegment(value, fallback) {
+  const text = String(value == null ? "" : value).trim();
+  const normalized = text.replace(/[^a-zA-Z0-9_.-]+/g, "_").replace(/^_+|_+$/g, "");
+  return normalized || fallback;
+}
+
+const profileSegment = `inst_${safeSegment(params.port, "port")}_${safeSegment(params.screenIndex, "screen")}`;
+const RUNTIME_PROFILE_ROOT = path.join(PROFILE_BASE_ROOT, profileSegment);
 
 function ensureDir(dirPath) {
   try {
@@ -268,6 +277,8 @@ process.on("uncaughtException", (err) => {
 process.on("unhandledRejection", (err) => {
   trace("unhandledRejection", String(err && err.stack ? err.stack : err));
 });
+
+trace("profile.root", RUNTIME_PROFILE_ROOT);
 
 app.on("certificate-error", (event, webContents, url, error, certificate, callback) => {
   if (!params.ignoreCertificateErrors) return;

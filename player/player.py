@@ -62,6 +62,9 @@ class Player:
         self.electron_log_handle = None
         self.browser_command = []
         self.electron_window_signature = None
+        self.electron_backoff_target = ""
+        self.electron_backoff_failures = 0
+        self.electron_backoff_until = 0.0
 
         self.last_error = ""
         self.last_started_at = None
@@ -782,7 +785,59 @@ class Player:
             return False
         return url.startswith(("http://", "https://")) and any(h in url.lower() for h in WEBPAGE_HINTS)
 
+    def _electron_backoff_key(self, url):
+        if getattr(Config, "ELECTRON_RESTART_BACKOFF_PER_TARGET", True):
+            return str(url or "")
+        return "__global__"
+
+    def _next_electron_backoff_delay(self):
+        base = float(getattr(Config, "ELECTRON_RESTART_BACKOFF_BASE", 2.0) or 2.0)
+        cap = float(getattr(Config, "ELECTRON_RESTART_BACKOFF_MAX", 120.0) or 120.0)
+        base = max(0.5, base)
+        cap = max(base, cap)
+        exp = max(0, int(self.electron_backoff_failures) - 1)
+        return min(cap, base * (2 ** exp))
+
+    def _electron_backoff_blocked(self, url):
+        now = time.time()
+        key = self._electron_backoff_key(url)
+        return self.electron_backoff_target == key and now < float(self.electron_backoff_until or 0.0)
+
+    def _electron_backoff_record_failure(self, url, reason=""):
+        key = self._electron_backoff_key(url)
+        if self.electron_backoff_target != key:
+            self.electron_backoff_target = key
+            self.electron_backoff_failures = 0
+            self.electron_backoff_until = 0.0
+        self.electron_backoff_failures += 1
+        delay = self._next_electron_backoff_delay()
+        self.electron_backoff_until = time.time() + delay
+        logger.warning(
+            "Electron launch backoff enabled: target=%s failures=%s delay=%.1fs reason=%s",
+            key,
+            self.electron_backoff_failures,
+            delay,
+            reason or "<none>",
+        )
+
+    def _electron_backoff_reset(self):
+        self.electron_backoff_target = ""
+        self.electron_backoff_failures = 0
+        self.electron_backoff_until = 0.0
+
     def _open_web_live_electron(self, url, loop=False, reset_before_open=True):
+        if self._electron_backoff_blocked(url):
+            wait_seconds = max(0.0, float(self.electron_backoff_until or 0.0) - time.time())
+            self.last_error = (
+                f"Electron restart is backing off ({wait_seconds:.1f}s remaining)."
+            )
+            logger.warning(
+                "Skip Electron relaunch due to backoff: wait=%.1fs target=%s",
+                wait_seconds,
+                self._electron_backoff_key(url),
+            )
+            return False
+
         mode, bounds = self._resolve_window_rect()
         ignore_cert_errors = bool(
             getattr(Config, "NEXTCLOUD_SKIP_SSL_VERIFY", False) and str(url or "").lower().startswith("https://")
@@ -841,8 +896,10 @@ class Player:
                 "Please install Electron globally or set YP_ELECTRON_BIN."
             )
             logger.error(self.last_error)
+            self._electron_backoff_record_failure(url, reason=self.last_error)
             return False
         if not self._validate_electron_bin(electron_bin):
+            self._electron_backoff_record_failure(url, reason=self.last_error or "electron_bin_validation_failed")
             return False
 
         runner_path = os.path.join(os.path.dirname(__file__), "electron_runner.js")
@@ -899,12 +956,14 @@ class Player:
             self.last_started_at = time.time()
             self.last_error = ""
             self.electron_window_signature = target_signature
+            self._electron_backoff_reset()
             self._sync_guard_processes_locked()
             logger.info("Web live opened via Electron: %s", url)
             return True
         except Exception as exc:
             self.last_error = str(exc)
             logger.error("Electron open failed: %s", exc)
+            self._electron_backoff_record_failure(url, reason=str(exc))
             self._stop_electron_process()
             return False
 
