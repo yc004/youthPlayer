@@ -60,6 +60,7 @@
         var listNode = document.querySelector("[data-role='monitor-play-count-list']");
         var positionNode = document.querySelector("[data-role='monitor-video-position']");
         var countNode = document.querySelector("[data-role='monitor-video-play-count']");
+        var progressNode = document.querySelector("[data-role='monitor-video-progress']");
 
         var scheduleName = active && active.name ? active.name : "无活动任务";
         scheduleNode.textContent = scheduleName;
@@ -76,6 +77,9 @@
         var counts = Array.isArray(player.playlist_play_counts) ? player.playlist_play_counts : [];
         var currentCount = (index >= 0 && index < counts.length) ? Number(counts[index] || 0) : 0;
         if (countNode) countNode.textContent = size > 0 ? String(currentCount) : "-";
+        if (progressNode) {
+            progressNode.textContent = formatProgressText(player && player.playback_progress);
+        }
 
         if (!listNode) return;
         listNode.innerHTML = "";
@@ -90,6 +94,7 @@
         for (var i = 0; i < size; i += 1) {
             var row = document.createElement("div");
             row.className = "playlist-order-item";
+            if (i === index && size > 0) row.className += " is-current";
 
             var seq = document.createElement("span");
             seq.className = "playlist-order-handle";
@@ -110,6 +115,28 @@
             row.appendChild(stat);
             listNode.appendChild(row);
         }
+    }
+
+    function formatProgressText(progress) {
+        var p = progress || {};
+        var current = Number(p.current_seconds || 0);
+        var duration = Number(p.duration_seconds || 0);
+        var percent = Number(p.progress_percent || 0);
+        if (!isFinite(current) || current < 0) current = 0;
+        if (!isFinite(duration) || duration < 0) duration = 0;
+        if (!isFinite(percent) || percent < 0) percent = 0;
+        if (percent > 100) percent = 100;
+        if (duration <= 0) return "未知";
+        return secondsToClock(current) + " / " + secondsToClock(duration) + " (" + percent.toFixed(1) + "%)";
+    }
+
+    function secondsToClock(seconds) {
+        var s = Math.max(0, Math.floor(Number(seconds) || 0));
+        var h = Math.floor(s / 3600);
+        var m = Math.floor((s % 3600) / 60);
+        var sec = s % 60;
+        if (h > 0) return String(h).padStart(2, "0") + ":" + String(m).padStart(2, "0") + ":" + String(sec).padStart(2, "0");
+        return String(m).padStart(2, "0") + ":" + String(sec).padStart(2, "0");
     }
 
     function displayVideoName(raw) {

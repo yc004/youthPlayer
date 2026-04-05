@@ -847,6 +847,35 @@ class Player:
             return False
         return all_ended and not any_playing
 
+    def _electron_media_progress(self):
+        if not self.electron_process or self.electron_process.poll() is not None:
+            return None
+        status = self._electron_request_json("GET", "/probe/media_progress", ignore_error=True) or {}
+        if not status.get("ok"):
+            return None
+        media = status.get("status") or {}
+        videos = int(media.get("videos", 0) or 0)
+        if videos <= 0:
+            return None
+        try:
+            current_time = float(media.get("current_time", 0) or 0)
+        except Exception:
+            current_time = 0.0
+        try:
+            duration = float(media.get("duration", 0) or 0)
+        except Exception:
+            duration = 0.0
+        try:
+            progress = float(media.get("progress", 0) or 0)
+        except Exception:
+            progress = 0.0
+        progress = max(0.0, min(100.0, progress))
+        return {
+            "current_seconds": max(0.0, current_time),
+            "duration_seconds": max(0.0, duration),
+            "progress_percent": progress,
+        }
+
     def inject_web_play(self):
         if self.current_backend != "electron":
             self.last_error = "Current backend is not Electron."
@@ -968,13 +997,39 @@ class Player:
     def get_status(self):
         state_label = "Idle"
         is_playing = False
+        playback_progress = {
+            "current_seconds": 0.0,
+            "duration_seconds": 0.0,
+            "progress_percent": 0.0,
+        }
         if self.current_backend == "electron":
             state_label = "ElectronPlayback"
             is_playing = self.electron_process is not None and self.electron_process.poll() is None
+            progress = self._electron_media_progress()
+            if progress:
+                playback_progress = progress
         elif self.player and vlc is not None:
             state = self.player.get_state()
             state_label = str(state)
             is_playing = state == vlc.State.Playing
+            try:
+                current_ms = float(self.player.get_time() or 0)
+            except Exception:
+                current_ms = 0.0
+            try:
+                duration_ms = float(self.player.get_length() or 0)
+            except Exception:
+                duration_ms = 0.0
+            current_seconds = max(0.0, current_ms / 1000.0)
+            duration_seconds = max(0.0, duration_ms / 1000.0)
+            progress_percent = 0.0
+            if duration_seconds > 0:
+                progress_percent = max(0.0, min(100.0, (current_seconds / duration_seconds) * 100.0))
+            playback_progress = {
+                "current_seconds": current_seconds,
+                "duration_seconds": duration_seconds,
+                "progress_percent": progress_percent,
+            }
 
         return {
             "state": state_label,
@@ -996,6 +1051,7 @@ class Player:
             "playlist_backend": self.playlist_backend,
             "playlist_current_item": self.playlist_current_item,
             "playlist_play_counts": list(self.playlist_play_counts),
+            "playback_progress": playback_progress,
             "monitor_last_capture_at": self.monitor_last_capture_at,
         }
 

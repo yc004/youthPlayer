@@ -830,6 +830,11 @@
         opacity: 0.5;
     }
 
+    .playlist-order-item.is-current {
+        border-left: 3px solid #2563eb;
+        background: #eaf2ff;
+    }
+
     .playlist-order-handle {
         cursor: grab;
         color: #64748b;

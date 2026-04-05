@@ -178,6 +178,38 @@ const SCRIPT_MEDIA_STATUS = `
 })();
 `;
 
+const SCRIPT_MEDIA_PROGRESS = `
+(() => {
+  const v = document.querySelector("video");
+  if (!v) {
+    return {
+      videos: 0,
+      current_time: 0,
+      duration: 0,
+      progress: 0,
+      paused: true,
+      ended: false,
+    };
+  }
+  let duration = Number(v.duration || 0);
+  if (!isFinite(duration) || duration < 0) duration = 0;
+  let currentTime = Number(v.currentTime || 0);
+  if (!isFinite(currentTime) || currentTime < 0) currentTime = 0;
+  let progress = 0;
+  if (duration > 0) {
+    progress = Math.max(0, Math.min(100, (currentTime / duration) * 100));
+  }
+  return {
+    videos: 1,
+    current_time: currentTime,
+    duration: duration,
+    progress: progress,
+    paused: Boolean(v.paused),
+    ended: Boolean(v.ended),
+  };
+})();
+`;
+
 let mainWindow = null;
 let controlServer = null;
 const params = parseArgs();
@@ -279,6 +311,19 @@ function createControlServer() {
       }
       try {
         const out = await mainWindow.webContents.executeJavaScript(SCRIPT_MEDIA_STATUS, true);
+        writeJson(res, 200, { ok: true, status: out || {} });
+      } catch (err) {
+        writeJson(res, 500, { ok: false, error: String(err) });
+      }
+      return;
+    }
+    if (req.method === "GET" && route === "/probe/media_progress") {
+      if (!mainWindow || mainWindow.isDestroyed()) {
+        writeJson(res, 500, { ok: false, error: "window_not_ready" });
+        return;
+      }
+      try {
+        const out = await mainWindow.webContents.executeJavaScript(SCRIPT_MEDIA_PROGRESS, true);
         writeJson(res, 200, { ok: true, status: out || {} });
       } catch (err) {
         writeJson(res, 500, { ok: false, error: String(err) });
