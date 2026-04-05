@@ -75,6 +75,8 @@ class Player:
         self.playlist_backend = "vlc"
         self.playlist_source_type = "playlist"
         self.playlist_native_repeat = None
+        self.playlist_play_counts = []
+        self.playlist_current_item = None
         self._playlist_stop_event = threading.Event()
         self._playlist_thread = None
         self.monitor_last_capture_at = None
@@ -473,27 +475,23 @@ class Player:
             self.playlist_backend = "electron"
             self.playlist_source_type = source_type or "playlist"
             self.playlist_native_repeat = None
+            self.playlist_play_counts = [0 for _ in self.playlist_items]
+            self.playlist_current_item = self.playlist_items[0] if self.playlist_items else None
             self._playlist_stop_event.clear()
 
-            if len(self.playlist_items) == 1 and self.playlist_mode in {"single_loop", "list_loop"}:
-                if self.playlist_loop_count == 0:
-                    self.playlist_native_repeat = -1
-                else:
-                    self.playlist_native_repeat = max(0, self.playlist_loop_count - 1)
-
             first = self.playlist_items[0]
-            should_loop = len(self.playlist_items) == 1 and self.playlist_mode in {"list_loop", "single_loop"} and (
-                self.playlist_loop_count == 0 or self.playlist_loop_count > 1
-            )
             ok = self._open_via_electron(
                 first,
                 source_type=source_type,
-                loop=should_loop,
+                loop=False,
                 reset_before_open=False,
             )
             if not ok:
                 self.playlist_items = []
+                self.playlist_play_counts = []
+                self.playlist_current_item = None
                 return False
+            self.playlist_play_counts[0] += 1
 
             self._playlist_thread = threading.Thread(target=self._playlist_worker, daemon=True)
             self._playlist_thread.start()
@@ -567,14 +565,21 @@ class Player:
 
         self.playlist_index = next_index
         source = self.playlist_items[self.playlist_index]
+        self.playlist_current_item = source
         if self.playlist_backend == "electron":
-            return self._open_via_electron(
+            ok = self._open_via_electron(
                 source,
                 source_type=self.playlist_source_type or "playlist",
                 loop=False,
                 reset_before_open=False,
             )
-        return self._play_vlc_media_internal(source, source_type="playlist", reset_before_play=False)
+            if ok and self.playlist_index < len(self.playlist_play_counts):
+                self.playlist_play_counts[self.playlist_index] += 1
+            return ok
+        ok = self._play_vlc_media_internal(source, source_type="playlist", reset_before_play=False)
+        if ok and self.playlist_index < len(self.playlist_play_counts):
+            self.playlist_play_counts[self.playlist_index] += 1
+        return ok
 
     def _should_use_browser(self, url):
         parsed = urlparse(url)
@@ -875,6 +880,8 @@ class Player:
                 self.playlist_backend = "vlc"
                 self.playlist_source_type = "playlist"
                 self.playlist_native_repeat = None
+                self.playlist_play_counts = []
+                self.playlist_current_item = None
                 self._stop_active_backend_only()
                 logger.info("Playback stopped.")
                 return True
@@ -987,6 +994,8 @@ class Player:
             "playlist_loop_count": self.playlist_loop_count,
             "playlist_round": self.playlist_round,
             "playlist_backend": self.playlist_backend,
+            "playlist_current_item": self.playlist_current_item,
+            "playlist_play_counts": list(self.playlist_play_counts),
             "monitor_last_capture_at": self.monitor_last_capture_at,
         }
 

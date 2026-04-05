@@ -42,11 +42,74 @@
                     badge.textContent = player.is_playing ? "Playing" : "Standby";
                     badge.className = "chip " + (player.is_playing ? "success" : "muted");
                 }
+
+                renderMonitorPlayback(payload);
             } catch (_err) {
                 // ignore
             }
         };
         request.send();
+    }
+
+    function renderMonitorPlayback(payload) {
+        var scheduleNode = document.querySelector("[data-role='monitor-active-schedule']");
+        if (!scheduleNode) return;
+
+        var active = payload && payload.active_schedule ? payload.active_schedule : null;
+        var player = payload && payload.player ? payload.player : {};
+        var listNode = document.querySelector("[data-role='monitor-play-count-list']");
+        var positionNode = document.querySelector("[data-role='monitor-video-position']");
+        var countNode = document.querySelector("[data-role='monitor-video-play-count']");
+
+        var scheduleName = active && active.name ? active.name : "无活动任务";
+        scheduleNode.textContent = scheduleName;
+
+        var items = active && Array.isArray(active.playlist_items) ? active.playlist_items : [];
+        var size = Number(player.playlist_size || 0);
+        if (items.length > size) size = items.length;
+
+        var index = Number(player.playlist_index || 0);
+        if (!isFinite(index) || index < 0) index = 0;
+        var positionText = size > 0 ? (index + 1) + " / " + size : "-";
+        if (positionNode) positionNode.textContent = positionText;
+
+        var counts = Array.isArray(player.playlist_play_counts) ? player.playlist_play_counts : [];
+        var currentCount = (index >= 0 && index < counts.length) ? Number(counts[index] || 0) : 0;
+        if (countNode) countNode.textContent = size > 0 ? String(currentCount) : "-";
+
+        if (!listNode) return;
+        listNode.innerHTML = "";
+        if (!size) {
+            var empty = document.createElement("div");
+            empty.className = "playlist-order-empty";
+            empty.textContent = "当前没有播放列表。";
+            listNode.appendChild(empty);
+            return;
+        }
+
+        for (var i = 0; i < size; i += 1) {
+            var row = document.createElement("div");
+            row.className = "playlist-order-item";
+
+            var seq = document.createElement("span");
+            seq.className = "playlist-order-handle";
+            seq.textContent = "#" + String(i + 1);
+
+            var path = document.createElement("span");
+            path.className = "playlist-order-path";
+            var raw = items[i] || "";
+            path.textContent = raw || ("视频 " + String(i + 1));
+            path.title = raw || "";
+
+            var stat = document.createElement("span");
+            stat.className = "chip info";
+            stat.textContent = "已播 " + String(Number(counts[i] || 0)) + " 次";
+
+            row.appendChild(seq);
+            row.appendChild(path);
+            row.appendChild(stat);
+            listNode.appendChild(row);
+        }
     }
 
     function minutesToText(minutes) {
@@ -581,9 +644,9 @@
     }
 
     function initMonitorPolling() {
-        if (!document.querySelector("[data-role='monitor-preview']")) return;
-        refreshMonitorOnly();
-        window.setInterval(refreshMonitorOnly, 5000);
+        if (!document.querySelector("[data-role='monitor-active-schedule']")) return;
+        refreshStatus();
+        window.setInterval(refreshStatus, 5000);
     }
 
     function initNextcloudSettingsTools() {

@@ -960,6 +960,7 @@ def api_status():
                     "window_top": active_schedule.window_top,
                     "window_width": active_schedule.window_width,
                     "window_height": active_schedule.window_height,
+                    "playlist_items": active_schedule.playlist_items,
                 }
                 if active_schedule
                 else None

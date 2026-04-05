@@ -30,6 +30,21 @@
     </div>
 </section>
 
+<section class="panel">
+    <div class="panel-head">
+        <h2>当前播放任务</h2>
+    </div>
+    <div class="kv-list">
+        <div><span>任务名称</span><strong data-role="monitor-active-schedule">-</strong></div>
+        <div><span>当前视频</span><strong data-role="monitor-video-position">-</strong></div>
+        <div><span>当前视频播放次数</span><strong data-role="monitor-video-play-count">-</strong></div>
+    </div>
+    <div class="field" style="margin-top: 12px;">
+        <span>视频播放次数明细</span>
+        <div class="playlist-order-list" data-role="monitor-play-count-list"></div>
+    </div>
+</section>
+
 {% if has_perm('playback.control') %}
 <section class="panel">
     <div class="panel-head">
