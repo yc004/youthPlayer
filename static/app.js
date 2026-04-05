@@ -30,6 +30,7 @@
                 setText("[data-role='last-error']", player.last_error || "None");
                 setText("[data-role='server-time']", payload.server_time || "--");
                 setText("[data-role='active-schedule']", active ? active.name : "None");
+                setText("[data-role='system-uptime']", formatUptime(payload.system_uptime_seconds));
                 setText("[data-role='monitor-time']", monitor.captured_at || "Waiting capture");
 
                 var monitorImg = document.querySelector("[data-role='monitor-preview']");
@@ -49,6 +50,21 @@
             }
         };
         request.send();
+    }
+
+    function formatUptime(seconds) {
+        var total = Number(seconds || 0);
+        if (!isFinite(total) || total < 0) total = 0;
+        total = Math.floor(total);
+        var days = Math.floor(total / 86400);
+        var rem = total % 86400;
+        var hours = Math.floor(rem / 3600);
+        rem = rem % 3600;
+        var mins = Math.floor(rem / 60);
+        var secs = rem % 60;
+        var hhmmss = String(hours).padStart(2, "0") + ":" + String(mins).padStart(2, "0") + ":" + String(secs).padStart(2, "0");
+        if (days > 0) return days + "天 " + hhmmss;
+        return hhmmss;
     }
 
     function renderMonitorPlayback(payload) {

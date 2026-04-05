@@ -21,9 +21,9 @@
         <p>{{ status.backend|upper }} / <span data-role="screen-name">{{ status.screen_name }}</span></p>
     </article>
     <article class="stat-card">
-        <span class="stat-label">当前内容</span>
-        <strong class="stat-value small" data-role="current-source">{{ status.current_source or "暂无播放内容" }}</strong>
-        <p>后端：<span data-role="backend">{{ status.backend }}</span></p>
+        <span class="stat-label">系统连续运行时间</span>
+        <strong class="stat-value" data-role="system-uptime">--</strong>
+        <p>服务启动后累计时长</p>
     </article>
     <article class="stat-card">
         <span class="stat-label">生效计划</span>

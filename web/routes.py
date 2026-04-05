@@ -30,6 +30,7 @@ from models import (
 
 main = Blueprint("main", __name__)
 logger = logging.getLogger(__name__)
+SYSTEM_STARTED_AT = datetime.now()
 
 player = None
 controller = None
@@ -942,6 +943,9 @@ def api_status():
     if not (_has_permission("dashboard.view") or _has_permission("monitor.view")):
         return jsonify({"ok": False, "error": "forbidden"}), 403
     active_schedule = controller.get_current_schedule() or controller.get_active_schedule_now()
+    uptime_seconds = int((datetime.now() - SYSTEM_STARTED_AT).total_seconds())
+    if uptime_seconds < 0:
+        uptime_seconds = 0
     return jsonify(
         {
             "player": player.get_status(),
@@ -967,6 +971,7 @@ def api_status():
                 else None
             ),
             "server_time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "system_uptime_seconds": uptime_seconds,
             "monitor": {
                 "captured_at": player.monitor_last_capture_at,
                 "available": bool(player.monitor_last_capture_path and os.path.exists(player.monitor_last_capture_path)),
