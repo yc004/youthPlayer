@@ -72,6 +72,7 @@ from player.player import Player  # noqa: E402
 from controller.controller import Controller  # noqa: E402
 from security.watchdog import Watchdog  # noqa: E402
 from web.routes import init_routes, main as main_blueprint  # noqa: E402
+from web.routes import sync_nextcloud_cache_auto_clear_job  # noqa: E402
 
 
 player = Player()
@@ -224,6 +225,20 @@ def load_runtime_settings():
         Config.NEXTCLOUD_SKIP_SSL_VERIFY = str(
             nc_skip_ssl_item.value if nc_skip_ssl_item else Config.NEXTCLOUD_SKIP_SSL_VERIFY
         ).strip().lower() in {"1", "true", "yes", "on"}
+        nc_cache_auto_clear_enabled_item = db.session.get(SystemSetting, "nextcloud_cache_auto_clear_enabled")
+        nc_cache_auto_clear_time_item = db.session.get(SystemSetting, "nextcloud_cache_auto_clear_time")
+        Config.NEXTCLOUD_CACHE_AUTO_CLEAR_ENABLED = str(
+            (
+                nc_cache_auto_clear_enabled_item.value
+                if nc_cache_auto_clear_enabled_item
+                else Config.NEXTCLOUD_CACHE_AUTO_CLEAR_ENABLED
+            )
+        ).strip().lower() in {"1", "true", "yes", "on"}
+        Config.NEXTCLOUD_CACHE_AUTO_CLEAR_TIME = str(
+            nc_cache_auto_clear_time_item.value
+            if nc_cache_auto_clear_time_item
+            else Config.NEXTCLOUD_CACHE_AUTO_CLEAR_TIME
+        ).strip() or "03:00"
 
 
 def setup_monitor_capture_job():
@@ -255,6 +270,7 @@ def bootstrap():
     init_db()
     load_runtime_settings()
     setup_monitor_capture_job()
+    sync_nextcloud_cache_auto_clear_job(scheduler)
     controller.refresh_schedules()
     controller.sync_active_schedule(force_restart=False)
 

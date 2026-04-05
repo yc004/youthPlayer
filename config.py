@@ -58,6 +58,8 @@ class Config:
     NEXTCLOUD_PASSWORD = os.environ.get("YP_NEXTCLOUD_PASSWORD", "").strip()
     NEXTCLOUD_ROOT = os.environ.get("YP_NEXTCLOUD_ROOT", "/").strip() or "/"
     NEXTCLOUD_SKIP_SSL_VERIFY = os.environ.get("YP_NEXTCLOUD_SKIP_SSL_VERIFY", "0") == "1"
+    NEXTCLOUD_CACHE_AUTO_CLEAR_ENABLED = os.environ.get("YP_NEXTCLOUD_CACHE_AUTO_CLEAR_ENABLED", "0") == "1"
+    NEXTCLOUD_CACHE_AUTO_CLEAR_TIME = os.environ.get("YP_NEXTCLOUD_CACHE_AUTO_CLEAR_TIME", "03:00").strip()
 
     # Web 配置
     WEB_PORT = int(os.environ.get("YP_WEB_PORT", 5000))

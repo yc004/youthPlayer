@@ -1,5 +1,6 @@
 import os
 import base64
+import logging
 import urllib.error
 import urllib.request
 import xml.etree.ElementTree as ET
@@ -27,6 +28,7 @@ from models import (
 
 
 main = Blueprint("main", __name__)
+logger = logging.getLogger(__name__)
 
 player = None
 controller = None
@@ -48,6 +50,8 @@ SETTING_KEY_NEXTCLOUD_USERNAME = "nextcloud_username"
 SETTING_KEY_NEXTCLOUD_PASSWORD = "nextcloud_password"
 SETTING_KEY_NEXTCLOUD_ROOT = "nextcloud_root"
 SETTING_KEY_NEXTCLOUD_SKIP_SSL_VERIFY = "nextcloud_skip_ssl_verify"
+SETTING_KEY_NEXTCLOUD_CACHE_AUTO_CLEAR_ENABLED = "nextcloud_cache_auto_clear_enabled"
+SETTING_KEY_NEXTCLOUD_CACHE_AUTO_CLEAR_TIME = "nextcloud_cache_auto_clear_time"
 SCREENSAVER_ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".bmp", ".webp"}
 SCREENSAVER_MAX_SIZE = 20 * 1024 * 1024
 PERMISSION_DEFS = [
@@ -427,6 +431,58 @@ def _clear_nextcloud_cache():
         except OSError:
             continue
     return removed, reclaimed
+
+
+def _normalize_hhmm(value, default="03:00"):
+    text = str(value or "").strip()
+    if not text:
+        return default
+    try:
+        parts = text.split(":", 1)
+        hour = int(parts[0])
+        minute = int(parts[1])
+        if 0 <= hour <= 23 and 0 <= minute <= 59:
+            return f"{hour:02d}:{minute:02d}"
+    except Exception:
+        pass
+    return default
+
+
+def sync_nextcloud_cache_auto_clear_job(scheduler):
+    job_id = "nextcloud_cache_auto_clear_job"
+    try:
+        scheduler.remove_job(job_id)
+    except Exception:
+        pass
+
+    enabled = bool(getattr(Config, "NEXTCLOUD_CACHE_AUTO_CLEAR_ENABLED", False))
+    run_at = _normalize_hhmm(getattr(Config, "NEXTCLOUD_CACHE_AUTO_CLEAR_TIME", "03:00"), default="03:00")
+    if not enabled:
+        logger.info("Nextcloud cache auto clear disabled.")
+        return
+
+    hour, minute = [int(x) for x in run_at.split(":")]
+
+    def _job():
+        removed, reclaimed = _clear_nextcloud_cache()
+        logger.info(
+            "Nextcloud cache auto clear executed at %s: removed=%s reclaimed=%s",
+            run_at,
+            removed,
+            reclaimed,
+        )
+
+    scheduler.add_job(
+        _job,
+        trigger="cron",
+        hour=hour,
+        minute=minute,
+        id=job_id,
+        replace_existing=True,
+        max_instances=1,
+        coalesce=True,
+    )
+    logger.info("Nextcloud cache auto clear job scheduled at %s daily.", run_at)
 
 
 def _get_setting_bool(key, default=False):
@@ -1204,6 +1260,11 @@ def settings():
         nextcloud_password = (request.form.get("nextcloud_password") or "").strip()
         nextcloud_root = (request.form.get("nextcloud_root") or "/").strip() or "/"
         nextcloud_skip_ssl_verify = "nextcloud_skip_ssl_verify" in request.form
+        nextcloud_cache_auto_clear_enabled = "nextcloud_cache_auto_clear_enabled" in request.form
+        nextcloud_cache_auto_clear_time = _normalize_hhmm(
+            request.form.get("nextcloud_cache_auto_clear_time"),
+            default=_normalize_hhmm(getattr(Config, "NEXTCLOUD_CACHE_AUTO_CLEAR_TIME", "03:00"), default="03:00"),
+        )
         if not nextcloud_root.startswith("/"):
             nextcloud_root = "/" + nextcloud_root
         if nextcloud_enabled and (not nextcloud_url or not nextcloud_username or not nextcloud_password):
@@ -1241,12 +1302,29 @@ def settings():
         old_nc_skip_ssl = (
             "1" if _get_setting_bool(SETTING_KEY_NEXTCLOUD_SKIP_SSL_VERIFY, Config.NEXTCLOUD_SKIP_SSL_VERIFY) else "0"
         )
+        old_nc_cache_auto_clear_enabled = (
+            "1"
+            if _get_setting_bool(
+                SETTING_KEY_NEXTCLOUD_CACHE_AUTO_CLEAR_ENABLED,
+                Config.NEXTCLOUD_CACHE_AUTO_CLEAR_ENABLED,
+            )
+            else "0"
+        )
+        old_nc_cache_auto_clear_time = _normalize_hhmm(
+            _get_setting_str(
+                SETTING_KEY_NEXTCLOUD_CACHE_AUTO_CLEAR_TIME,
+                Config.NEXTCLOUD_CACHE_AUTO_CLEAR_TIME,
+            ),
+            default="03:00",
+        )
         _set_setting_bool(SETTING_KEY_NEXTCLOUD_ENABLED, nextcloud_enabled)
         _set_setting_str(SETTING_KEY_NEXTCLOUD_URL, nextcloud_url)
         _set_setting_str(SETTING_KEY_NEXTCLOUD_USERNAME, nextcloud_username)
         _set_setting_str(SETTING_KEY_NEXTCLOUD_PASSWORD, nextcloud_password)
         _set_setting_str(SETTING_KEY_NEXTCLOUD_ROOT, nextcloud_root)
         _set_setting_bool(SETTING_KEY_NEXTCLOUD_SKIP_SSL_VERIFY, nextcloud_skip_ssl_verify)
+        _set_setting_bool(SETTING_KEY_NEXTCLOUD_CACHE_AUTO_CLEAR_ENABLED, nextcloud_cache_auto_clear_enabled)
+        _set_setting_str(SETTING_KEY_NEXTCLOUD_CACHE_AUTO_CLEAR_TIME, nextcloud_cache_auto_clear_time)
 
         old_screensaver_image = _get_setting_str(SETTING_KEY_SCREENSAVER_IMAGE, Config.IDLE_SCREENSAVER_IMAGE)
         new_screensaver_image = old_screensaver_image
@@ -1290,6 +1368,8 @@ def settings():
         Config.NEXTCLOUD_PASSWORD = nextcloud_password
         Config.NEXTCLOUD_ROOT = nextcloud_root
         Config.NEXTCLOUD_SKIP_SSL_VERIFY = nextcloud_skip_ssl_verify
+        Config.NEXTCLOUD_CACHE_AUTO_CLEAR_ENABLED = nextcloud_cache_auto_clear_enabled
+        Config.NEXTCLOUD_CACHE_AUTO_CLEAR_TIME = nextcloud_cache_auto_clear_time
 
         try:
             controller.scheduler.reschedule_job(
@@ -1299,6 +1379,10 @@ def settings():
             )
         except Exception:
             pass
+        try:
+            sync_nextcloud_cache_auto_clear_job(controller.scheduler)
+        except Exception as exc:
+            logger.warning("Failed to sync nextcloud cache auto clear job: %s", exc)
         if old_value != new_value:
             _append_setting_audit_log(SETTING_KEY_ALL_ELECTRON, old_value, new_value)
         if old_interval != str(monitor_interval):
@@ -1359,6 +1443,18 @@ def settings():
                 old_nc_skip_ssl,
                 "1" if nextcloud_skip_ssl_verify else "0",
             )
+        if old_nc_cache_auto_clear_enabled != ("1" if nextcloud_cache_auto_clear_enabled else "0"):
+            _append_setting_audit_log(
+                SETTING_KEY_NEXTCLOUD_CACHE_AUTO_CLEAR_ENABLED,
+                old_nc_cache_auto_clear_enabled,
+                "1" if nextcloud_cache_auto_clear_enabled else "0",
+            )
+        if old_nc_cache_auto_clear_time != nextcloud_cache_auto_clear_time:
+            _append_setting_audit_log(
+                SETTING_KEY_NEXTCLOUD_CACHE_AUTO_CLEAR_TIME,
+                old_nc_cache_auto_clear_time,
+                nextcloud_cache_auto_clear_time,
+            )
         try:
             player.show_screensaver()
         except Exception:
@@ -1406,6 +1502,17 @@ def settings():
         SETTING_KEY_NEXTCLOUD_SKIP_SSL_VERIFY,
         Config.NEXTCLOUD_SKIP_SSL_VERIFY,
     )
+    nextcloud_cache_auto_clear_enabled = _get_setting_bool(
+        SETTING_KEY_NEXTCLOUD_CACHE_AUTO_CLEAR_ENABLED,
+        Config.NEXTCLOUD_CACHE_AUTO_CLEAR_ENABLED,
+    )
+    nextcloud_cache_auto_clear_time = _normalize_hhmm(
+        _get_setting_str(
+            SETTING_KEY_NEXTCLOUD_CACHE_AUTO_CLEAR_TIME,
+            Config.NEXTCLOUD_CACHE_AUTO_CLEAR_TIME,
+        ),
+        default="03:00",
+    )
     screens = player.get_available_screens() if player else []
     audit_logs = (
         SettingAuditLog.query.order_by(SettingAuditLog.created_at.desc(), SettingAuditLog.id.desc())
@@ -1436,6 +1543,8 @@ def settings():
         nextcloud_password=nextcloud_password,
         nextcloud_root=nextcloud_root,
         nextcloud_skip_ssl_verify=nextcloud_skip_ssl_verify,
+        nextcloud_cache_auto_clear_enabled=nextcloud_cache_auto_clear_enabled,
+        nextcloud_cache_auto_clear_time=nextcloud_cache_auto_clear_time,
         nextcloud_cache_stats=nextcloud_cache_stats,
         audit_logs=audit_logs,
         operation_logs=operation_logs,
