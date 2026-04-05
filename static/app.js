@@ -98,7 +98,7 @@
             var path = document.createElement("span");
             path.className = "playlist-order-path";
             var raw = items[i] || "";
-            path.textContent = raw || ("视频 " + String(i + 1));
+            path.textContent = displayVideoName(raw) || ("视频 " + String(i + 1));
             path.title = raw || "";
 
             var stat = document.createElement("span");
@@ -109,6 +109,20 @@
             row.appendChild(path);
             row.appendChild(stat);
             listNode.appendChild(row);
+        }
+    }
+
+    function displayVideoName(raw) {
+        var text = String(raw || "").trim();
+        if (!text) return "";
+        var cleaned = text.replace(/[?#].*$/, "").replace(/\/+$/, "");
+        var parts = cleaned.split(/[\\/]/);
+        var name = parts.length ? parts[parts.length - 1] : cleaned;
+        if (!name) return text;
+        try {
+            return decodeURIComponent(name);
+        } catch (_err) {
+            return name;
         }
     }
 
