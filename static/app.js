@@ -1,5 +1,7 @@
 (function () {
     var ganttActiveDay = 0;
+    var uptimeBaseSeconds = 0;
+    var uptimeBaseClientTs = 0;
 
     function setText(selector, value) {
         var node = document.querySelector(selector);
@@ -30,7 +32,10 @@
                 setText("[data-role='last-error']", player.last_error || "None");
                 setText("[data-role='server-time']", payload.server_time || "--");
                 setText("[data-role='active-schedule']", active ? active.name : "None");
-                setText("[data-role='system-uptime']", formatUptime(payload.system_uptime_seconds));
+                uptimeBaseSeconds = Number(payload.system_uptime_seconds || 0);
+                if (!isFinite(uptimeBaseSeconds) || uptimeBaseSeconds < 0) uptimeBaseSeconds = 0;
+                uptimeBaseClientTs = Date.now();
+                renderLiveUptime();
                 setText("[data-role='monitor-time']", monitor.captured_at || "Waiting capture");
 
                 var monitorImg = document.querySelector("[data-role='monitor-preview']");
@@ -65,6 +70,18 @@
         var hhmmss = String(hours).padStart(2, "0") + ":" + String(mins).padStart(2, "0") + ":" + String(secs).padStart(2, "0");
         if (days > 0) return days + "天 " + hhmmss;
         return hhmmss;
+    }
+
+    function renderLiveUptime() {
+        var node = document.querySelector("[data-role='system-uptime']");
+        if (!node) return;
+        if (!uptimeBaseClientTs) {
+            node.textContent = formatUptime(0);
+            return;
+        }
+        var elapsed = Math.floor((Date.now() - uptimeBaseClientTs) / 1000);
+        if (!isFinite(elapsed) || elapsed < 0) elapsed = 0;
+        node.textContent = formatUptime(uptimeBaseSeconds + elapsed);
     }
 
     function renderMonitorPlayback(payload) {
@@ -1160,6 +1177,7 @@
     if (document.querySelector("[data-role='player-state']")) {
         refreshStatus();
         window.setInterval(refreshStatus, 10000);
+        window.setInterval(renderLiveUptime, 1000);
     }
     initGantt();
     initScheduleWeeklyInputMode();
