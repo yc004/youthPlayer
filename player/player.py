@@ -83,6 +83,8 @@ class Player:
         self.monitor_last_capture_path = ""
         self.screensaver_url = Path(os.path.join(os.path.dirname(__file__), "screensaver.html")).resolve().as_uri()
         self.media_shell_url = Path(os.path.join(os.path.dirname(__file__), "media_player.html")).resolve().as_uri()
+        self.guard_notice_url = Path(os.path.join(os.path.dirname(__file__), "guard_notice.html")).resolve().as_uri()
+        self.guard_processes = {}
 
         self._init_vlc()
         self.set_screen(Config.PRIMARY_SCREEN)
@@ -93,6 +95,164 @@ class Player:
         if env.get("ELECTRON_RUN_AS_NODE") == "1":
             env.pop("ELECTRON_RUN_AS_NODE", None)
         return env
+
+    def _guard_request(self, port, method, path):
+        try:
+            url = f"http://{Config.ELECTRON_CONTROL_HOST}:{int(port)}{path}"
+            req = urllib.request.Request(url=url, method=method)
+            with urllib.request.urlopen(req, timeout=1.5) as resp:
+                return 200 <= resp.getcode() < 300
+        except Exception:
+            return False
+
+    def _wait_guard_ready(self, process, port, timeout=8.0):
+        start = time.time()
+        while time.time() - start < float(timeout):
+            if not process or process.poll() is not None:
+                return False
+            if self._guard_request(port, "GET", "/health"):
+                return True
+            time.sleep(0.25)
+        return False
+
+    def _stop_guard_process_locked(self, screen_index):
+        rec = self.guard_processes.pop(int(screen_index), None)
+        if not rec:
+            return
+        proc = rec.get("process")
+        port = rec.get("port")
+        log_handle = rec.get("log_handle")
+        try:
+            if port:
+                self._guard_request(port, "POST", "/stop")
+        except Exception:
+            pass
+        try:
+            if proc and proc.poll() is None:
+                proc.terminate()
+                proc.wait(timeout=2)
+        except Exception:
+            try:
+                if proc and proc.poll() is None:
+                    proc.kill()
+            except Exception:
+                pass
+        finally:
+            try:
+                if log_handle:
+                    log_handle.close()
+            except Exception:
+                pass
+
+    def _stop_all_guard_processes_locked(self):
+        for idx in list(self.guard_processes.keys()):
+            self._stop_guard_process_locked(idx)
+
+    def _start_guard_process_locked(self, screen):
+        if not screen:
+            return False
+        screen_index = int(screen.get("index", -1))
+        if screen_index < 0:
+            return False
+        if screen_index in self.guard_processes:
+            proc = self.guard_processes[screen_index].get("process")
+            if proc and proc.poll() is None:
+                return True
+            self._stop_guard_process_locked(screen_index)
+
+        electron_bin = self._resolve_electron_bin()
+        if not electron_bin:
+            return False
+
+        try:
+            port = self._reserve_port(Config.ELECTRON_CONTROL_HOST, Config.ELECTRON_CONTROL_PORT_BASE + 60)
+        except Exception:
+            return False
+
+        runtime_dir = os.path.join(Config.BASE_DIR, "runtime")
+        os.makedirs(runtime_dir, exist_ok=True)
+        log_handle = open(
+            os.path.join(runtime_dir, f"electron_guard_{screen_index}.log"),
+            "a",
+            encoding="utf-8",
+        )
+
+        command = [
+            electron_bin,
+            os.path.join(os.path.dirname(__file__), "electron_runner.js"),
+            "--",
+            "--url",
+            self.guard_notice_url,
+            "--host",
+            Config.ELECTRON_CONTROL_HOST,
+            "--port",
+            str(port),
+            "--screen-index",
+            str(screen_index),
+            "--screen-left",
+            str(int(screen.get("left", 0))),
+            "--screen-top",
+            str(int(screen.get("top", 0))),
+            "--window-mode",
+            "fullscreen",
+            "--left",
+            str(int(screen.get("left", 0))),
+            "--top",
+            str(int(screen.get("top", 0))),
+            "--width",
+            str(max(1, int(screen.get("width", 1920)))),
+            "--height",
+            str(max(1, int(screen.get("height", 1080)))),
+        ]
+        if Config.WINDOW_TOPMOST:
+            command.append("--topmost")
+
+        try:
+            proc = subprocess.Popen(
+                command,
+                stdout=log_handle,
+                stderr=log_handle,
+                env=self._build_electron_env(),
+            )
+            if not self._wait_guard_ready(proc, port):
+                try:
+                    if proc and proc.poll() is None:
+                        proc.terminate()
+                except Exception:
+                    pass
+                try:
+                    log_handle.close()
+                except Exception:
+                    pass
+                return False
+            self.guard_processes[screen_index] = {
+                "process": proc,
+                "port": port,
+                "log_handle": log_handle,
+            }
+            return True
+        except Exception:
+            try:
+                log_handle.close()
+            except Exception:
+                pass
+            return False
+
+    def _sync_guard_processes_locked(self):
+        if self.current_backend == "idle" or not self.expected_playing:
+            self._stop_all_guard_processes_locked()
+            return
+        screens = self.get_available_screens()
+        target = int(self.screen_index)
+        desired = {int(item.get("index")) for item in screens if int(item.get("index", -1)) >= 0 and int(item.get("index")) != target}
+        for idx in list(self.guard_processes.keys()):
+            if idx not in desired:
+                self._stop_guard_process_locked(idx)
+        for item in screens:
+            idx = int(item.get("index", -1))
+            if idx < 0 or idx == target:
+                continue
+            self._start_guard_process_locked(item)
 
     def _init_vlc(self):
         if vlc is None:
@@ -452,6 +612,7 @@ class Player:
             self.expected_playing = True
             self.last_started_at = time.time()
             self.last_error = ""
+            self._sync_guard_processes_locked()
             logger.info("Play %s started: %s (result=%s)", source_type, source, result)
             return result != -1
         except Exception as exc:
@@ -738,6 +899,7 @@ class Player:
             self.last_started_at = time.time()
             self.last_error = ""
             self.electron_window_signature = target_signature
+            self._sync_guard_processes_locked()
             logger.info("Web live opened via Electron: %s", url)
             return True
         except Exception as exc:
@@ -945,6 +1107,7 @@ class Player:
                 self.playlist_play_counts = []
                 self.playlist_current_item = None
                 self._stop_active_backend_only()
+                self._stop_all_guard_processes_locked()
                 logger.info("Playback stopped.")
                 return True
             except Exception as exc:
