@@ -1,6 +1,7 @@
 import os
 import base64
 import logging
+import gzip
 import urllib.error
 import urllib.request
 import xml.etree.ElementTree as ET
@@ -10,7 +11,7 @@ from datetime import datetime
 from functools import wraps
 from urllib.parse import quote, unquote, urlsplit, urlunsplit
 
-from flask import Blueprint, flash, jsonify, redirect, render_template, request, send_file, url_for
+from flask import Blueprint, flash, jsonify, make_response, redirect, render_template, request, send_file, url_for
 from flask_login import current_user, login_required, login_user, logout_user
 from werkzeug.utils import secure_filename
 
@@ -987,6 +988,22 @@ def monitor_frame():
             path = player.monitor_last_capture_path
     if not path or not os.path.exists(path):
         return ("No monitor frame", 404)
+    # Bandwidth optimization: if browser supports gzip, send compressed screenshot bytes.
+    accept_encoding = (request.headers.get("Accept-Encoding") or "").lower()
+    if "gzip" in accept_encoding:
+        try:
+            with open(path, "rb") as f:
+                raw = f.read()
+            compressed = gzip.compress(raw, compresslevel=6)
+            resp = make_response(compressed)
+            resp.headers["Content-Type"] = "image/bmp"
+            resp.headers["Content-Encoding"] = "gzip"
+            resp.headers["Vary"] = "Accept-Encoding"
+            resp.headers["Cache-Control"] = "no-store, max-age=0"
+            resp.headers["Content-Length"] = str(len(compressed))
+            return resp
+        except Exception:
+            pass
     return send_file(path, mimetype="image/bmp", conditional=True)
 
 

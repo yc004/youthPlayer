@@ -528,6 +528,55 @@ class Player:
                 if not self._advance_playlist_locked():
                     return
 
+    def _play_playlist_index_locked(self, index, increment_count=True):
+        if not self.playlist_items:
+            self.last_error = "Playlist is empty."
+            return False
+        size = len(self.playlist_items)
+        idx = max(0, min(size - 1, int(index or 0)))
+        self.playlist_index = idx
+        source = self.playlist_items[self.playlist_index]
+        self.playlist_current_item = source
+        if self.playlist_backend == "electron":
+            ok = self._open_via_electron(
+                source,
+                source_type=self.playlist_source_type or "playlist",
+                loop=False,
+                reset_before_open=False,
+            )
+            if ok and increment_count and self.playlist_index < len(self.playlist_play_counts):
+                self.playlist_play_counts[self.playlist_index] += 1
+            return ok
+        ok = self._play_vlc_media_internal(source, source_type="playlist", reset_before_play=False)
+        if ok and increment_count and self.playlist_index < len(self.playlist_play_counts):
+            self.playlist_play_counts[self.playlist_index] += 1
+        return ok
+
+    def play_next(self):
+        with self._op_lock:
+            if not self.playlist_items:
+                self.last_error = "No active playlist."
+                return False
+            size = len(self.playlist_items)
+            next_index = (self.playlist_index + 1) % size
+            return self._play_playlist_index_locked(next_index, increment_count=True)
+
+    def play_previous(self):
+        with self._op_lock:
+            if not self.playlist_items:
+                self.last_error = "No active playlist."
+                return False
+            size = len(self.playlist_items)
+            prev_index = (self.playlist_index - 1 + size) % size
+            return self._play_playlist_index_locked(prev_index, increment_count=True)
+
+    def replay_current(self):
+        with self._op_lock:
+            if not self.playlist_items:
+                self.last_error = "No active playlist."
+                return False
+            return self._play_playlist_index_locked(self.playlist_index, increment_count=True)
+
     def _advance_playlist_locked(self):
         if not self.playlist_items:
             return False
@@ -563,23 +612,7 @@ class Player:
                 self.playlist_round += 1
                 next_index = 0
 
-        self.playlist_index = next_index
-        source = self.playlist_items[self.playlist_index]
-        self.playlist_current_item = source
-        if self.playlist_backend == "electron":
-            ok = self._open_via_electron(
-                source,
-                source_type=self.playlist_source_type or "playlist",
-                loop=False,
-                reset_before_open=False,
-            )
-            if ok and self.playlist_index < len(self.playlist_play_counts):
-                self.playlist_play_counts[self.playlist_index] += 1
-            return ok
-        ok = self._play_vlc_media_internal(source, source_type="playlist", reset_before_play=False)
-        if ok and self.playlist_index < len(self.playlist_play_counts):
-            self.playlist_play_counts[self.playlist_index] += 1
-        return ok
+        return self._play_playlist_index_locked(next_index, increment_count=True)
 
     def _should_use_browser(self, url):
         parsed = urlparse(url)

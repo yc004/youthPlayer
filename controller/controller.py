@@ -343,6 +343,15 @@ class Controller:
                 self.suppress_idle_screensaver = False
                 return self.player.resume()
 
+            if action == "prev":
+                return self.player.play_previous()
+
+            if action == "next":
+                return self.player.play_next()
+
+            if action == "replay":
+                return self.player.replay_current()
+
             if action == "web_play":
                 return self.player.inject_web_play()
 
