@@ -49,7 +49,6 @@
         <label class="field"><span>内容类型</span>
             <select name="content_type" required>
                 <option value="local">本地视频</option>
-                <option value="nas">NAS 素材</option>
                 <option value="live">网络直播 / 直播页</option>
             </select>
         </label>
@@ -140,7 +139,7 @@
                 </div>
                 <div class="summary-meta">
                     <span class="chip {{ 'success' if schedule.is_active else 'muted' }}">{{ "启用" if schedule.is_active else "停用" }}</span>
-                    <span class="chip info">{{ "网页直播" if schedule.content_type == 'live' else ("NAS" if schedule.content_type == 'nas' else "本地") }}</span>
+                    <span class="chip info">{{ "网页直播" if schedule.content_type == 'live' else "本地" }}</span>
                     <span class="chip">屏幕 {{ schedule.screen_index }}</span>
                     <span class="chip">{{ "全屏" if schedule.window_mode != 'custom' else ("窗口 " ~ schedule.window_width ~ "x" ~ schedule.window_height) }}</span>
                     {% if schedule.is_weekly %}<span class="chip info">周循环</span>{% endif %}
@@ -200,7 +199,6 @@
                         <span>内容类型</span>
                         <select name="content_type" required>
                             <option value="local" {% if schedule.content_type == 'local' %}selected{% endif %}>本地视频</option>
-                            <option value="nas" {% if schedule.content_type == 'nas' %}selected{% endif %}>NAS 素材</option>
                             <option value="live" {% if schedule.content_type == 'live' %}selected{% endif %}>网络直播 / 直播页</option>
                         </select>
                     </label>

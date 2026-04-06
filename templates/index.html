@@ -24,7 +24,7 @@
     <article class="stat-card">
         <span class="stat-label">当前内容</span>
         <strong class="stat-value small" data-role="current-source">{{ status.current_source or "暂无播放内容" }}</strong>
-        <p>支持本地、NAS、流媒体、网页直播</p>
+        <p>支持本地、流媒体、网页直播</p>
     </article>
     <article class="stat-card">
         <span class="stat-label">生效计划</span>
@@ -90,9 +90,6 @@
             <button class="btn btn-danger" type="submit" name="action" value="stop">停止</button>
             <button class="btn btn-secondary" type="submit" name="action" value="pause">暂停</button>
             <button class="btn btn-secondary" type="submit" name="action" value="resume">恢复</button>
-            <button class="btn btn-secondary" type="submit" name="action" value="web_play">网页注入播放</button>
-            <button class="btn btn-secondary" type="submit" name="action" value="web_fullscreen">网页注入全屏</button>
-            <button class="btn btn-secondary" type="submit" name="action" value="web_play_fullscreen">网页注入播放+全屏</button>
         </form>
     </article>
 
@@ -152,14 +149,13 @@
             <span>内容类型</span>
             <select name="content_type" required>
                 <option value="local">本地视频</option>
-                <option value="nas">NAS 素材</option>
                 <option value="live">网络直播 / 直播页</option>
             </select>
         </label>
         <label class="field field-wide">
             <span>内容地址</span>
             <div class="path-picker">
-                <input type="text" name="content_path" class="content-path-input" required placeholder="D:\video\promo.mp4 / \\nas\share\video.mp4 / https://...">
+                <input type="text" name="content_path" class="content-path-input" required placeholder="D:\video\promo.mp4 / https://example.com/live">
                 <button type="button" class="btn btn-secondary btn-path-browse">浏览...</button>
             </div>
         </label>
@@ -221,7 +217,7 @@
                 </div>
                 <div class="summary-meta">
                     <span class="chip {{ 'success' if schedule.is_active else 'muted' }}">{{ "启用" if schedule.is_active else "停用" }}</span>
-                    <span class="chip info">{{ "网页直播" if schedule.content_type == 'live' else ("NAS" if schedule.content_type == 'nas' else "本地") }}</span>
+                    <span class="chip info">{{ "网页直播" if schedule.content_type == 'live' else "本地" }}</span>
                     <span class="chip">屏幕 {{ schedule.screen_index }}</span>
                     {% if schedule.is_weekly %}<span class="chip info">周循环</span>{% endif %}
                     {% if schedule.playlist_items %}<span class="chip info">轮播 {{ schedule.playlist_items|length }} 条</span>{% endif %}
@@ -281,7 +277,6 @@
                         <span>内容类型</span>
                         <select name="content_type" required>
                             <option value="local" {% if schedule.content_type == 'local' %}selected{% endif %}>本地视频</option>
-                            <option value="nas" {% if schedule.content_type == 'nas' %}selected{% endif %}>NAS 素材</option>
                             <option value="live" {% if schedule.content_type == 'live' %}selected{% endif %}>网络直播 / 直播页</option>
                         </select>
                     </label>

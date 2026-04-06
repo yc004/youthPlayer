@@ -1086,10 +1086,16 @@ class Player:
             return None
 
     def _electron_media_finished(self):
+        # Process/window crash must be treated as unhealthy, not "finished",
+        # otherwise playlist mode "once" may clear expected_playing and disable recovery.
         if not self.electron_process:
-            return True
+            if self.expected_playing:
+                self.last_error = "Electron process missing during expected playback."
+            return not self.expected_playing
         if self.electron_process.poll() is not None:
-            return True
+            if self.expected_playing:
+                self.last_error = "Electron process exited unexpectedly during playback."
+            return not self.expected_playing
         status = self._electron_request_json("GET", "/probe/media_status", ignore_error=True) or {}
         if not status.get("ok"):
             return False
@@ -1129,6 +1135,15 @@ class Player:
             "duration_seconds": max(0.0, duration),
             "progress_percent": progress,
         }
+
+    def _electron_window_ready(self):
+        if not self.electron_process or self.electron_process.poll() is not None:
+            return False
+        status = self._electron_request_json("GET", "/probe/window", ignore_error=True) or {}
+        if not status.get("ok"):
+            return False
+        window = status.get("status") or {}
+        return bool(window.get("ready"))
 
     def inject_web_play(self):
         if self.current_backend != "electron":
@@ -1243,7 +1258,9 @@ class Player:
         if not self.expected_playing:
             return True
         if self.current_backend == "electron":
-            return self.electron_process is not None and self.electron_process.poll() is None
+            if not self.electron_process or self.electron_process.poll() is not None:
+                return False
+            return self._electron_window_ready()
         if self.current_backend == "vlc" and self.player and vlc is not None:
             state = self.player.get_state()
             return state not in {vlc.State.Error, vlc.State.Ended}
@@ -1259,7 +1276,7 @@ class Player:
         }
         if self.current_backend == "electron":
             state_label = "ElectronPlayback"
-            is_playing = self.electron_process is not None and self.electron_process.poll() is None
+            is_playing = self._electron_window_ready()
             progress = self._electron_media_progress()
             if progress:
                 playback_progress = progress

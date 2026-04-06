@@ -935,6 +935,41 @@
         });
     }
 
+    function initScheduleContentTypeMode() {
+        document.querySelectorAll(".schedule-form").forEach(function (form) {
+            var contentTypeInput = form.querySelector("select[name='content_type']");
+            if (!contentTypeInput) return;
+
+            var loopModeInput = form.querySelector("select[name='loop_mode']");
+            var loopCountInput = form.querySelector("input[name='loop_count']");
+            if (!loopModeInput && !loopCountInput) return;
+
+            var loopModeField = loopModeInput ? loopModeInput.closest(".field") : null;
+            var loopCountField = loopCountInput ? loopCountInput.closest(".field") : null;
+
+            function setFieldHidden(field, hidden) {
+                if (!field) return;
+                field.hidden = !!hidden;
+                field.style.display = hidden ? "none" : "";
+            }
+
+            function applyMode() {
+                var isLive = String(contentTypeInput.value || "").toLowerCase() === "live";
+                if (isLive) {
+                    if (loopModeInput) loopModeInput.value = "once";
+                    if (loopCountInput) loopCountInput.value = "0";
+                }
+                if (loopModeInput) loopModeInput.disabled = isLive;
+                if (loopCountInput) loopCountInput.disabled = isLive;
+                setFieldHidden(loopModeField, isLive);
+                setFieldHidden(loopCountField, isLive);
+            }
+
+            contentTypeInput.addEventListener("change", applyMode);
+            applyMode();
+        });
+    }
+
     function initScheduleWindowInputMode() {
         var screens = [];
         var screenNode = document.getElementById("screen-data");
@@ -1181,6 +1216,7 @@
     }
     initGantt();
     initScheduleWeeklyInputMode();
+    initScheduleContentTypeMode();
     initScheduleWindowInputMode();
     initPlaylistEditor();
     initFileBrowser();

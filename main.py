@@ -1,6 +1,7 @@
 import logging
 import os
 import ctypes
+from logging.handlers import TimedRotatingFileHandler
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from flask import Flask
@@ -34,11 +35,22 @@ def configure_logging():
     root_logger = logging.getLogger()
     if root_logger.handlers:
         return
+
+    # Slice logs into hourly files: playback_system.log.YYYY-MM-DD_HH
+    file_handler = TimedRotatingFileHandler(
+        filename=app.config["LOG_FILE"],
+        when="H",
+        interval=1,
+        backupCount=0,
+        encoding="utf-8",
+        delay=True,
+    )
+
     logging.basicConfig(
         level=getattr(logging, app.config["LOG_LEVEL"], logging.INFO),
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
         handlers=[
-            logging.FileHandler(app.config["LOG_FILE"], encoding="utf-8"),
+            file_handler,
             logging.StreamHandler(),
         ],
     )

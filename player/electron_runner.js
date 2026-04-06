@@ -341,6 +341,17 @@ function createControlServer() {
       }
       return;
     }
+    if (req.method === "GET" && route === "/probe/window") {
+      const ready = Boolean(mainWindow && !mainWindow.isDestroyed());
+      const status = {
+        ready,
+        destroyed: !ready,
+        visible: ready ? Boolean(mainWindow.isVisible()) : false,
+        url: ready ? String(mainWindow.webContents.getURL() || "") : "",
+      };
+      writeJson(res, 200, { ok: true, status });
+      return;
+    }
     if (req.method === "POST" && route === "/inject/play") {
       const out = await runInject(SCRIPT_PLAY);
       writeJson(res, out.ok ? 200 : 500, out);
