@@ -26,6 +26,9 @@
 
         <div class="auth-help">
             <strong>默认管理员：</strong>admin / admin123
+            {% if ldap_enabled %}
+            <br><strong>LDAP：</strong>已启用统一身份登录
+            {% endif %}
         </div>
     </div>
 </section>

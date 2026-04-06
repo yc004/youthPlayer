@@ -7,3 +7,4 @@ python-vlc==3.0.12118
 requests==2.26.0
 SQLAlchemy==1.4.32
 Werkzeug==2.0.1
+ldap3==2.9.1

@@ -40,6 +40,9 @@ class User(UserMixin, db.Model):
     is_admin = db.Column(db.Boolean, default=False)
     is_active = db.Column(db.Boolean, default=True)
     permissions = db.Column(db.Text, nullable=False, default="")
+    auth_source = db.Column(db.String(20), nullable=False, default="local")  # local/ldap
+    ldap_dn = db.Column(db.String(255), nullable=False, default="")
+    ldap_last_sync_at = db.Column(db.DateTime, nullable=True)
 
     def __repr__(self):
         return f"<User {self.username}>"
@@ -81,6 +84,10 @@ class User(UserMixin, db.Model):
         if self.is_admin:
             return True
         return permission_code in self.permission_set
+
+    @property
+    def is_ldap_user(self):
+        return (self.auth_source or "").strip().lower() == "ldap"
 
 
 class Schedule(db.Model):

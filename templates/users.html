@@ -69,6 +69,7 @@
             <div class="summary-meta">
                 <span class="chip {{ 'success' if user.is_active else 'muted' }}">{{ "启用中" if user.is_active else "已停用" }}</span>
                 <span class="chip info">{{ "管理员" if user.is_admin else "普通用户" }}</span>
+                <span class="chip">{{ "LDAP" if user.is_ldap_user else "LOCAL" }}</span>
             </div>
             {% if user.is_admin %}
             <p>管理员拥有全部权限。</p>

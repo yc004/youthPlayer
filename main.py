@@ -153,16 +153,32 @@ def init_db():
                     conn.exec_driver_sql(
                         "ALTER TABLE user ADD COLUMN permissions TEXT NOT NULL DEFAULT ''"
                     )
+                if "auth_source" not in user_columns:
+                    conn.exec_driver_sql(
+                        "ALTER TABLE user ADD COLUMN auth_source VARCHAR(20) NOT NULL DEFAULT 'local'"
+                    )
+                if "ldap_dn" not in user_columns:
+                    conn.exec_driver_sql(
+                        "ALTER TABLE user ADD COLUMN ldap_dn VARCHAR(255) NOT NULL DEFAULT ''"
+                    )
+                if "ldap_last_sync_at" not in user_columns:
+                    conn.exec_driver_sql(
+                        "ALTER TABLE user ADD COLUMN ldap_last_sync_at DATETIME"
+                    )
 
         admin = User.query.filter_by(username="admin").first()
         if not admin:
-            admin = User(username="admin", is_admin=True, is_active=True)
+            admin = User(username="admin", is_admin=True, is_active=True, auth_source="local")
             admin.set_password("admin123")
             db.session.add(admin)
             db.session.commit()
             logger.info("已创建默认管理员账户：admin / admin123")
 
         updated = False
+        for user in User.query.all():
+            if not (user.auth_source or "").strip():
+                user.auth_source = "local"
+                updated = True
         for user in User.query.filter_by(is_admin=False).all():
             if not user.permissions:
                 user.set_permissions(DEFAULT_USER_PERMISSIONS)
@@ -251,6 +267,67 @@ def load_runtime_settings():
             if nc_cache_auto_clear_time_item
             else Config.NEXTCLOUD_CACHE_AUTO_CLEAR_TIME
         ).strip() or "03:00"
+
+        ldap_enabled_item = db.session.get(SystemSetting, "ldap_enabled")
+        ldap_server_uri_item = db.session.get(SystemSetting, "ldap_server_uri")
+        ldap_use_ssl_item = db.session.get(SystemSetting, "ldap_use_ssl")
+        ldap_connect_timeout_item = db.session.get(SystemSetting, "ldap_connect_timeout")
+        ldap_base_dn_item = db.session.get(SystemSetting, "ldap_base_dn")
+        ldap_bind_dn_item = db.session.get(SystemSetting, "ldap_bind_dn")
+        ldap_bind_password_item = db.session.get(SystemSetting, "ldap_bind_password")
+        ldap_user_filter_item = db.session.get(SystemSetting, "ldap_user_filter")
+        ldap_user_dn_template_item = db.session.get(SystemSetting, "ldap_user_dn_template")
+        ldap_group_attr_item = db.session.get(SystemSetting, "ldap_group_attr")
+        ldap_allowed_groups_item = db.session.get(SystemSetting, "ldap_allowed_groups")
+        ldap_admin_groups_item = db.session.get(SystemSetting, "ldap_admin_groups")
+        ldap_auto_create_users_item = db.session.get(SystemSetting, "ldap_auto_create_users")
+        ldap_local_fallback_item = db.session.get(SystemSetting, "ldap_local_fallback")
+        ldap_sync_group_admin_item = db.session.get(SystemSetting, "ldap_sync_group_admin")
+
+        Config.LDAP_ENABLED = str(
+            ldap_enabled_item.value if ldap_enabled_item else Config.LDAP_ENABLED
+        ).strip().lower() in {"1", "true", "yes", "on"}
+        Config.LDAP_SERVER_URI = str(
+            ldap_server_uri_item.value if ldap_server_uri_item else Config.LDAP_SERVER_URI
+        ).strip()
+        Config.LDAP_USE_SSL = str(
+            ldap_use_ssl_item.value if ldap_use_ssl_item else Config.LDAP_USE_SSL
+        ).strip().lower() in {"1", "true", "yes", "on"}
+        try:
+            Config.LDAP_CONNECT_TIMEOUT = float(
+                str(ldap_connect_timeout_item.value if ldap_connect_timeout_item else Config.LDAP_CONNECT_TIMEOUT).strip()
+            )
+        except Exception:
+            pass
+        Config.LDAP_BASE_DN = str(ldap_base_dn_item.value if ldap_base_dn_item else Config.LDAP_BASE_DN).strip()
+        Config.LDAP_BIND_DN = str(ldap_bind_dn_item.value if ldap_bind_dn_item else Config.LDAP_BIND_DN).strip()
+        Config.LDAP_BIND_PASSWORD = str(
+            ldap_bind_password_item.value if ldap_bind_password_item else Config.LDAP_BIND_PASSWORD
+        ).strip()
+        Config.LDAP_USER_FILTER = str(
+            ldap_user_filter_item.value if ldap_user_filter_item else Config.LDAP_USER_FILTER
+        ).strip() or "(sAMAccountName={username})"
+        Config.LDAP_USER_DN_TEMPLATE = str(
+            ldap_user_dn_template_item.value if ldap_user_dn_template_item else Config.LDAP_USER_DN_TEMPLATE
+        ).strip()
+        Config.LDAP_GROUP_ATTR = str(
+            ldap_group_attr_item.value if ldap_group_attr_item else Config.LDAP_GROUP_ATTR
+        ).strip() or "memberOf"
+        Config.LDAP_ALLOWED_GROUPS = str(
+            ldap_allowed_groups_item.value if ldap_allowed_groups_item else Config.LDAP_ALLOWED_GROUPS
+        ).strip()
+        Config.LDAP_ADMIN_GROUPS = str(
+            ldap_admin_groups_item.value if ldap_admin_groups_item else Config.LDAP_ADMIN_GROUPS
+        ).strip()
+        Config.LDAP_AUTO_CREATE_USERS = str(
+            ldap_auto_create_users_item.value if ldap_auto_create_users_item else Config.LDAP_AUTO_CREATE_USERS
+        ).strip().lower() in {"1", "true", "yes", "on"}
+        Config.LDAP_LOCAL_FALLBACK = str(
+            ldap_local_fallback_item.value if ldap_local_fallback_item else Config.LDAP_LOCAL_FALLBACK
+        ).strip().lower() in {"1", "true", "yes", "on"}
+        Config.LDAP_SYNC_GROUP_ADMIN = str(
+            ldap_sync_group_admin_item.value if ldap_sync_group_admin_item else Config.LDAP_SYNC_GROUP_ADMIN
+        ).strip().lower() in {"1", "true", "yes", "on"}
 
 
 def setup_monitor_capture_job():

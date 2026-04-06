@@ -26,6 +26,8 @@ from models import (
     User,
     db,
 )
+from security.ldap_auth import authenticate as ldap_authenticate
+from security.ldap_auth import group_intersects as ldap_group_intersects
 
 
 main = Blueprint("main", __name__)
@@ -54,8 +56,32 @@ SETTING_KEY_NEXTCLOUD_ROOT = "nextcloud_root"
 SETTING_KEY_NEXTCLOUD_SKIP_SSL_VERIFY = "nextcloud_skip_ssl_verify"
 SETTING_KEY_NEXTCLOUD_CACHE_AUTO_CLEAR_ENABLED = "nextcloud_cache_auto_clear_enabled"
 SETTING_KEY_NEXTCLOUD_CACHE_AUTO_CLEAR_TIME = "nextcloud_cache_auto_clear_time"
+SETTING_KEY_LDAP_ENABLED = "ldap_enabled"
+SETTING_KEY_LDAP_SERVER_URI = "ldap_server_uri"
+SETTING_KEY_LDAP_USE_SSL = "ldap_use_ssl"
+SETTING_KEY_LDAP_CONNECT_TIMEOUT = "ldap_connect_timeout"
+SETTING_KEY_LDAP_BASE_DN = "ldap_base_dn"
+SETTING_KEY_LDAP_BIND_DN = "ldap_bind_dn"
+SETTING_KEY_LDAP_BIND_PASSWORD = "ldap_bind_password"
+SETTING_KEY_LDAP_USER_FILTER = "ldap_user_filter"
+SETTING_KEY_LDAP_USER_DN_TEMPLATE = "ldap_user_dn_template"
+SETTING_KEY_LDAP_GROUP_ATTR = "ldap_group_attr"
+SETTING_KEY_LDAP_ALLOWED_GROUPS = "ldap_allowed_groups"
+SETTING_KEY_LDAP_ADMIN_GROUPS = "ldap_admin_groups"
+SETTING_KEY_LDAP_AUTO_CREATE_USERS = "ldap_auto_create_users"
+SETTING_KEY_LDAP_LOCAL_FALLBACK = "ldap_local_fallback"
+SETTING_KEY_LDAP_SYNC_GROUP_ADMIN = "ldap_sync_group_admin"
 SCREENSAVER_ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".bmp", ".webp"}
 SCREENSAVER_MAX_SIZE = 20 * 1024 * 1024
+SETTINGS_ALLOWED_TABS = {
+    "general",
+    "screensaver",
+    "nextcloud",
+    "ldap",
+    "security",
+    "cache",
+    "audit",
+}
 PERMISSION_DEFS = [
     ("dashboard.view", "查看控制台"),
     ("playback.control", "控制播放"),
@@ -114,6 +140,52 @@ def _first_available_page():
 def _parse_user_permissions(form):
     selected = form.getlist("permissions")
     return sorted({item for item in selected if item in ALL_PERMISSIONS})
+
+
+def _ldap_enabled():
+    return bool(
+        getattr(Config, "LDAP_ENABLED", False)
+        and str(getattr(Config, "LDAP_SERVER_URI", "") or "").strip()
+        and (
+            str(getattr(Config, "LDAP_BASE_DN", "") or "").strip()
+            or str(getattr(Config, "LDAP_USER_DN_TEMPLATE", "") or "").strip()
+        )
+    )
+
+
+def _sync_user_from_ldap(username, ldap_result):
+    user = User.query.filter_by(username=username).first()
+    if not user:
+        if not getattr(Config, "LDAP_AUTO_CREATE_USERS", True):
+            return None, "当前 LDAP 账号未在本系统开通。"
+        user = User(
+            username=username,
+            password="",
+            is_admin=False,
+            is_active=True,
+            auth_source="ldap",
+            ldap_dn=(ldap_result.user_dn or ""),
+            ldap_last_sync_at=datetime.now(),
+        )
+        user.set_permissions(DEFAULT_USER_PERMISSIONS)
+        db.session.add(user)
+
+    user.auth_source = "ldap"
+    user.ldap_dn = ldap_result.user_dn or ""
+    user.ldap_last_sync_at = datetime.now()
+
+    admin_groups = str(getattr(Config, "LDAP_ADMIN_GROUPS", "") or "").strip()
+    if getattr(Config, "LDAP_SYNC_GROUP_ADMIN", True) and admin_groups:
+        user.is_admin = ldap_group_intersects(ldap_result.groups, admin_groups)
+
+    if not user.is_admin and not user.permissions:
+        user.set_permissions(DEFAULT_USER_PERMISSIONS)
+
+    db.session.commit()
+
+    if not user.is_active:
+        return None, "当前账号已被本地策略禁用。"
+    return user, ""
 
 
 def _parse_datetime(value, allow_time_only=False):
@@ -208,6 +280,11 @@ def _back(default_endpoint):
     if ref:
         return redirect(ref)
     return redirect(url_for(default_endpoint))
+
+
+def _normalize_settings_tab(raw_tab):
+    tab = str(raw_tab or "").strip().lower()
+    return tab if tab in SETTINGS_ALLOWED_TABS else "general"
 
 
 def _list_windows_roots():
@@ -639,17 +716,46 @@ def login():
     if request.method == "POST":
         username = request.form.get("username", "").strip()
         password = request.form.get("password", "")
+        ldap_error = ""
+
+        if _ldap_enabled():
+            ldap_result = ldap_authenticate(Config, username, password)
+            if ldap_result.ok:
+                user, sync_error = _sync_user_from_ldap(username, ldap_result)
+                if not user:
+                    flash(sync_error or "LDAP 登录被本地策略拒绝。", "error")
+                    return render_template("login.html", ldap_enabled=True)
+
+                login_user(user)
+                flash(f"欢迎回来，{user.username}。", "success")
+                return redirect(url_for("main.index"))
+
+            ldap_error = ldap_result.error or "ldap_auth_failed"
+            if not getattr(Config, "LDAP_LOCAL_FALLBACK", True):
+                flash("LDAP 认证失败，请联系管理员。", "error")
+                logger.info("LDAP login failed for %s: %s", username, ldap_error)
+                return render_template("login.html", ldap_enabled=True)
+
         user = User.query.filter_by(username=username).first()
+
+        if user and (user.auth_source or "").strip().lower() == "ldap":
+            flash("该账号已绑定 LDAP，请使用 LDAP 密码登录。", "error")
+            return render_template("login.html", ldap_enabled=_ldap_enabled())
 
         if not user or not user.check_password(password):
             flash("用户名或密码错误。", "error")
-            return render_template("login.html")
+            if ldap_error:
+                logger.info("LDAP fallback to local failed for %s: %s", username, ldap_error)
+            return render_template("login.html", ldap_enabled=_ldap_enabled())
 
         if not user.is_active:
-            flash("当前账户已被停用，请联系管理员。", "error")
-            return render_template("login.html")
+            flash("当前账号已禁用，请联系管理员。", "error")
+            return render_template("login.html", ldap_enabled=_ldap_enabled())
 
-        if not user.password.startswith(("pbkdf2:", "scrypt:")):
+        if (
+            (user.auth_source or "").strip().lower() != "ldap"
+            and not user.password.startswith(("pbkdf2:", "scrypt:"))
+        ):
             user.set_password(password)
             db.session.commit()
 
@@ -657,7 +763,7 @@ def login():
         flash(f"欢迎回来，{user.username}。", "success")
         return redirect(url_for("main.index"))
 
-    return render_template("login.html")
+    return render_template("login.html", ldap_enabled=_ldap_enabled())
 
 
 @main.route("/logout")
@@ -1196,8 +1302,15 @@ def manage_users():
 @login_required
 @_permission_required("settings.manage")
 def settings():
+    active_tab = _normalize_settings_tab(request.args.get("tab"))
+
+    def _settings_redirect(tab_value=None):
+        tab = _normalize_settings_tab(tab_value or active_tab)
+        return redirect(url_for("main.settings", tab=tab))
+
     if request.method == "POST":
         form_action = (request.form.get("form_action") or "system").strip()
+        posted_tab = _normalize_settings_tab(request.form.get("active_tab") or active_tab)
         if form_action == "nextcloud_cache":
             cache_action = (request.form.get("cache_action") or "").strip()
             if cache_action == "clear":
@@ -1215,21 +1328,24 @@ def settings():
                 )
             else:
                 flash("未知缓存操作。", "error")
-            return redirect(url_for("main.settings"))
+            return _settings_redirect("cache")
 
         if form_action == "password":
+            if (current_user.auth_source or "").strip().lower() == "ldap":
+                flash("LDAP 账号密码请在域控/统一身份平台修改。", "error")
+                return _settings_redirect("security")
             old_password = request.form.get("old_password", "")
             new_password = request.form.get("new_password", "")
             confirm_password = request.form.get("confirm_password", "")
             if not current_user.check_password(old_password):
                 flash("当前密码不正确。", "error")
-                return redirect(url_for("main.settings"))
+                return _settings_redirect("security")
             if len(new_password) < 6:
                 flash("新密码至少 6 位。", "error")
-                return redirect(url_for("main.settings"))
+                return _settings_redirect("security")
             if new_password != confirm_password:
                 flash("两次输入的新密码不一致。", "error")
-                return redirect(url_for("main.settings"))
+                return _settings_redirect("security")
             current_user.set_password(new_password)
             db.session.commit()
             _append_operation_audit_log(
@@ -1239,7 +1355,186 @@ def settings():
                 target_id=str(current_user.id),
             )
             flash("管理员密码修改成功。", "success")
-            return redirect(url_for("main.settings"))
+            return _settings_redirect("security")
+
+        if form_action == "ldap":
+            ldap_enabled = "ldap_enabled" in request.form
+            ldap_server_uri = (request.form.get("ldap_server_uri") or "").strip()
+            ldap_use_ssl = "ldap_use_ssl" in request.form
+            ldap_base_dn = (request.form.get("ldap_base_dn") or "").strip()
+            ldap_bind_dn = (request.form.get("ldap_bind_dn") or "").strip()
+            ldap_bind_password = (request.form.get("ldap_bind_password") or "").strip()
+            ldap_user_filter = (request.form.get("ldap_user_filter") or "").strip()
+            ldap_user_dn_template = (request.form.get("ldap_user_dn_template") or "").strip()
+            ldap_group_attr = (request.form.get("ldap_group_attr") or "").strip()
+            ldap_allowed_groups = (request.form.get("ldap_allowed_groups") or "").strip()
+            ldap_admin_groups = (request.form.get("ldap_admin_groups") or "").strip()
+            ldap_auto_create_users = "ldap_auto_create_users" in request.form
+            ldap_local_fallback = "ldap_local_fallback" in request.form
+            ldap_sync_group_admin = "ldap_sync_group_admin" in request.form
+            try:
+                ldap_connect_timeout = float(request.form.get("ldap_connect_timeout") or Config.LDAP_CONNECT_TIMEOUT)
+            except Exception:
+                ldap_connect_timeout = float(Config.LDAP_CONNECT_TIMEOUT)
+            ldap_connect_timeout = max(1.0, min(60.0, ldap_connect_timeout))
+
+            if not ldap_user_filter:
+                ldap_user_filter = "(sAMAccountName={username})"
+            if not ldap_group_attr:
+                ldap_group_attr = "memberOf"
+
+            if ldap_enabled and not ldap_server_uri:
+                flash("启用 LDAP 前请填写 LDAP 服务器地址。", "error")
+                return _settings_redirect("ldap")
+            if ldap_enabled and not (ldap_base_dn or ldap_user_dn_template):
+                flash("启用 LDAP 前请至少填写 Base DN 或用户 DN 模板。", "error")
+                return _settings_redirect("ldap")
+
+            old_ldap_enabled = "1" if _get_setting_bool(SETTING_KEY_LDAP_ENABLED, Config.LDAP_ENABLED) else "0"
+            old_ldap_server_uri = _get_setting_str(SETTING_KEY_LDAP_SERVER_URI, Config.LDAP_SERVER_URI)
+            old_ldap_use_ssl = "1" if _get_setting_bool(SETTING_KEY_LDAP_USE_SSL, Config.LDAP_USE_SSL) else "0"
+            old_ldap_connect_timeout = _get_setting_str(
+                SETTING_KEY_LDAP_CONNECT_TIMEOUT,
+                str(Config.LDAP_CONNECT_TIMEOUT),
+            )
+            old_ldap_base_dn = _get_setting_str(SETTING_KEY_LDAP_BASE_DN, Config.LDAP_BASE_DN)
+            old_ldap_bind_dn = _get_setting_str(SETTING_KEY_LDAP_BIND_DN, Config.LDAP_BIND_DN)
+            old_ldap_bind_password = _get_setting_str(SETTING_KEY_LDAP_BIND_PASSWORD, Config.LDAP_BIND_PASSWORD)
+            old_ldap_user_filter = _get_setting_str(SETTING_KEY_LDAP_USER_FILTER, Config.LDAP_USER_FILTER)
+            old_ldap_user_dn_template = _get_setting_str(
+                SETTING_KEY_LDAP_USER_DN_TEMPLATE,
+                Config.LDAP_USER_DN_TEMPLATE,
+            )
+            old_ldap_group_attr = _get_setting_str(SETTING_KEY_LDAP_GROUP_ATTR, Config.LDAP_GROUP_ATTR)
+            old_ldap_allowed_groups = _get_setting_str(SETTING_KEY_LDAP_ALLOWED_GROUPS, Config.LDAP_ALLOWED_GROUPS)
+            old_ldap_admin_groups = _get_setting_str(SETTING_KEY_LDAP_ADMIN_GROUPS, Config.LDAP_ADMIN_GROUPS)
+            old_ldap_auto_create_users = (
+                "1" if _get_setting_bool(SETTING_KEY_LDAP_AUTO_CREATE_USERS, Config.LDAP_AUTO_CREATE_USERS) else "0"
+            )
+            old_ldap_local_fallback = (
+                "1" if _get_setting_bool(SETTING_KEY_LDAP_LOCAL_FALLBACK, Config.LDAP_LOCAL_FALLBACK) else "0"
+            )
+            old_ldap_sync_group_admin = (
+                "1" if _get_setting_bool(SETTING_KEY_LDAP_SYNC_GROUP_ADMIN, Config.LDAP_SYNC_GROUP_ADMIN) else "0"
+            )
+
+            _set_setting_bool(SETTING_KEY_LDAP_ENABLED, ldap_enabled)
+            _set_setting_str(SETTING_KEY_LDAP_SERVER_URI, ldap_server_uri)
+            _set_setting_bool(SETTING_KEY_LDAP_USE_SSL, ldap_use_ssl)
+            _set_setting_str(SETTING_KEY_LDAP_CONNECT_TIMEOUT, f"{ldap_connect_timeout:g}")
+            _set_setting_str(SETTING_KEY_LDAP_BASE_DN, ldap_base_dn)
+            _set_setting_str(SETTING_KEY_LDAP_BIND_DN, ldap_bind_dn)
+            _set_setting_str(SETTING_KEY_LDAP_BIND_PASSWORD, ldap_bind_password)
+            _set_setting_str(SETTING_KEY_LDAP_USER_FILTER, ldap_user_filter)
+            _set_setting_str(SETTING_KEY_LDAP_USER_DN_TEMPLATE, ldap_user_dn_template)
+            _set_setting_str(SETTING_KEY_LDAP_GROUP_ATTR, ldap_group_attr)
+            _set_setting_str(SETTING_KEY_LDAP_ALLOWED_GROUPS, ldap_allowed_groups)
+            _set_setting_str(SETTING_KEY_LDAP_ADMIN_GROUPS, ldap_admin_groups)
+            _set_setting_bool(SETTING_KEY_LDAP_AUTO_CREATE_USERS, ldap_auto_create_users)
+            _set_setting_bool(SETTING_KEY_LDAP_LOCAL_FALLBACK, ldap_local_fallback)
+            _set_setting_bool(SETTING_KEY_LDAP_SYNC_GROUP_ADMIN, ldap_sync_group_admin)
+
+            Config.LDAP_ENABLED = ldap_enabled
+            Config.LDAP_SERVER_URI = ldap_server_uri
+            Config.LDAP_USE_SSL = ldap_use_ssl
+            Config.LDAP_CONNECT_TIMEOUT = ldap_connect_timeout
+            Config.LDAP_BASE_DN = ldap_base_dn
+            Config.LDAP_BIND_DN = ldap_bind_dn
+            Config.LDAP_BIND_PASSWORD = ldap_bind_password
+            Config.LDAP_USER_FILTER = ldap_user_filter
+            Config.LDAP_USER_DN_TEMPLATE = ldap_user_dn_template
+            Config.LDAP_GROUP_ATTR = ldap_group_attr
+            Config.LDAP_ALLOWED_GROUPS = ldap_allowed_groups
+            Config.LDAP_ADMIN_GROUPS = ldap_admin_groups
+            Config.LDAP_AUTO_CREATE_USERS = ldap_auto_create_users
+            Config.LDAP_LOCAL_FALLBACK = ldap_local_fallback
+            Config.LDAP_SYNC_GROUP_ADMIN = ldap_sync_group_admin
+
+            if old_ldap_enabled != ("1" if ldap_enabled else "0"):
+                _append_setting_audit_log(SETTING_KEY_LDAP_ENABLED, old_ldap_enabled, "1" if ldap_enabled else "0")
+            if old_ldap_server_uri != ldap_server_uri:
+                _append_setting_audit_log(
+                    SETTING_KEY_LDAP_SERVER_URI,
+                    old_ldap_server_uri or "<empty>",
+                    ldap_server_uri or "<empty>",
+                )
+            if old_ldap_use_ssl != ("1" if ldap_use_ssl else "0"):
+                _append_setting_audit_log(SETTING_KEY_LDAP_USE_SSL, old_ldap_use_ssl, "1" if ldap_use_ssl else "0")
+            if old_ldap_connect_timeout != f"{ldap_connect_timeout:g}":
+                _append_setting_audit_log(
+                    SETTING_KEY_LDAP_CONNECT_TIMEOUT,
+                    old_ldap_connect_timeout,
+                    f"{ldap_connect_timeout:g}",
+                )
+            if old_ldap_base_dn != ldap_base_dn:
+                _append_setting_audit_log(
+                    SETTING_KEY_LDAP_BASE_DN,
+                    old_ldap_base_dn or "<empty>",
+                    ldap_base_dn or "<empty>",
+                )
+            if old_ldap_bind_dn != ldap_bind_dn:
+                _append_setting_audit_log(
+                    SETTING_KEY_LDAP_BIND_DN,
+                    old_ldap_bind_dn or "<empty>",
+                    ldap_bind_dn or "<empty>",
+                )
+            if old_ldap_bind_password != ldap_bind_password:
+                _append_setting_audit_log(
+                    SETTING_KEY_LDAP_BIND_PASSWORD,
+                    "<hidden>" if old_ldap_bind_password else "<empty>",
+                    "<hidden>" if ldap_bind_password else "<empty>",
+                )
+            if old_ldap_user_filter != ldap_user_filter:
+                _append_setting_audit_log(
+                    SETTING_KEY_LDAP_USER_FILTER,
+                    old_ldap_user_filter or "<empty>",
+                    ldap_user_filter or "<empty>",
+                )
+            if old_ldap_user_dn_template != ldap_user_dn_template:
+                _append_setting_audit_log(
+                    SETTING_KEY_LDAP_USER_DN_TEMPLATE,
+                    old_ldap_user_dn_template or "<empty>",
+                    ldap_user_dn_template or "<empty>",
+                )
+            if old_ldap_group_attr != ldap_group_attr:
+                _append_setting_audit_log(
+                    SETTING_KEY_LDAP_GROUP_ATTR,
+                    old_ldap_group_attr or "<empty>",
+                    ldap_group_attr or "<empty>",
+                )
+            if old_ldap_allowed_groups != ldap_allowed_groups:
+                _append_setting_audit_log(
+                    SETTING_KEY_LDAP_ALLOWED_GROUPS,
+                    old_ldap_allowed_groups or "<empty>",
+                    ldap_allowed_groups or "<empty>",
+                )
+            if old_ldap_admin_groups != ldap_admin_groups:
+                _append_setting_audit_log(
+                    SETTING_KEY_LDAP_ADMIN_GROUPS,
+                    old_ldap_admin_groups or "<empty>",
+                    ldap_admin_groups or "<empty>",
+                )
+            if old_ldap_auto_create_users != ("1" if ldap_auto_create_users else "0"):
+                _append_setting_audit_log(
+                    SETTING_KEY_LDAP_AUTO_CREATE_USERS,
+                    old_ldap_auto_create_users,
+                    "1" if ldap_auto_create_users else "0",
+                )
+            if old_ldap_local_fallback != ("1" if ldap_local_fallback else "0"):
+                _append_setting_audit_log(
+                    SETTING_KEY_LDAP_LOCAL_FALLBACK,
+                    old_ldap_local_fallback,
+                    "1" if ldap_local_fallback else "0",
+                )
+            if old_ldap_sync_group_admin != ("1" if ldap_sync_group_admin else "0"):
+                _append_setting_audit_log(
+                    SETTING_KEY_LDAP_SYNC_GROUP_ADMIN,
+                    old_ldap_sync_group_admin,
+                    "1" if ldap_sync_group_admin else "0",
+                )
+
+            flash("LDAP 设置已保存。", "success")
+            return _settings_redirect("ldap")
 
         enable_all_electron = "all_play_via_electron" in request.form
         monitor_interval = request.form.get("monitor_capture_interval", str(Config.MONITOR_CAPTURE_INTERVAL))
@@ -1292,7 +1587,7 @@ def settings():
             nextcloud_root = "/" + nextcloud_root
         if nextcloud_enabled and (not nextcloud_url or not nextcloud_username or not nextcloud_password):
             flash("启用 Nextcloud 前请完整填写地址、用户名和应用密码。", "error")
-            return redirect(url_for("main.settings"))
+            return _settings_redirect("nextcloud")
 
         old_value = "1" if _get_setting_bool(SETTING_KEY_ALL_ELECTRON, Config.ALL_PLAY_VIA_ELECTRON) else "0"
         new_value = "1" if enable_all_electron else "0"
@@ -1361,7 +1656,7 @@ def settings():
                 new_screensaver_image = _save_screensaver_upload(upload_file)
         except Exception as exc:
             flash(f"屏保图片更新失败：{exc}", "error")
-            return redirect(url_for("main.settings"))
+            return _settings_redirect("screensaver")
 
         _set_setting_str(SETTING_KEY_SCREENSAVER_IMAGE, new_screensaver_image)
         if old_screensaver_image != new_screensaver_image:
@@ -1483,7 +1778,7 @@ def settings():
         except Exception:
             pass
         flash("系统设置已保存。", "success")
-        return redirect(url_for("main.settings"))
+        return _settings_redirect(posted_tab)
 
     all_play_via_electron = _get_setting_bool(SETTING_KEY_ALL_ELECTRON, Config.ALL_PLAY_VIA_ELECTRON)
     monitor_capture_interval = _get_setting_int(SETTING_KEY_MONITOR_INTERVAL, Config.MONITOR_CAPTURE_INTERVAL)
@@ -1536,6 +1831,21 @@ def settings():
         ),
         default="03:00",
     )
+    ldap_enabled = _get_setting_bool(SETTING_KEY_LDAP_ENABLED, Config.LDAP_ENABLED)
+    ldap_server_uri = _get_setting_str(SETTING_KEY_LDAP_SERVER_URI, Config.LDAP_SERVER_URI)
+    ldap_use_ssl = _get_setting_bool(SETTING_KEY_LDAP_USE_SSL, Config.LDAP_USE_SSL)
+    ldap_connect_timeout = _get_setting_str(SETTING_KEY_LDAP_CONNECT_TIMEOUT, str(Config.LDAP_CONNECT_TIMEOUT))
+    ldap_base_dn = _get_setting_str(SETTING_KEY_LDAP_BASE_DN, Config.LDAP_BASE_DN)
+    ldap_bind_dn = _get_setting_str(SETTING_KEY_LDAP_BIND_DN, Config.LDAP_BIND_DN)
+    ldap_bind_password = _get_setting_str(SETTING_KEY_LDAP_BIND_PASSWORD, Config.LDAP_BIND_PASSWORD)
+    ldap_user_filter = _get_setting_str(SETTING_KEY_LDAP_USER_FILTER, Config.LDAP_USER_FILTER)
+    ldap_user_dn_template = _get_setting_str(SETTING_KEY_LDAP_USER_DN_TEMPLATE, Config.LDAP_USER_DN_TEMPLATE)
+    ldap_group_attr = _get_setting_str(SETTING_KEY_LDAP_GROUP_ATTR, Config.LDAP_GROUP_ATTR)
+    ldap_allowed_groups = _get_setting_str(SETTING_KEY_LDAP_ALLOWED_GROUPS, Config.LDAP_ALLOWED_GROUPS)
+    ldap_admin_groups = _get_setting_str(SETTING_KEY_LDAP_ADMIN_GROUPS, Config.LDAP_ADMIN_GROUPS)
+    ldap_auto_create_users = _get_setting_bool(SETTING_KEY_LDAP_AUTO_CREATE_USERS, Config.LDAP_AUTO_CREATE_USERS)
+    ldap_local_fallback = _get_setting_bool(SETTING_KEY_LDAP_LOCAL_FALLBACK, Config.LDAP_LOCAL_FALLBACK)
+    ldap_sync_group_admin = _get_setting_bool(SETTING_KEY_LDAP_SYNC_GROUP_ADMIN, Config.LDAP_SYNC_GROUP_ADMIN)
     screens = player.get_available_screens() if player else []
     audit_logs = (
         SettingAuditLog.query.order_by(SettingAuditLog.created_at.desc(), SettingAuditLog.id.desc())
@@ -1568,7 +1878,23 @@ def settings():
         nextcloud_skip_ssl_verify=nextcloud_skip_ssl_verify,
         nextcloud_cache_auto_clear_enabled=nextcloud_cache_auto_clear_enabled,
         nextcloud_cache_auto_clear_time=nextcloud_cache_auto_clear_time,
+        ldap_enabled=ldap_enabled,
+        ldap_server_uri=ldap_server_uri,
+        ldap_use_ssl=ldap_use_ssl,
+        ldap_connect_timeout=ldap_connect_timeout,
+        ldap_base_dn=ldap_base_dn,
+        ldap_bind_dn=ldap_bind_dn,
+        ldap_bind_password=ldap_bind_password,
+        ldap_user_filter=ldap_user_filter,
+        ldap_user_dn_template=ldap_user_dn_template,
+        ldap_group_attr=ldap_group_attr,
+        ldap_allowed_groups=ldap_allowed_groups,
+        ldap_admin_groups=ldap_admin_groups,
+        ldap_auto_create_users=ldap_auto_create_users,
+        ldap_local_fallback=ldap_local_fallback,
+        ldap_sync_group_admin=ldap_sync_group_admin,
         nextcloud_cache_stats=nextcloud_cache_stats,
+        active_tab=active_tab,
         audit_logs=audit_logs,
         operation_logs=operation_logs,
     )
@@ -1597,6 +1923,7 @@ def add_user():
         username=username,
         is_admin=make_admin,
         is_active="is_active" in request.form,
+        auth_source="local",
     )
     user.set_permissions(_parse_user_permissions(request.form) or DEFAULT_USER_PERMISSIONS)
     user.set_password(password)

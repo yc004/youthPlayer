@@ -373,3 +373,41 @@ python main.py
 - 每月清理一次 Nextcloud 缓存（按容量）
 - 变更前先做小范围测试计划
 - 大版本更新前备份数据库
+
+## 21. LDAP 统一账号接入
+
+系统已支持 LDAP 统一认证，可与现有本地账号体系并存。推荐先在测试环境验证，再切到生产。
+
+### 21.1 环境变量配置
+
+在启动服务前设置以下变量（`start_windows.bat` 或系统环境变量均可）：
+
+- `YP_LDAP_ENABLED=1`：启用 LDAP 登录
+- `YP_LDAP_SERVER_URI=ldap://ad.example.com` 或 `ldaps://ad.example.com`
+- `YP_LDAP_USE_SSL=0/1`：是否使用 SSL
+- `YP_LDAP_CONNECT_TIMEOUT=5`：连接超时秒数
+- `YP_LDAP_BASE_DN=DC=example,DC=com`：用户检索根 DN（搜索模式必填）
+- `YP_LDAP_BIND_DN=CN=ldap-reader,OU=Service,DC=example,DC=com`：检索账号（可选）
+- `YP_LDAP_BIND_PASSWORD=******`：检索账号密码（可选）
+- `YP_LDAP_USER_FILTER=(sAMAccountName={username})`：用户搜索过滤器
+- `YP_LDAP_USER_DN_TEMPLATE=`：用户 DN 模板（可选；与搜索模式二选一或并存）
+- `YP_LDAP_GROUP_ATTR=memberOf`：组属性名
+- `YP_LDAP_ALLOWED_GROUPS=CN=TVUsers,OU=Groups,DC=example,DC=com`：允许登录的组（逗号分隔，可空）
+- `YP_LDAP_ADMIN_GROUPS=CN=TVAdmins,OU=Groups,DC=example,DC=com`：映射管理员组（逗号分隔，可空）
+- `YP_LDAP_AUTO_CREATE_USERS=1`：LDAP 首次登录时自动在本地建档
+- `YP_LDAP_LOCAL_FALLBACK=1`：LDAP 失败时是否允许本地账号回退登录
+- `YP_LDAP_SYNC_GROUP_ADMIN=1`：是否按 LDAP 管理员组同步本地 `is_admin`
+
+### 21.2 登录行为说明
+
+- 启用 LDAP 后，登录优先走 LDAP 认证。
+- LDAP 登录成功后，可自动创建本地用户记录（不保存 LDAP 明文密码）。
+- 账号被标记为 LDAP 来源后，将禁止使用本地密码登录。
+- LDAP 账号密码修改需在域控/统一身份平台完成，系统内不提供修改入口。
+
+### 21.3 推荐上线步骤
+
+1. 先设置 `YP_LDAP_ENABLED=0`，仅配置参数并重启，确认服务启动正常。
+2. 用测试账号开启 `YP_LDAP_ENABLED=1` 验证登录。
+3. 确认 `YP_LDAP_ALLOWED_GROUPS`、`YP_LDAP_ADMIN_GROUPS` 生效。
+4. 最后决定是否关闭 `YP_LDAP_LOCAL_FALLBACK`（生产通常建议关闭）。

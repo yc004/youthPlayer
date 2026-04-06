@@ -7,195 +7,309 @@
     <div>
         <span class="eyebrow">System</span>
         <h1>系统设置</h1>
-        <p>引擎开关、管理员密码与审计日志。</p>
+        <p>按模块分组管理基础参数、屏保、Nextcloud、LDAP、安全与审计。</p>
     </div>
 </section>
 
-<section class="layout-grid">
-    <article class="panel">
-        <div class="panel-head">
-            <h2>播放引擎设置</h2>
-            <span class="chip info">管理员</span>
-        </div>
-        <form method="post" action="{{ url_for('main.settings') }}" class="schedule-form" enctype="multipart/form-data">
-            <input type="hidden" name="form_action" value="system">
-            <label class="check-field">
-                <input type="checkbox" name="all_play_via_electron" {% if all_play_via_electron %}checked{% endif %}>
-                <span>全部内容走 Electron（本地/直播）</span>
-            </label>
-            <label class="field">
-                <span>监控截图频率（秒）</span>
-                <input type="number" name="monitor_capture_interval" min="2" max="3600" value="{{ monitor_capture_interval }}">
-            </label>
-            <label class="check-field">
-                <input type="checkbox" name="nextcloud_enabled" {% if nextcloud_enabled %}checked{% endif %}>
-                <span>启用 Nextcloud WebDAV 资源浏览</span>
-            </label>
-            <label class="field">
-                <span>Nextcloud 地址</span>
-                <input type="text" name="nextcloud_url" value="{{ nextcloud_url }}" placeholder="https://cloud.example.com">
-            </label>
-            <label class="field">
-                <span>Nextcloud 用户名</span>
-                <input type="text" name="nextcloud_username" value="{{ nextcloud_username }}">
-            </label>
-            <label class="field">
-                <span>Nextcloud 应用密码</span>
-                <input type="password" name="nextcloud_password" value="{{ nextcloud_password }}">
-            </label>
-            <label class="field">
-                <span>Nextcloud 根目录</span>
-                <input type="text" name="nextcloud_root" value="{{ nextcloud_root }}" placeholder="/">
-            </label>
-            <label class="check-field">
-                <input type="checkbox" name="nextcloud_skip_ssl_verify" {% if nextcloud_skip_ssl_verify %}checked{% endif %}>
-                <span>跳过 SSL 证书校验（仅内网自签证书场景）</span>
-            </label>
-            <label class="check-field">
-                <input type="checkbox" name="nextcloud_cache_auto_clear_enabled" {% if nextcloud_cache_auto_clear_enabled %}checked{% endif %}>
-                <span>Nextcloud 缓存自动清理（每日）</span>
-            </label>
-            <label class="field">
-                <span>自动清理时间（HH:MM）</span>
-                <input type="time" name="nextcloud_cache_auto_clear_time" value="{{ nextcloud_cache_auto_clear_time }}">
-            </label>
-            <div class="field field-wide">
-                <span>Nextcloud 连接测试与云端预览</span>
-                <div class="playlist-tools">
-                    <button type="button" class="btn btn-secondary" data-role="nc-test-btn">测试连接</button>
-                    <button type="button" class="btn btn-secondary" data-role="nc-preview-btn">预览目录</button>
-                    <small class="field-help" data-role="nc-test-result">可直接使用当前输入值测试，无需先保存。</small>
-                </div>
-                <div class="file-browser-path" style="margin-top:8px;">
-                    <input type="text" data-role="nc-preview-path" placeholder="输入云端路径，如 / 或 /videos">
-                    <button type="button" class="btn btn-primary" data-role="nc-preview-open">打开</button>
-                </div>
-                <div class="playlist-order-list" data-role="nc-preview-list"></div>
+<section class="panel settings-tabs-shell" data-role="settings-tabs" data-active-tab="{{ active_tab or 'general' }}">
+    <div class="settings-tab-nav" role="tablist" aria-label="Settings tabs">
+        <button type="button" class="settings-tab-btn" data-tab-target="general">基础</button>
+        <button type="button" class="settings-tab-btn" data-tab-target="screensaver">屏保</button>
+        <button type="button" class="settings-tab-btn" data-tab-target="nextcloud">Nextcloud</button>
+        <button type="button" class="settings-tab-btn" data-tab-target="ldap">LDAP</button>
+        <button type="button" class="settings-tab-btn" data-tab-target="security">安全</button>
+        <button type="button" class="settings-tab-btn" data-tab-target="cache">缓存</button>
+        <button type="button" class="settings-tab-btn" data-tab-target="audit">审计</button>
+    </div>
+
+    <form method="post" action="{{ url_for('main.settings') }}" enctype="multipart/form-data">
+        <input type="hidden" name="form_action" value="system">
+        <input type="hidden" name="active_tab" value="{{ active_tab or 'general' }}" data-role="settings-active-tab-input">
+
+        <div class="settings-tab-panel" data-tab-panel="general">
+            <div class="panel-head">
+                <h2>基础参数</h2>
+                <span class="chip info">播放引擎</span>
             </div>
-            <label class="field">
-                <span>屏保图片（jpg/jpeg/png/bmp/webp）</span>
-                <input type="file" name="screensaver_image" accept=".jpg,.jpeg,.png,.bmp,.webp,image/*">
-            </label>
-            <label class="field">
-                <span>屏保显示屏幕</span>
-                <select name="screensaver_screen_index">
-                    {% for screen in screens %}
-                    <option value="{{ screen.index }}" {% if screen.index == screensaver_screen_index %}selected{% endif %}>
-                        {{ screen.name }}（{{ screen.index }}）
-                    </option>
-                    {% endfor %}
-                </select>
-            </label>
-            <label class="field">
-                <span>屏保窗口模式</span>
-                <select name="screensaver_window_mode">
-                    <option value="fullscreen" {% if screensaver_window_mode != 'custom' %}selected{% endif %}>全屏</option>
-                    <option value="custom" {% if screensaver_window_mode == 'custom' %}selected{% endif %}>自定义</option>
-                </select>
-            </label>
-            <label class="field"><span>屏保窗口 X</span><input type="number" name="screensaver_window_left" value="{{ screensaver_window_left }}"></label>
-            <label class="field"><span>屏保窗口 Y</span><input type="number" name="screensaver_window_top" value="{{ screensaver_window_top }}"></label>
-            <label class="field"><span>屏保窗口宽</span><input type="number" min="100" name="screensaver_window_width" value="{{ screensaver_window_width }}"></label>
-            <label class="field"><span>屏保窗口高</span><input type="number" min="100" name="screensaver_window_height" value="{{ screensaver_window_height }}"></label>
-            {% if screensaver_image_path %}
-            <div class="field">
-                <span>当前屏保图片</span>
-                <div style="margin-top:8px;">
-                    <img src="{{ url_for('main.screensaver_preview') }}" alt="screensaver preview" style="max-width:100%;max-height:220px;border-radius:10px;border:1px solid rgba(148,163,184,.35);object-fit:contain;background:#0f172a;">
-                </div>
-                <label class="check-field" style="margin-top:10px;">
-                    <input type="checkbox" name="remove_screensaver_image">
-                    <span>删除当前屏保图片（保存后生效）</span>
+            <div class="settings-grid">
+                <label class="check-field field-wide">
+                    <input type="checkbox" name="all_play_via_electron" {% if all_play_via_electron %}checked{% endif %}>
+                    <span>全部内容统一走 Electron（本地/直播/网页）</span>
+                </label>
+                <label class="field">
+                    <span>监控截图频率（秒）</span>
+                    <input type="number" name="monitor_capture_interval" min="2" max="3600" value="{{ monitor_capture_interval }}">
                 </label>
             </div>
-            {% endif %}
             <div class="form-actions">
-                <button type="submit" class="btn btn-primary">保存设置</button>
+                <button type="submit" class="btn btn-primary">保存基础设置</button>
             </div>
-        </form>
-    </article>
-
-    <article class="panel">
-        <div class="panel-head">
-            <h2>修改管理员密码</h2>
-            <span class="chip info">安全</span>
         </div>
-        <form method="post" action="{{ url_for('main.settings') }}" class="schedule-form">
-            <input type="hidden" name="form_action" value="password">
+
+        <div class="settings-tab-panel" data-tab-panel="screensaver">
+            <div class="panel-head">
+                <h2>屏保参数</h2>
+                <span class="chip info">Idle</span>
+            </div>
+            <div class="settings-grid">
+                <label class="field field-wide">
+                    <span>屏保图片（jpg/jpeg/png/bmp/webp）</span>
+                    <input type="file" name="screensaver_image" accept=".jpg,.jpeg,.png,.bmp,.webp,image/*">
+                </label>
+                <label class="field">
+                    <span>屏保显示屏幕</span>
+                    <select name="screensaver_screen_index">
+                        {% for screen in screens %}
+                        <option value="{{ screen.index }}" {% if screen.index == screensaver_screen_index %}selected{% endif %}>
+                            {{ screen.name }} ({{ screen.index }})
+                        </option>
+                        {% endfor %}
+                    </select>
+                </label>
+                <label class="field">
+                    <span>屏保窗口模式</span>
+                    <select name="screensaver_window_mode">
+                        <option value="fullscreen" {% if screensaver_window_mode != 'custom' %}selected{% endif %}>全屏</option>
+                        <option value="custom" {% if screensaver_window_mode == 'custom' %}selected{% endif %}>自定义</option>
+                    </select>
+                </label>
+                <label class="field"><span>窗口 X</span><input type="number" name="screensaver_window_left" value="{{ screensaver_window_left }}"></label>
+                <label class="field"><span>窗口 Y</span><input type="number" name="screensaver_window_top" value="{{ screensaver_window_top }}"></label>
+                <label class="field"><span>窗口宽</span><input type="number" min="100" name="screensaver_window_width" value="{{ screensaver_window_width }}"></label>
+                <label class="field"><span>窗口高</span><input type="number" min="100" name="screensaver_window_height" value="{{ screensaver_window_height }}"></label>
+                {% if screensaver_image_path %}
+                <div class="field field-wide">
+                    <span>当前屏保图片</span>
+                    <div class="settings-preview">
+                        <img src="{{ url_for('main.screensaver_preview') }}" alt="screensaver preview">
+                    </div>
+                    <label class="check-field">
+                        <input type="checkbox" name="remove_screensaver_image">
+                        <span>删除当前屏保图片（保存后生效）</span>
+                    </label>
+                </div>
+                {% endif %}
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">保存屏保设置</button>
+            </div>
+        </div>
+
+        <div class="settings-tab-panel" data-tab-panel="nextcloud">
+            <div class="panel-head">
+                <h2>Nextcloud</h2>
+                <span class="chip info">WebDAV</span>
+            </div>
+            <div class="settings-grid">
+                <label class="check-field field-wide">
+                    <input type="checkbox" name="nextcloud_enabled" {% if nextcloud_enabled %}checked{% endif %}>
+                    <span>启用 Nextcloud WebDAV 资源浏览</span>
+                </label>
+                <label class="field">
+                    <span>Nextcloud 地址</span>
+                    <input type="text" name="nextcloud_url" value="{{ nextcloud_url }}" placeholder="https://cloud.example.com">
+                </label>
+                <label class="field">
+                    <span>Nextcloud 用户名</span>
+                    <input type="text" name="nextcloud_username" value="{{ nextcloud_username }}">
+                </label>
+                <label class="field">
+                    <span>Nextcloud 应用密码</span>
+                    <input type="password" name="nextcloud_password" value="{{ nextcloud_password }}">
+                </label>
+                <label class="field">
+                    <span>Nextcloud 根目录</span>
+                    <input type="text" name="nextcloud_root" value="{{ nextcloud_root }}" placeholder="/">
+                </label>
+                <label class="check-field">
+                    <input type="checkbox" name="nextcloud_skip_ssl_verify" {% if nextcloud_skip_ssl_verify %}checked{% endif %}>
+                    <span>跳过 SSL 证书校验（仅内网自签场景）</span>
+                </label>
+                <label class="check-field">
+                    <input type="checkbox" name="nextcloud_cache_auto_clear_enabled" {% if nextcloud_cache_auto_clear_enabled %}checked{% endif %}>
+                    <span>每天自动清理 Nextcloud 缓存</span>
+                </label>
+                <label class="field">
+                    <span>自动清理时间</span>
+                    <input type="time" name="nextcloud_cache_auto_clear_time" value="{{ nextcloud_cache_auto_clear_time }}">
+                </label>
+                <div class="field field-wide">
+                    <span>连接测试与目录预览</span>
+                    <div class="playlist-tools">
+                        <button type="button" class="btn btn-secondary" data-role="nc-test-btn">测试连接</button>
+                        <button type="button" class="btn btn-secondary" data-role="nc-preview-btn">预览目录</button>
+                        <small class="field-help" data-role="nc-test-result">使用当前输入参数直接测试，无需先保存。</small>
+                    </div>
+                    <div class="file-browser-path settings-inline-path">
+                        <input type="text" data-role="nc-preview-path" placeholder="输入云端路径，例如 / 或 /videos">
+                        <button type="button" class="btn btn-primary" data-role="nc-preview-open">打开</button>
+                    </div>
+                    <div class="playlist-order-list" data-role="nc-preview-list"></div>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">保存 Nextcloud 设置</button>
+            </div>
+        </div>
+    </form>
+
+    <form method="post" action="{{ url_for('main.settings') }}" class="settings-tab-panel" data-tab-panel="ldap">
+        <input type="hidden" name="form_action" value="ldap">
+        <input type="hidden" name="active_tab" value="ldap" data-role="settings-active-tab-input">
+        <div class="panel-head">
+            <h2>LDAP 统一认证</h2>
+            <span class="chip info">Identity</span>
+        </div>
+        <div class="settings-grid">
+            <label class="check-field field-wide">
+                <input type="checkbox" name="ldap_enabled" {% if ldap_enabled %}checked{% endif %}>
+                <span>启用 LDAP 登录</span>
+            </label>
+            <label class="field">
+                <span>LDAP Server URI</span>
+                <input type="text" name="ldap_server_uri" value="{{ ldap_server_uri }}" placeholder="ldap://ad.example.com 或 ldaps://ad.example.com">
+            </label>
+            <label class="check-field">
+                <input type="checkbox" name="ldap_use_ssl" {% if ldap_use_ssl %}checked{% endif %}>
+                <span>使用 SSL</span>
+            </label>
+            <label class="field">
+                <span>连接超时（秒）</span>
+                <input type="number" name="ldap_connect_timeout" min="1" max="60" step="0.5" value="{{ ldap_connect_timeout }}">
+            </label>
+            <label class="field">
+                <span>Base DN</span>
+                <input type="text" name="ldap_base_dn" value="{{ ldap_base_dn }}" placeholder="DC=example,DC=com">
+            </label>
+            <label class="field">
+                <span>Bind DN（可选）</span>
+                <input type="text" name="ldap_bind_dn" value="{{ ldap_bind_dn }}" placeholder="CN=ldap-reader,OU=Service,DC=example,DC=com">
+            </label>
+            <label class="field">
+                <span>Bind Password（可选）</span>
+                <input type="password" name="ldap_bind_password" value="{{ ldap_bind_password }}">
+            </label>
+            <label class="field">
+                <span>User Filter</span>
+                <input type="text" name="ldap_user_filter" value="{{ ldap_user_filter }}" placeholder="(sAMAccountName={username})">
+            </label>
+            <label class="field">
+                <span>User DN Template（可选）</span>
+                <input type="text" name="ldap_user_dn_template" value="{{ ldap_user_dn_template }}" placeholder="CN={username},OU=Users,DC=example,DC=com">
+            </label>
+            <label class="field">
+                <span>Group Attr</span>
+                <input type="text" name="ldap_group_attr" value="{{ ldap_group_attr or 'memberOf' }}" placeholder="memberOf">
+            </label>
+            <label class="field field-wide">
+                <span>允许登录组（逗号分隔）</span>
+                <input type="text" name="ldap_allowed_groups" value="{{ ldap_allowed_groups }}" placeholder="CN=TVUsers,OU=Groups,DC=example,DC=com">
+            </label>
+            <label class="field field-wide">
+                <span>管理员组（逗号分隔）</span>
+                <input type="text" name="ldap_admin_groups" value="{{ ldap_admin_groups }}" placeholder="CN=TVAdmins,OU=Groups,DC=example,DC=com">
+            </label>
+            <label class="check-field">
+                <input type="checkbox" name="ldap_auto_create_users" {% if ldap_auto_create_users %}checked{% endif %}>
+                <span>首次 LDAP 登录自动建档</span>
+            </label>
+            <label class="check-field">
+                <input type="checkbox" name="ldap_local_fallback" {% if ldap_local_fallback %}checked{% endif %}>
+                <span>LDAP 失败允许本地账号回退</span>
+            </label>
+            <label class="check-field">
+                <input type="checkbox" name="ldap_sync_group_admin" {% if ldap_sync_group_admin %}checked{% endif %}>
+                <span>按 LDAP 组同步管理员身份</span>
+            </label>
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">保存 LDAP 设置</button>
+        </div>
+    </form>
+
+    <form method="post" action="{{ url_for('main.settings') }}" class="settings-tab-panel" data-tab-panel="security">
+        <input type="hidden" name="form_action" value="password">
+        <input type="hidden" name="active_tab" value="security" data-role="settings-active-tab-input">
+        <div class="panel-head">
+            <h2>管理员密码</h2>
+            <span class="chip info">Security</span>
+        </div>
+        <div class="settings-grid">
             <label class="field"><span>当前密码</span><input type="password" name="old_password" required></label>
             <label class="field"><span>新密码</span><input type="password" name="new_password" required></label>
             <label class="field"><span>确认新密码</span><input type="password" name="confirm_password" required></label>
-            <div class="form-actions"><button type="submit" class="btn btn-primary">修改密码</button></div>
-        </form>
-    </article>
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">修改密码</button>
+        </div>
+    </form>
 
-    <article class="panel">
+    <div class="settings-tab-panel" data-tab-panel="cache">
         <div class="panel-head">
-            <h2>Nextcloud Cache</h2>
+            <h2>Nextcloud 缓存</h2>
             <span class="chip info">{{ nextcloud_cache_stats.file_count }} files</span>
         </div>
         <div class="kv-list">
-            <div><span>Cache Folder</span><strong>{{ nextcloud_cache_stats.folder }}</strong></div>
-            <div><span>Total Size</span><strong>{{ nextcloud_cache_stats.total_size_text }}</strong></div>
-            <div><span>Oldest File</span><strong>{{ nextcloud_cache_stats.oldest_at }}</strong></div>
-            <div><span>Newest File</span><strong>{{ nextcloud_cache_stats.newest_at }}</strong></div>
+            <div><span>缓存目录</span><strong>{{ nextcloud_cache_stats.folder }}</strong></div>
+            <div><span>总容量</span><strong>{{ nextcloud_cache_stats.total_size_text }}</strong></div>
+            <div><span>最早文件</span><strong>{{ nextcloud_cache_stats.oldest_at }}</strong></div>
+            <div><span>最新文件</span><strong>{{ nextcloud_cache_stats.newest_at }}</strong></div>
         </div>
-        <form method="post" action="{{ url_for('main.settings') }}" class="button-row" onsubmit="return confirm('Clear all Nextcloud cache files?');">
+        <form method="post" action="{{ url_for('main.settings') }}" class="button-row" onsubmit="return confirm('确认清理全部 Nextcloud 缓存文件吗？');">
             <input type="hidden" name="form_action" value="nextcloud_cache">
             <input type="hidden" name="cache_action" value="clear">
-            <button type="submit" class="btn btn-danger">Clear Cache</button>
+            <input type="hidden" name="active_tab" value="cache" data-role="settings-active-tab-input">
+            <button type="submit" class="btn btn-danger">清理缓存</button>
         </form>
-    </article>
-</section>
+    </div>
 
-<section class="panel">
-    <div class="panel-head">
-        <h2>设置变更审计日志</h2>
-        <span class="chip info">最近 50 条</span>
-    </div>
-    <div class="table-wrap">
-        <table class="audit-table">
-            <thead><tr><th>时间</th><th>操作人</th><th>设置项</th><th>变更</th><th>来源IP</th></tr></thead>
-            <tbody>
-                {% for item in audit_logs %}
-                <tr>
-                    <td>{{ item.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
-                    <td>{{ item.operator_username or ('UID:' ~ item.operator_user_id) }}</td>
-                    <td>{{ item.setting_key }}</td>
-                    <td>{{ item.old_value }} → {{ item.new_value }}</td>
-                    <td title="{{ item.user_agent }}">{{ item.remote_addr }}</td>
-                </tr>
-                {% else %}
-                <tr><td colspan="5" class="empty-cell">暂无日志</td></tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-</section>
+    <div class="settings-tab-panel" data-tab-panel="audit">
+        <div class="panel-head">
+            <h2>设置变更审计</h2>
+            <span class="chip info">最近 50 条</span>
+        </div>
+        <div class="table-wrap">
+            <table class="audit-table">
+                <thead><tr><th>时间</th><th>操作人</th><th>设置项</th><th>变更</th><th>来源 IP</th></tr></thead>
+                <tbody>
+                    {% for item in audit_logs %}
+                    <tr>
+                        <td>{{ item.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                        <td>{{ item.operator_username or ('UID:' ~ item.operator_user_id) }}</td>
+                        <td>{{ item.setting_key }}</td>
+                        <td>{{ item.old_value }} -> {{ item.new_value }}</td>
+                        <td title="{{ item.user_agent }}">{{ item.remote_addr }}</td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="5" class="empty-cell">暂无日志</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
 
-<section class="panel">
-    <div class="panel-head">
-        <h2>操作审计日志</h2>
-        <span class="chip info">最近 100 条</span>
-    </div>
-    <div class="table-wrap">
-        <table class="audit-table">
-            <thead><tr><th>时间</th><th>操作人</th><th>动作</th><th>目标</th><th>结果</th><th>详情</th></tr></thead>
-            <tbody>
-                {% for item in operation_logs %}
-                <tr>
-                    <td>{{ item.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
-                    <td>{{ item.operator_username or ('UID:' ~ item.operator_user_id) }}</td>
-                    <td>{{ item.action }}</td>
-                    <td>{{ item.target_type }} / {{ item.target_id or '-' }}</td>
-                    <td>{{ "成功" if item.success else "失败" }}</td>
-                    <td title="{{ item.user_agent }}">{{ item.detail or item.remote_addr }}</td>
-                </tr>
-                {% else %}
-                <tr><td colspan="6" class="empty-cell">暂无日志</td></tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        <div class="panel-head settings-subhead">
+            <h2>操作审计</h2>
+            <span class="chip info">最近 100 条</span>
+        </div>
+        <div class="table-wrap">
+            <table class="audit-table">
+                <thead><tr><th>时间</th><th>操作人</th><th>动作</th><th>目标</th><th>结果</th><th>详情</th></tr></thead>
+                <tbody>
+                    {% for item in operation_logs %}
+                    <tr>
+                        <td>{{ item.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                        <td>{{ item.operator_username or ('UID:' ~ item.operator_user_id) }}</td>
+                        <td>{{ item.action }}</td>
+                        <td>{{ item.target_type }} / {{ item.target_id or '-' }}</td>
+                        <td>{{ "成功" if item.success else "失败" }}</td>
+                        <td title="{{ item.user_agent }}">{{ item.detail or item.remote_addr }}</td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="6" class="empty-cell">暂无日志</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 </section>
 {% endblock %}

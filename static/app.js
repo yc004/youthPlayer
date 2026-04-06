@@ -723,6 +723,62 @@
         window.setInterval(refreshStatus, 5000);
     }
 
+    function initSettingsTabs() {
+        var root = document.querySelector("[data-role='settings-tabs']");
+        if (!root) return;
+        var buttons = Array.prototype.slice.call(root.querySelectorAll("[data-tab-target]"));
+        var panels = Array.prototype.slice.call(root.querySelectorAll("[data-tab-panel]"));
+        if (!buttons.length || !panels.length) return;
+
+        function normalizeTab(raw) {
+            var tab = String(raw || "").trim().toLowerCase();
+            if (!tab) return "";
+            for (var i = 0; i < panels.length; i += 1) {
+                if (panels[i].getAttribute("data-tab-panel") === tab) {
+                    return tab;
+                }
+            }
+            return "";
+        }
+
+        var currentTab = normalizeTab(root.getAttribute("data-active-tab")) || normalizeTab(buttons[0].getAttribute("data-tab-target")) || "general";
+
+        function syncHiddenInputs(tab) {
+            root.querySelectorAll("[data-role='settings-active-tab-input']").forEach(function (node) {
+                node.value = tab;
+            });
+        }
+
+        function applyTab(tab) {
+            var target = normalizeTab(tab) || currentTab;
+            currentTab = target;
+            buttons.forEach(function (btn) {
+                var on = btn.getAttribute("data-tab-target") === target;
+                btn.classList.toggle("active", on);
+                btn.setAttribute("aria-selected", on ? "true" : "false");
+            });
+            panels.forEach(function (panel) {
+                var on = panel.getAttribute("data-tab-panel") === target;
+                panel.classList.toggle("is-active", on);
+            });
+            syncHiddenInputs(target);
+        }
+
+        buttons.forEach(function (btn) {
+            btn.addEventListener("click", function () {
+                applyTab(btn.getAttribute("data-tab-target"));
+            });
+        });
+
+        root.querySelectorAll("form").forEach(function (form) {
+            form.addEventListener("submit", function () {
+                syncHiddenInputs(currentTab);
+            });
+        });
+
+        applyTab(currentTab);
+    }
+
     function initNextcloudSettingsTools() {
         var testBtn = document.querySelector("[data-role='nc-test-btn']");
         var previewBtn = document.querySelector("[data-role='nc-preview-btn']");
@@ -1221,5 +1277,6 @@
     initPlaylistEditor();
     initFileBrowser();
     initMonitorPolling();
+    initSettingsTabs();
     initNextcloudSettingsTools();
 })();
