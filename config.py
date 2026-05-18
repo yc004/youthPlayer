@@ -66,6 +66,28 @@ class Config:
     NEXTCLOUD_SKIP_SSL_VERIFY = os.environ.get("YP_NEXTCLOUD_SKIP_SSL_VERIFY", "0") == "1"
     NEXTCLOUD_CACHE_AUTO_CLEAR_ENABLED = os.environ.get("YP_NEXTCLOUD_CACHE_AUTO_CLEAR_ENABLED", "0") == "1"
     NEXTCLOUD_CACHE_AUTO_CLEAR_TIME = os.environ.get("YP_NEXTCLOUD_CACHE_AUTO_CLEAR_TIME", "03:00").strip()
+    # Auto-transcode downloaded videos to H.264 so Chromium can play them natively.
+    TRANSCODE_ENABLED = os.environ.get("YP_TRANSCODE_ENABLED", "1") == "1"
+    # Paths to ffmpeg / ffprobe.  Leave empty to auto-detect from PATH / scoop / winget.
+    FFMPEG_PATH = os.environ.get("YP_FFMPEG_PATH", "").strip()
+    FFPROBE_PATH = os.environ.get("YP_FFPROBE_PATH", "").strip()
+    # Codecs that Chromium 100 cannot decode — only these will be transcoded.
+    TRANSCODE_INCOMPATIBLE_CODECS = {
+        codec.strip().lower()
+        for codec in os.environ.get(
+            "YP_TRANSCODE_INCOMPATIBLE_CODECS", "hevc,h265,av1,av01,vp9,vc1"
+        ).split(",")
+        if codec.strip()
+    }
+    # ffmpeg transcode arguments (H.264 + AAC in MP4 container).
+    TRANSCODE_FFMPEG_ARGS = os.environ.get(
+        "YP_TRANSCODE_FFMPEG_ARGS",
+        "-c:v libx264 -preset fast -crf 23 -c:a aac -b:a 128k -movflags +faststart",
+    ).strip()
+    # Timeout (seconds) for transcode — large videos may need more.
+    TRANSCODE_TIMEOUT = int(os.environ.get("YP_TRANSCODE_TIMEOUT", 3600))
+    # Extension for the transcoded output file.
+    TRANSCODE_OUTPUT_EXT = os.environ.get("YP_TRANSCODE_OUTPUT_EXT", ".mp4").strip()
 
     # Web 配置
     WEB_PORT = int(os.environ.get("YP_WEB_PORT", 5000))

@@ -471,7 +471,11 @@ class Player:
             ext = ".mp4"
         key = hashlib.sha256(source_url.encode("utf-8")).hexdigest()
         target = os.path.join(runtime_dir, f"{key}{ext}")
+        # If the original is already cached, prefer a previously-transcoded copy.
         if os.path.exists(target) and os.path.getsize(target) > 0:
+            transcoded = self._transcode_filename(target)
+            if transcoded and os.path.exists(transcoded) and os.path.getsize(transcoded) > 0:
+                return transcoded
             return target
 
         tmp = target + ".part"
@@ -490,6 +494,10 @@ class Player:
                 raise RuntimeError("empty download")
             os.replace(tmp, target)
             logger.info("Nextcloud cached: %s -> %s", source_url, target)
+            # Auto-transcode if the codec is incompatible with Chromium.
+            transcoded = self._transcode_video(target)
+            if transcoded:
+                return transcoded
             return target
         except Exception as exc:
             try:
@@ -501,19 +509,159 @@ class Player:
             logger.error(self.last_error)
             return None
 
+    # ── Transcode helpers ───────────────────────────────────────────────
+
+    @staticmethod
+    def _transcode_filename(input_path):
+        """Expected output path for a transcoded file."""
+        out_ext = str(getattr(Config, "TRANSCODE_OUTPUT_EXT", ".mp4") or ".mp4").strip()
+        if not out_ext.startswith("."):
+            out_ext = f".{out_ext}"
+        base_name = os.path.splitext(input_path)[0]
+        return f"{base_name}_transcoded{out_ext}"
+
+    @staticmethod
+    def _find_fftool(name, env_var):
+        """Locate ffmpeg / ffprobe binary."""
+        configured = str(getattr(Config, env_var, "") or "").strip()
+        if configured and os.path.isfile(configured):
+            return configured
+        if configured:
+            # User gave a name like "ffmpeg" — search PATH.
+            found = which(configured)
+            if found:
+                return found
+        # Auto-detect from common locations.
+        for candidate in [name, f"{name}.exe"]:
+            found = which(candidate)
+            if found:
+                return found
+        # Windows: check scoop shims.
+        if os.name == "nt":
+            scoop_shim = os.path.join(os.path.expanduser("~"), "scoop", "shims", f"{name}.exe")
+            if os.path.isfile(scoop_shim):
+                return scoop_shim
+            scoop_shim_cmd = os.path.join(os.path.expanduser("~"), "scoop", "shims", f"{name}.cmd")
+            if os.path.isfile(scoop_shim_cmd):
+                return scoop_shim_cmd
+        return None
+
+    def _detect_video_codec(self, file_path):
+        """Return the primary video codec name (e.g. 'h264', 'hevc') or None."""
+        ffprobe_bin = self._find_fftool("ffprobe", "FFPROBE_PATH")
+        if not ffprobe_bin:
+            logger.warning("ffprobe not found, skipping codec detection.")
+            return None
+        try:
+            result = subprocess.run(
+                [
+                    ffprobe_bin, "-v", "error",
+                    "-select_streams", "v:0",
+                    "-show_entries", "stream=codec_name",
+                    "-of", "default=noprint_wrappers=1:nokey=1",
+                    str(file_path),
+                ],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                timeout=30,
+                check=False,
+            )
+            codec = (result.stdout or "").strip().lower()
+            if codec:
+                logger.info("Detected video codec: %s for %s", codec, file_path)
+                return codec
+        except Exception as exc:
+            logger.warning("ffprobe failed for %s: %s", file_path, exc)
+        return None
+
+    def _transcode_video(self, input_path):
+        """Transcode to H.264+AAC MP4.  Returns the new file path or None."""
+        if not getattr(Config, "TRANSCODE_ENABLED", True):
+            return None
+
+        ffmpeg_bin = self._find_fftool("ffmpeg", "FFMPEG_PATH")
+        if not ffmpeg_bin:
+            logger.warning("ffmpeg not found, cannot transcode %s", input_path)
+            return None
+
+        codec = self._detect_video_codec(input_path)
+        if not codec:
+            return None  # can't determine — don't risk transcoding
+        incompatible = getattr(Config, "TRANSCODE_INCOMPATIBLE_CODECS", set())
+        if codec not in incompatible:
+            logger.info("Codec '%s' is compatible, skipping transcode for %s", codec, input_path)
+            return None
+
+        output_path = self._transcode_filename(input_path)
+        ffmpeg_args = str(getattr(Config, "TRANSCODE_FFMPEG_ARGS", "") or "").strip()
+        timeout = int(getattr(Config, "TRANSCODE_TIMEOUT", 3600) or 3600)
+
+        cmd = [ffmpeg_bin, "-y", "-i", str(input_path)] + ffmpeg_args.split() + [output_path]
+        logger.info("Transcoding %s -> %s  (codec=%s)", input_path, output_path, codec)
+        try:
+            subprocess.run(
+                cmd,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.PIPE,
+                text=True,
+                timeout=timeout,
+                check=True,
+            )
+            if os.path.isfile(output_path) and os.path.getsize(output_path) > 0:
+                logger.info("Transcode complete: %s", output_path)
+                return output_path
+            else:
+                logger.error("Transcode produced no output: %s", output_path)
+        except subprocess.TimeoutExpired:
+            logger.error("Transcode timed out after %ds for %s", timeout, input_path)
+        except subprocess.CalledProcessError as exc:
+            logger.error("Transcode failed for %s: %s", input_path, (exc.stderr or "")[:500])
+        except Exception as exc:
+            logger.error("Transcode error for %s: %s", input_path, exc)
+
+        # Clean up partial output.
+        try:
+            if os.path.isfile(output_path):
+                os.remove(output_path)
+        except Exception:
+            pass
+        return None
+
     def _open_via_electron(self, source, source_type="media", loop=False, reset_before_open=False):
         source = self._cache_nextcloud_source(source)
         if source is None:
             return False
         target_url = self._to_electron_url(source)
-        if self._should_use_media_shell(source_type, target_url):
+        uses_media_shell = self._should_use_media_shell(source_type, target_url)
+        if uses_media_shell:
             target_url = self._build_media_shell_url(target_url, loop=loop)
         logger.info("Using Electron for %s source: %s -> %s", source_type, source, target_url)
-        return self._open_web_live_electron(
+        ok = self._open_web_live_electron(
             target_url,
             loop=loop,
             reset_before_open=reset_before_open,
         )
+        if not ok:
+            return False
+        # For media-shell playback (local / NAS / stream), check whether
+        # Chromium can actually decode the source.  If it can't (e.g. H.265)
+        # the video element fires an error, leaving a black screen with audio.
+        # Fall back to VLC which supports virtually every codec.
+        if uses_media_shell and self.current_backend == "electron":
+            time.sleep(1.0)
+            media_err = self._electron_media_error()
+            if media_err:
+                code = media_err.get("code", -1) if isinstance(media_err, dict) else -1
+                msg = media_err.get("message", "") if isinstance(media_err, dict) else str(media_err)
+                logger.warning(
+                    "Electron media error (code=%s, msg=%s), falling back to VLC for: %s",
+                    code, msg, source,
+                )
+                self.stop()
+                time.sleep(0.3)
+                return self._play_vlc_media(source, source_type)
+        return True
 
     def _should_use_media_shell(self, source_type, target_url):
         parsed = urlparse(str(target_url))
@@ -1150,6 +1298,16 @@ class Player:
             return False
         window = status.get("status") or {}
         return bool(window.get("ready"))
+
+    def _electron_media_error(self):
+        """Return the video element's MediaError if Electron can't decode the source."""
+        if not self.electron_process or self.electron_process.poll() is not None:
+            return None
+        status = self._electron_request_json("GET", "/probe/media_error", ignore_error=True) or {}
+        if not status.get("ok"):
+            return None
+        err = status.get("error") or None
+        return err
 
     def inject_web_play(self):
         if self.current_backend != "electron":

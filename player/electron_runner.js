@@ -343,6 +343,22 @@ function createControlServer() {
       }
       return;
     }
+    if (req.method === "GET" && route === "/probe/media_error") {
+      if (!mainWindow || mainWindow.isDestroyed()) {
+        writeJson(res, 500, { ok: false, error: "window_not_ready" });
+        return;
+      }
+      try {
+        const err = await mainWindow.webContents.executeJavaScript(
+          "window.__yp_media_error || null",
+          true,
+        );
+        writeJson(res, 200, { ok: true, error: err || null });
+      } catch (e) {
+        writeJson(res, 500, { ok: false, error: String(e) });
+      }
+      return;
+    }
     if (req.method === "GET" && route === "/probe/window") {
       const ready = Boolean(mainWindow && !mainWindow.isDestroyed());
       const status = {

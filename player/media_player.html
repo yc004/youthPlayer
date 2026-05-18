@@ -43,6 +43,15 @@
       v.muted = false;
       v.preload = "auto";
       v.controls = false;
+      // Track media errors so the Python side can detect codec issues
+      // and fall back to VLC when Chromium can't decode the video.
+      v.addEventListener("error", function () {
+        var err = v.error;
+        window.__yp_media_error = {
+          code: err ? err.code : -1,
+          message: err ? (err.message || "") : "unknown",
+        };
+      });
       const p = v.play();
       if (p && typeof p.catch === "function") p.catch(() => {});
     })();
