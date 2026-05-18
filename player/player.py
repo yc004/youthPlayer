@@ -209,6 +209,8 @@ class Player:
         ]
         if Config.WINDOW_TOPMOST:
             command.append("--topmost")
+        if Config.ELECTRON_DISABLE_GPU:
+            command.append("--disable-gpu")
 
         try:
             proc = subprocess.Popen(
@@ -381,6 +383,7 @@ class Player:
                 height=Config.IDLE_SCREENSAVER_WINDOW_HEIGHT,
             )
             mode, bounds = self._resolve_window_rect()
+            ignore_cert_errors = False
             target_signature = (
                 int(self.screen_index),
                 str(mode),
@@ -389,6 +392,7 @@ class Player:
                 int(bounds["width"]),
                 int(bounds["height"]),
                 bool(Config.WINDOW_TOPMOST),
+                bool(ignore_cert_errors),
             )
             payload = {"title": Config.IDLE_SCREENSAVER_TITLE or "Campus Player"}
             image_path = (Config.IDLE_SCREENSAVER_IMAGE or "").strip()
@@ -936,6 +940,8 @@ class Player:
             command.append("--loop")
         if ignore_cert_errors:
             command.append("--ignore-certificate-errors")
+        if Config.ELECTRON_DISABLE_GPU:
+            command.append("--disable-gpu")
 
         try:
             self.electron_process = subprocess.Popen(
@@ -1403,5 +1409,4 @@ class Player:
                     win32gui.ReleaseDC(hdesktop, desktop_dc)
             except Exception:
                 pass
-
 

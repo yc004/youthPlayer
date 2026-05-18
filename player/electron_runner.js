@@ -20,6 +20,7 @@ function parseArgs() {
     windowMode: "fullscreen",
     loop: false,
     ignoreCertificateErrors: false,
+    disableGpu: false,
   };
 
   for (let i = 0; i < args.length; i += 1) {
@@ -40,6 +41,7 @@ function parseArgs() {
     if (k === "--topmost") out.topmost = true;
     if (k === "--loop") out.loop = true;
     if (k === "--ignore-certificate-errors") out.ignoreCertificateErrors = true;
+    if (k === "--disable-gpu") out.disableGpu = true;
   }
   return out;
 }
@@ -591,6 +593,15 @@ function createWindow() {
       }
     }
   });
+}
+
+if (params.disableGpu) {
+  trace("disable-gpu: applying Chromium GPU workarounds");
+  // Only disable GPU compositing (fixes black-screen on buggy drivers)
+  // while keeping hardware video decoding for smooth playback.
+  app.commandLine.appendSwitch("disable-gpu-compositing");
+  // Windows: disable DirectComposition which often causes rendering issues.
+  app.commandLine.appendSwitch("disable-direct-composition");
 }
 
 app.whenReady().then(() => {

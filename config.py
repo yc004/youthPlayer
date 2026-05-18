@@ -27,6 +27,9 @@ class Config:
     ELECTRON_RESTART_BACKOFF_BASE = float(os.environ.get("YP_ELECTRON_RESTART_BACKOFF_BASE", 2.0))
     ELECTRON_RESTART_BACKOFF_MAX = float(os.environ.get("YP_ELECTRON_RESTART_BACKOFF_MAX", 120.0))
     ELECTRON_RESTART_BACKOFF_PER_TARGET = os.environ.get("YP_ELECTRON_RESTART_BACKOFF_PER_TARGET", "1") == "1"
+    # 禁用 GPU 合成器（默认启用），解决部分 Windows 机器上视频黑屏（有声音无画面）问题
+    # 注意：仅禁用合成/渲染层，保留硬件视频解码以避免播放卡顿
+    ELECTRON_DISABLE_GPU = os.environ.get("YP_ELECTRON_DISABLE_GPU", "1") == "1"
 
     # 屏幕配置
     PRIMARY_SCREEN = 0
@@ -86,4 +89,7 @@ class Config:
 
     # 日志配置
     LOG_LEVEL = os.environ.get("YP_LOG_LEVEL", "INFO")
-    LOG_FILE = os.environ.get("YP_LOG_FILE", os.path.join(BASE_DIR, "playback_system.log"))
+    LOG_FILE = os.environ.get(
+        "YP_LOG_FILE",
+        os.path.join(BASE_DIR, "runtime", "logs", "playback_system.log"),
+    )

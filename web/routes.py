@@ -28,6 +28,7 @@ from models import (
 )
 from security.ldap_auth import authenticate as ldap_authenticate
 from security.ldap_auth import group_intersects as ldap_group_intersects
+from security.ldap_auth import sync_directory_users as ldap_sync_directory_users
 
 
 main = Blueprint("main", __name__)
@@ -186,6 +187,94 @@ def _sync_user_from_ldap(username, ldap_result):
     if not user.is_active:
         return None, "当前账号已被本地策略禁用。"
     return user, ""
+
+
+def _sync_all_users_from_ldap(max_entries=500):
+    directory = ldap_sync_directory_users(Config, max_entries=max_entries)
+    if not directory.ok:
+        return {
+            "ok": False,
+            "error": directory.error or "ldap_directory_sync_failed",
+            "created": 0,
+            "updated": 0,
+            "skipped_local": 0,
+            "skipped_auto_create_disabled": 0,
+            "scanned": directory.scanned_entries,
+            "selected": directory.selected_entries,
+        }
+
+    now = datetime.now()
+    admin_groups = str(getattr(Config, "LDAP_ADMIN_GROUPS", "") or "").strip()
+    sync_group_admin = bool(getattr(Config, "LDAP_SYNC_GROUP_ADMIN", True))
+    auto_create = bool(getattr(Config, "LDAP_AUTO_CREATE_USERS", True))
+    created = 0
+    updated = 0
+    skipped_local = 0
+    skipped_auto_create_disabled = 0
+
+    try:
+        for item in directory.users:
+            username = str(item.username or "").strip()
+            if not username:
+                continue
+
+            user = User.query.filter_by(username=username).first()
+            if not user:
+                if not auto_create:
+                    skipped_auto_create_disabled += 1
+                    continue
+                user = User(
+                    username=username,
+                    password="",
+                    is_admin=False,
+                    is_active=True,
+                    auth_source="ldap",
+                    ldap_dn=(item.user_dn or ""),
+                    ldap_last_sync_at=now,
+                )
+                user.set_permissions(DEFAULT_USER_PERMISSIONS)
+                db.session.add(user)
+                created += 1
+            else:
+                source = (user.auth_source or "").strip().lower()
+                if source and source != "ldap":
+                    skipped_local += 1
+                    continue
+                updated += 1
+
+            user.auth_source = "ldap"
+            user.ldap_dn = item.user_dn or ""
+            user.ldap_last_sync_at = now
+
+            if sync_group_admin and admin_groups:
+                user.is_admin = ldap_group_intersects(item.groups, admin_groups)
+            if not user.is_admin and not user.permissions:
+                user.set_permissions(DEFAULT_USER_PERMISSIONS)
+
+        db.session.commit()
+        return {
+            "ok": True,
+            "error": "",
+            "created": created,
+            "updated": updated,
+            "skipped_local": skipped_local,
+            "skipped_auto_create_disabled": skipped_auto_create_disabled,
+            "scanned": directory.scanned_entries,
+            "selected": directory.selected_entries,
+        }
+    except Exception as exc:
+        db.session.rollback()
+        logger.warning("LDAP bulk sync failed: %s", exc)
+        return {
+            "ok": False,
+            "error": f"ldap_bulk_sync_failed: {exc}",
+            "created": 0,
+            "updated": 0,
+            "skipped_local": 0,
+            "skipped_auto_create_disabled": 0,
+            "scanned": directory.scanned_entries,
+            "selected": directory.selected_entries,
+        }
 
 
 def _parse_datetime(value, allow_time_only=False):
@@ -1534,6 +1623,43 @@ def settings():
                 )
 
             flash("LDAP 设置已保存。", "success")
+            ldap_import_result = None
+            if ldap_enabled:
+                ldap_import_result = _sync_all_users_from_ldap(max_entries=1000)
+                _append_operation_audit_log(
+                    action="ldap_bulk_sync",
+                    success=bool(ldap_import_result.get("ok")),
+                    target_type="user",
+                    target_id="ldap",
+                    detail=(
+                        f"ok={ldap_import_result.get('ok')},"
+                        f" scanned={ldap_import_result.get('scanned')},"
+                        f" selected={ldap_import_result.get('selected')},"
+                        f" created={ldap_import_result.get('created')},"
+                        f" updated={ldap_import_result.get('updated')},"
+                        f" skipped_local={ldap_import_result.get('skipped_local')},"
+                        f" skipped_auto_create_disabled={ldap_import_result.get('skipped_auto_create_disabled')},"
+                        f" error={ldap_import_result.get('error') or ''}"
+                    ),
+                )
+                if ldap_import_result.get("ok"):
+                    flash(
+                        (
+                            "LDAP 账户自动导入完成："
+                            f"扫描 {ldap_import_result.get('scanned', 0)}，"
+                            f"匹配 {ldap_import_result.get('selected', 0)}，"
+                            f"新增 {ldap_import_result.get('created', 0)}，"
+                            f"更新 {ldap_import_result.get('updated', 0)}，"
+                            f"跳过本地同名 {ldap_import_result.get('skipped_local', 0)}，"
+                            f"跳过未开自动建档 {ldap_import_result.get('skipped_auto_create_disabled', 0)}。"
+                        ),
+                        "success",
+                    )
+                else:
+                    flash(
+                        f"LDAP 自动导入失败：{ldap_import_result.get('error') or 'unknown_error'}",
+                        "error",
+                    )
             return _settings_redirect("ldap")
 
         enable_all_electron = "all_play_via_electron" in request.form

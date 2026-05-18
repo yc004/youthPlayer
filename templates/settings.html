@@ -221,6 +221,14 @@
                 <input type="checkbox" name="ldap_sync_group_admin" {% if ldap_sync_group_admin %}checked{% endif %}>
                 <span>按 LDAP 组同步管理员身份</span>
             </label>
+            <div class="field field-wide">
+                <span>LDAP Auto Detect &amp; Connection Test</span>
+                <div class="playlist-tools">
+                    <button type="button" class="btn btn-secondary" data-role="ldap-detect-btn">Auto Detect</button>
+                    <button type="button" class="btn btn-secondary" data-role="ldap-test-btn">Test Connection</button>
+                    <small class="field-help" data-role="ldap-test-result">Use current inputs to detect/test without saving first.</small>
+                </div>
+            </div>
         </div>
         <div class="form-actions">
             <button type="submit" class="btn btn-primary">保存 LDAP 设置</button>

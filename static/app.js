@@ -915,6 +915,122 @@
         });
     }
 
+    function initLdapSettingsTools() {
+        var detectBtn = document.querySelector("[data-role='ldap-detect-btn']");
+        var testBtn = document.querySelector("[data-role='ldap-test-btn']");
+        var resultNode = document.querySelector("[data-role='ldap-test-result']");
+        var serverInput = document.querySelector("input[name='ldap_server_uri']");
+        var useSslInput = document.querySelector("input[name='ldap_use_ssl']");
+        var timeoutInput = document.querySelector("input[name='ldap_connect_timeout']");
+        var baseDnInput = document.querySelector("input[name='ldap_base_dn']");
+        var bindDnInput = document.querySelector("input[name='ldap_bind_dn']");
+        var bindPassInput = document.querySelector("input[name='ldap_bind_password']");
+        if (
+            !detectBtn ||
+            !testBtn ||
+            !resultNode ||
+            !serverInput ||
+            !useSslInput ||
+            !timeoutInput ||
+            !baseDnInput ||
+            !bindDnInput ||
+            !bindPassInput
+        ) {
+            return;
+        }
+
+        function detectSslFromUri(silent) {
+            var uri = (serverInput.value || "").trim().toLowerCase();
+            if (uri.indexOf("ldaps://") === 0) {
+                useSslInput.checked = true;
+                if (!silent) resultNode.textContent = "Auto detect: SSL enabled from ldaps://";
+                return true;
+            }
+            if (uri.indexOf("ldap://") === 0) {
+                useSslInput.checked = false;
+                if (!silent) resultNode.textContent = "Auto detect: SSL disabled from ldap://";
+                return true;
+            }
+            return false;
+        }
+
+        function currentQuery() {
+            var q = [];
+            var serverUri = (serverInput.value || "").trim();
+            var timeout = (timeoutInput.value || "").trim();
+            var baseDn = (baseDnInput.value || "").trim();
+            var bindDn = (bindDnInput.value || "").trim();
+            var bindPassword = (bindPassInput.value || "").trim();
+            if (serverUri) q.push("ldap_server_uri=" + encodeURIComponent(serverUri));
+            if (timeout) q.push("ldap_connect_timeout=" + encodeURIComponent(timeout));
+            if (baseDn) q.push("ldap_base_dn=" + encodeURIComponent(baseDn));
+            if (bindDn) q.push("ldap_bind_dn=" + encodeURIComponent(bindDn));
+            if (bindPassword) q.push("ldap_bind_password=" + encodeURIComponent(bindPassword));
+            q.push("ldap_use_ssl=" + (useSslInput.checked ? "1" : "0"));
+            return q.join("&");
+        }
+
+        function setButtonsDisabled(disabled) {
+            detectBtn.disabled = !!disabled;
+            testBtn.disabled = !!disabled;
+        }
+
+        function callApi(url, mode) {
+            var req = new XMLHttpRequest();
+            var query = currentQuery();
+            setButtonsDisabled(true);
+            req.open("GET", url + (query ? "?" + query : ""), true);
+            req.onreadystatechange = function () {
+                if (req.readyState !== 4) return;
+                setButtonsDisabled(false);
+                if (req.status !== 200) {
+                    try {
+                        var fail = JSON.parse(req.responseText || "{}");
+                        resultNode.textContent = fail.error || "LDAP request failed.";
+                    } catch (_err) {
+                        resultNode.textContent = "LDAP request failed.";
+                    }
+                    return;
+                }
+                try {
+                    var payload = JSON.parse(req.responseText || "{}");
+                    if (payload.detected_base_dn && !baseDnInput.value.trim()) {
+                        baseDnInput.value = payload.detected_base_dn;
+                    }
+                    var contextPreview = "";
+                    if (payload.naming_contexts && payload.naming_contexts.length) {
+                        contextPreview = " contexts=" + payload.naming_contexts.slice(0, 3).join(", ");
+                    }
+                    if (mode === "detect") {
+                        resultNode.textContent = payload.message + (payload.detected_base_dn ? " base_dn=" + payload.detected_base_dn : "") + contextPreview;
+                    } else {
+                        resultNode.textContent = payload.message + " bind=" + (payload.bind_mode || "-") + contextPreview;
+                    }
+                } catch (_err2) {
+                    resultNode.textContent = "LDAP response parse failed.";
+                }
+            };
+            req.send();
+        }
+
+        detectBtn.addEventListener("click", function () {
+            detectSslFromUri(true);
+            callApi("/api/ldap/detect", "detect");
+        });
+
+        testBtn.addEventListener("click", function () {
+            detectSslFromUri(true);
+            callApi("/api/ldap/test", "test");
+        });
+
+        serverInput.addEventListener("blur", function () {
+            detectSslFromUri(false);
+        });
+        serverInput.addEventListener("change", function () {
+            detectSslFromUri(true);
+        });
+    }
+
     function extractTimePart(value) {
         if (!value) return "";
         if (value.indexOf("T") >= 0) {
@@ -1279,4 +1395,5 @@
     initMonitorPolling();
     initSettingsTabs();
     initNextcloudSettingsTools();
+    initLdapSettingsTools();
 })();

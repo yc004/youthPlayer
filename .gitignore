@@ -6,3 +6,6 @@ runtime/
 youthplayer_venv/
 node_modules
 .vscode
+.venv
+.python-version
+uv.lock
