@@ -632,6 +632,13 @@ class Player:
         source = self._cache_nextcloud_source(source)
         if source is None:
             return False
+        # Auto-transcode local/NAS files with incompatible codecs before
+        # handing them to Electron (Chromium), which cannot decode HEVC,
+        # AV1, VP9, VC1, etc. natively — causing black-screen-with-audio.
+        if source_type in {"local", "nas"} and os.path.isfile(source):
+            transcoded = self._transcode_video(source)
+            if transcoded:
+                source = transcoded
         target_url = self._to_electron_url(source)
         uses_media_shell = self._should_use_media_shell(source_type, target_url)
         if uses_media_shell:
