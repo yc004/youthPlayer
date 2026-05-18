@@ -580,6 +580,11 @@ class Player:
         if not getattr(Config, "TRANSCODE_ENABLED", True):
             return None
 
+        output_path = self._transcode_filename(input_path)
+        if os.path.isfile(output_path) and os.path.getsize(output_path) > 0:
+            logger.info("Using existing transcoded file: %s", output_path)
+            return output_path
+
         ffmpeg_bin = self._find_fftool("ffmpeg", "FFMPEG_PATH")
         if not ffmpeg_bin:
             logger.warning("ffmpeg not found, cannot transcode %s", input_path)
@@ -592,8 +597,6 @@ class Player:
         if codec not in incompatible:
             logger.info("Codec '%s' is compatible, skipping transcode for %s", codec, input_path)
             return None
-
-        output_path = self._transcode_filename(input_path)
         ffmpeg_args = str(getattr(Config, "TRANSCODE_FFMPEG_ARGS", "") or "").strip()
         timeout = int(getattr(Config, "TRANSCODE_TIMEOUT", 3600) or 3600)
 
@@ -628,17 +631,42 @@ class Player:
             pass
         return None
 
+    def _ensure_compatible_codec(self, source):
+        """
+        Check if the source is a local/NAS file with an incompatible video codec.
+        If so, transcode it to H.264 before playback.
+        Returns the original source path or the transcoded file path.
+        This ensures videos play correctly on systems like Win7 where Chromium
+        cannot decode H265/HEVC, VP9, AV1, VC1 etc. without system-level codecs.
+        """
+        if not os.path.isfile(source):
+            return source
+        ffprobe_bin = self._find_fftool("ffprobe", "FFPROBE_PATH")
+        if not ffprobe_bin:
+            logger.warning("ffprobe not found, cannot detect codec for: %s", source)
+            return source
+        codec = self._detect_video_codec(source)
+        if not codec:
+            logger.warning("Could not detect video codec for: %s", source)
+            return source
+        incompatible = getattr(Config, "TRANSCODE_INCOMPATIBLE_CODECS", set())
+        if codec in incompatible:
+            logger.info("Video codec '%s' is incompatible (not h264), will transcode: %s", codec, source)
+            transcoded = self._transcode_video(source)
+            if transcoded:
+                logger.info("Transcoded to H.264 successfully: %s -> %s", source, transcoded)
+                return transcoded
+            else:
+                logger.error("Transcode failed for %s, will try original file", source)
+        else:
+            logger.debug("Video codec '%s' is compatible (h264), no transcode needed", codec)
+        return source
+
     def _open_via_electron(self, source, source_type="media", loop=False, reset_before_open=False):
         source = self._cache_nextcloud_source(source)
         if source is None:
             return False
-        # Auto-transcode local/NAS files with incompatible codecs before
-        # handing them to Electron (Chromium), which cannot decode HEVC,
-        # AV1, VP9, VC1, etc. natively — causing black-screen-with-audio.
-        if source_type in {"local", "nas"} and os.path.isfile(source):
-            transcoded = self._transcode_video(source)
-            if transcoded:
-                source = transcoded
+        source = self._ensure_compatible_codec(source)
         target_url = self._to_electron_url(source)
         uses_media_shell = self._should_use_media_shell(source_type, target_url)
         if uses_media_shell:
