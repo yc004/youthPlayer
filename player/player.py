@@ -283,7 +283,7 @@ class Player:
             self.instance = None
             self.player = None
             self.last_error = str(exc)
-            logger.error("VLC init failed: %s", exc)
+            logger.error("VLC 初始化失败: %s", exc)
 
     def get_available_screens(self):
         screens = []
@@ -319,7 +319,7 @@ class Player:
             (item for item in screens if item["index"] == self.screen_index),
             screens[0] if screens else None,
         )
-        logger.info("Target screen set to: %s", self.screen_index)
+        logger.info("目标屏幕已设置为: %s", self.screen_index)
         return True
 
     def set_window_rect(self, mode="fullscreen", left=0, top=0, width=0, height=0):
@@ -493,7 +493,7 @@ class Player:
             if not os.path.exists(tmp) or os.path.getsize(tmp) <= 0:
                 raise RuntimeError("empty download")
             os.replace(tmp, target)
-            logger.info("Nextcloud cached: %s -> %s", source_url, target)
+            logger.info("Nextcloud 缓存已保存: %s -> %s", source_url, target)
             # Auto-transcode if the codec is incompatible with Chromium.
             transcoded = self._transcode_video(target)
             if transcoded:
@@ -550,7 +550,7 @@ class Player:
         """Return the primary video codec name (e.g. 'h264', 'hevc') or None."""
         ffprobe_bin = self._find_fftool("ffprobe", "FFPROBE_PATH")
         if not ffprobe_bin:
-            logger.warning("ffprobe not found, skipping codec detection.")
+            logger.warning("未找到 ffprobe，跳过编码检测。")
             return None
         try:
             result = subprocess.run(
@@ -582,12 +582,12 @@ class Player:
 
         output_path = self._transcode_filename(input_path)
         if os.path.isfile(output_path) and os.path.getsize(output_path) > 0:
-            logger.info("Using existing transcoded file: %s", output_path)
+            logger.info("使用已存在的转码文件: %s", output_path)
             return output_path
 
         ffmpeg_bin = self._find_fftool("ffmpeg", "FFMPEG_PATH")
         if not ffmpeg_bin:
-            logger.warning("ffmpeg not found, cannot transcode %s", input_path)
+            logger.warning("未找到 ffmpeg，无法转码 %s", input_path)
             return None
 
         codec = self._detect_video_codec(input_path)
@@ -601,7 +601,7 @@ class Player:
         timeout = int(getattr(Config, "TRANSCODE_TIMEOUT", 3600) or 3600)
 
         cmd = [ffmpeg_bin, "-y", "-i", str(input_path)] + ffmpeg_args.split() + [output_path]
-        logger.info("Transcoding %s -> %s  (codec=%s)", input_path, output_path, codec)
+        logger.info("正在转码 %s -> %s (编码=%s)", input_path, output_path, codec)
         try:
             subprocess.run(
                 cmd,
@@ -612,16 +612,16 @@ class Player:
                 check=True,
             )
             if os.path.isfile(output_path) and os.path.getsize(output_path) > 0:
-                logger.info("Transcode complete: %s", output_path)
+                logger.info("转码完成: %s", output_path)
                 return output_path
             else:
-                logger.error("Transcode produced no output: %s", output_path)
+                logger.error("转码未产生输出: %s", output_path)
         except subprocess.TimeoutExpired:
-            logger.error("Transcode timed out after %ds for %s", timeout, input_path)
+            logger.error("转码超时 (%ds): %s", timeout, input_path)
         except subprocess.CalledProcessError as exc:
-            logger.error("Transcode failed for %s: %s", input_path, (exc.stderr or "")[:500])
+            logger.error("转码失败: %s: %s", input_path, (exc.stderr or "")[:500])
         except Exception as exc:
-            logger.error("Transcode error for %s: %s", input_path, exc)
+            logger.error("转码错误: %s: %s", input_path, exc)
 
         # Clean up partial output.
         try:
@@ -643,23 +643,23 @@ class Player:
             return source
         ffprobe_bin = self._find_fftool("ffprobe", "FFPROBE_PATH")
         if not ffprobe_bin:
-            logger.warning("ffprobe not found, cannot detect codec for: %s", source)
+            logger.warning("未找到 ffprobe，无法检测编码: %s", source)
             return source
         codec = self._detect_video_codec(source)
         if not codec:
-            logger.warning("Could not detect video codec for: %s", source)
+            logger.warning("无法检测视频编码: %s", source)
             return source
         incompatible = getattr(Config, "TRANSCODE_INCOMPATIBLE_CODECS", set())
         if codec in incompatible:
-            logger.info("Video codec '%s' is incompatible (not h264), will transcode: %s", codec, source)
+            logger.info("视频编码 '%s' 不兼容(非h264)，将进行转码: %s", codec, source)
             transcoded = self._transcode_video(source)
             if transcoded:
-                logger.info("Transcoded to H.264 successfully: %s -> %s", source, transcoded)
+                logger.info("成功转码为 H.264: %s -> %s", source, transcoded)
                 return transcoded
             else:
-                logger.error("Transcode failed for %s, will try original file", source)
+                logger.error("转码失败: %s，将尝试原始文件", source)
         else:
-            logger.debug("Video codec '%s' is compatible (h264), no transcode needed", codec)
+            logger.debug("视频编码 '%s' 兼容(h264)，无需转码", codec)
         return source
 
     def _open_via_electron(self, source, source_type="media", loop=False, reset_before_open=False):
@@ -671,7 +671,7 @@ class Player:
         uses_media_shell = self._should_use_media_shell(source_type, target_url)
         if uses_media_shell:
             target_url = self._build_media_shell_url(target_url, loop=loop)
-        logger.info("Using Electron for %s source: %s -> %s", source_type, source, target_url)
+        logger.info("使用 Electron 播放 %s 源: %s -> %s", source_type, source, target_url)
         ok = self._open_web_live_electron(
             target_url,
             loop=loop,
@@ -690,7 +690,7 @@ class Player:
                 code = media_err.get("code", -1) if isinstance(media_err, dict) else -1
                 msg = media_err.get("message", "") if isinstance(media_err, dict) else str(media_err)
                 logger.warning(
-                    "Electron media error (code=%s, msg=%s), falling back to VLC for: %s",
+                    "Electron 媒体错误 (代码=%s, 消息=%s)，切换到 VLC: %s",
                     code, msg, source,
                 )
                 self.stop()
@@ -777,16 +777,16 @@ class Player:
                         pass
             if mode == "custom":
                 logger.info(
-                    "Apply VLC custom window rect: left=%s top=%s width=%s height=%s",
+                    "应用 VLC 自定义窗口位置: left=%s top=%s width=%s height=%s",
                     bounds["left"],
                     bounds["top"],
                     bounds["width"],
                     bounds["height"],
                 )
             else:
-                logger.info("Apply VLC fullscreen mode.")
+                logger.info("应用 VLC 全屏模式。")
                 logger.info(
-                    "VLC fullscreen target screen_index=%s screen=%s bounds=%s",
+                    "VLC 全屏目标屏幕_index=%s screen=%s bounds=%s",
                     self.screen_index,
                     (self.current_screen or {}).get("name"),
                     bounds,
@@ -803,11 +803,11 @@ class Player:
             self.last_started_at = time.time()
             self.last_error = ""
             self._sync_guard_processes_locked()
-            logger.info("Play %s started: %s (result=%s)", source_type, source, result)
+            logger.info("%s 播放已开始: %s (结果=%s)", source_type, source, result)
             return result != -1
         except Exception as exc:
             self.last_error = str(exc)
-            logger.error("VLC playback failed: %s", exc)
+            logger.error("VLC 播放失败: %s", exc)
             return False
 
     def play_playlist(self, items, source_type="playlist", loop_mode="list_loop", loop_count=0):
@@ -847,7 +847,7 @@ class Player:
             self._playlist_thread = threading.Thread(target=self._playlist_worker, daemon=True)
             self._playlist_thread.start()
             logger.info(
-                "Playlist started. size=%s mode=%s loop_count=%s",
+                "播放列表已启动。数量=%s 模式=%s 循环次数=%s",
                 len(self.playlist_items),
                 self.playlist_mode,
                 self.playlist_loop_count,
@@ -1000,7 +1000,7 @@ class Player:
         delay = self._next_electron_backoff_delay()
         self.electron_backoff_until = time.time() + delay
         logger.warning(
-            "Electron launch backoff enabled: target=%s failures=%s delay=%.1fs reason=%s",
+            "Electron 启动退避已启用: 目标=%s 失败次数=%s 延迟=%.1fs 原因=%s",
             key,
             self.electron_backoff_failures,
             delay,
@@ -1016,10 +1016,10 @@ class Player:
         if self._electron_backoff_blocked(url):
             wait_seconds = max(0.0, float(self.electron_backoff_until or 0.0) - time.time())
             self.last_error = (
-                f"Electron restart is backing off ({wait_seconds:.1f}s remaining)."
+                f"Electron 重启正在退避 ({wait_seconds:.1f}s 剩余)."
             )
             logger.warning(
-                "Skip Electron relaunch due to backoff: wait=%.1fs target=%s",
+                "由于退避策略跳过 Electron 重启: 等待=%.1fs 目标=%s",
                 wait_seconds,
                 self._electron_backoff_key(url),
             )
@@ -1076,7 +1076,7 @@ class Player:
         )
 
         electron_bin = self._resolve_electron_bin()
-        logger.info("Resolved Electron binary: %s", electron_bin)
+        logger.info("已解析 Electron 二进制文件: %s", electron_bin)
         if not electron_bin:
             self.last_error = (
                 "Electron binary not found. "
@@ -1133,11 +1133,11 @@ class Player:
                 stderr=self.electron_log_handle,
                 env=self._build_electron_env(),
             )
-            logger.info("Launching Electron command: %s", command)
+            logger.info("正在启动 Electron 命令: %s", command)
             self.browser_command = command
             if not self._wait_electron_ready():
                 exit_code = self.electron_process.poll() if self.electron_process else None
-                logger.error("Electron did not become ready. process_exit=%s", exit_code)
+                logger.error("Electron 未就绪。进程退出码=%s", exit_code)
                 raise RuntimeError("Electron control endpoint not ready.")
             self.current_source = url
             self.current_backend = "electron"
@@ -1147,11 +1147,11 @@ class Player:
             self.electron_window_signature = target_signature
             self._electron_backoff_reset()
             self._sync_guard_processes_locked()
-            logger.info("Web live opened via Electron: %s", url)
+            logger.info("通过 Electron 打开网页直播: %s", url)
             return True
         except Exception as exc:
             self.last_error = str(exc)
-            logger.error("Electron open failed: %s", exc)
+            logger.error("Electron 打开失败: %s", exc)
             self._electron_backoff_record_failure(url, reason=str(exc))
             self._stop_electron_process()
             return False
@@ -1248,7 +1248,7 @@ class Player:
                 return 200 <= resp.getcode() < 300
         except (urllib.error.URLError, TimeoutError, ValueError, OSError, ConnectionResetError):
             if not ignore_error:
-                logger.warning("Electron request failed: %s %s", method, path)
+                logger.warning("Electron 请求失败: %s %s", method, path)
             return False
 
     def _electron_request_json(self, method, path, payload=None, ignore_error=False):
@@ -1271,7 +1271,7 @@ class Player:
                 return json.loads(payload.decode("utf-8", errors="replace"))
         except (urllib.error.URLError, TimeoutError, ValueError, OSError, ConnectionResetError, json.JSONDecodeError):
             if not ignore_error:
-                logger.warning("Electron JSON request failed: %s %s", method, path)
+                logger.warning("Electron JSON 请求失败: %s %s", method, path)
             return None
 
     def _electron_media_finished(self):
@@ -1381,11 +1381,11 @@ class Player:
                 self.playlist_current_item = None
                 self._stop_active_backend_only()
                 self._stop_all_guard_processes_locked()
-                logger.info("Playback stopped.")
+                logger.info("播放已停止。")
                 return True
             except Exception as exc:
                 self.last_error = str(exc)
-                logger.error("Stop playback failed: %s", exc)
+                logger.error("停止播放失败: %s", exc)
                 return False
 
     def _stop_active_backend_only(self):
@@ -1430,11 +1430,11 @@ class Player:
             return False
         try:
             self.player.pause()
-            logger.info("Playback paused.")
+            logger.info("播放已暂停。")
             return True
         except Exception as exc:
             self.last_error = str(exc)
-            logger.error("Pause failed: %s", exc)
+            logger.error("暂停失败: %s", exc)
             return False
 
     def resume(self):
@@ -1446,11 +1446,11 @@ class Player:
             return False
         try:
             self.player.play()
-            logger.info("Playback resumed.")
+            logger.info("播放已恢复。")
             return True
         except Exception as exc:
             self.last_error = str(exc)
-            logger.error("Resume failed: %s", exc)
+            logger.error("恢复失败: %s", exc)
             return False
 
     def is_healthy(self):

@@ -264,7 +264,7 @@ def _sync_all_users_from_ldap(max_entries=500):
         }
     except Exception as exc:
         db.session.rollback()
-        logger.warning("LDAP bulk sync failed: %s", exc)
+        logger.warning("LDAP 批量同步失败: %s", exc)
         return {
             "ok": False,
             "error": f"ldap_bulk_sync_failed: {exc}",
@@ -626,7 +626,7 @@ def sync_nextcloud_cache_auto_clear_job(scheduler):
     enabled = bool(getattr(Config, "NEXTCLOUD_CACHE_AUTO_CLEAR_ENABLED", False))
     run_at = _normalize_hhmm(getattr(Config, "NEXTCLOUD_CACHE_AUTO_CLEAR_TIME", "03:00"), default="03:00")
     if not enabled:
-        logger.info("Nextcloud cache auto clear disabled.")
+        logger.info("Nextcloud 缓存自动清理已禁用。")
         return
 
     hour, minute = [int(x) for x in run_at.split(":")]
@@ -634,7 +634,7 @@ def sync_nextcloud_cache_auto_clear_job(scheduler):
     def _job():
         removed, reclaimed = _clear_nextcloud_cache()
         logger.info(
-            "Nextcloud cache auto clear executed at %s: removed=%s reclaimed=%s",
+            "Nextcloud 缓存自动清理已执行(%s): 删除=%s 回收=%s",
             run_at,
             removed,
             reclaimed,
@@ -650,7 +650,7 @@ def sync_nextcloud_cache_auto_clear_job(scheduler):
         max_instances=1,
         coalesce=True,
     )
-    logger.info("Nextcloud cache auto clear job scheduled at %s daily.", run_at)
+    logger.info("Nextcloud 缓存自动清理任务已计划在每天 %s 执行。", run_at)
 
 
 def _get_setting_bool(key, default=False):
@@ -822,7 +822,7 @@ def login():
             ldap_error = ldap_result.error or "ldap_auth_failed"
             if not getattr(Config, "LDAP_LOCAL_FALLBACK", True):
                 flash("LDAP 认证失败，请联系管理员。", "error")
-                logger.info("LDAP login failed for %s: %s", username, ldap_error)
+                logger.info("LDAP 登录失败 [%s]: %s", username, ldap_error)
                 return render_template("login.html", ldap_enabled=True)
 
         user = User.query.filter_by(username=username).first()
@@ -834,7 +834,7 @@ def login():
         if not user or not user.check_password(password):
             flash("用户名或密码错误。", "error")
             if ldap_error:
-                logger.info("LDAP fallback to local failed for %s: %s", username, ldap_error)
+                logger.info("LDAP 回退到本地认证失败 [%s]: %s", username, ldap_error)
             return render_template("login.html", ldap_enabled=_ldap_enabled())
 
         if not user.is_active:
@@ -1826,7 +1826,7 @@ def settings():
         try:
             sync_nextcloud_cache_auto_clear_job(controller.scheduler)
         except Exception as exc:
-            logger.warning("Failed to sync nextcloud cache auto clear job: %s", exc)
+            logger.warning("同步 Nextcloud 缓存自动清理任务失败: %s", exc)
         if old_value != new_value:
             _append_setting_audit_log(SETTING_KEY_ALL_ELECTRON, old_value, new_value)
         if old_interval != str(monitor_interval):

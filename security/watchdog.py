@@ -27,13 +27,13 @@ class Watchdog:
         self.running = True
         self.thread = threading.Thread(target=self._watchdog_loop, daemon=True)
         self.thread.start()
-        logger.info("Watchdog started.")
+        logger.info("看门狗已启动。")
 
     def stop(self):
         self.running = False
         if self.thread:
             self.thread.join(timeout=5)
-        logger.info("Watchdog stopped.")
+        logger.info("看门狗已停止。")
 
     def _watchdog_loop(self):
         while self.running:
@@ -44,7 +44,7 @@ class Watchdog:
                     self._check_status(now=now)
                     self._last_full_check_at = now
             except Exception as exc:
-                logger.error("Watchdog check failed: %s", exc)
+                logger.error("看门狗检查失败: %s", exc)
             time.sleep(self.fast_check_interval)
 
     def _check_electron_fast(self, now):
@@ -64,7 +64,7 @@ class Watchdog:
 
         self._last_recovery_at = now
         logger.warning(
-            "Electron window not healthy, recovering active schedule immediately: %s",
+            "Electron 窗口不健康，立即恢复活动时间表: %s",
             active_schedule.name,
         )
         self.controller.sync_active_schedule(force_restart=True)
@@ -90,5 +90,5 @@ class Watchdog:
             return
 
         self._last_recovery_at = now
-        logger.warning("Player unhealthy, recovering active schedule: %s", active_schedule.name)
+        logger.warning("播放器不健康，恢复活动时间表: %s", active_schedule.name)
         self.controller.sync_active_schedule(force_restart=True)

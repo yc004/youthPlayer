@@ -148,7 +148,7 @@ def _server_from_config(config):
     try:
         server = Server(server_uri, use_ssl=use_ssl, connect_timeout=timeout, get_info=None)
     except Exception as exc:
-        logger.warning("LDAP server init failed: %s", exc)
+        logger.warning("LDAP 服务器初始化失败: %s", exc)
         return None, f"ldap_server_init_failed: {exc}", use_ssl, server_uri
     return server, "", use_ssl, server_uri
 
@@ -247,7 +247,7 @@ def probe_connection(config):
             bind_mode=bind_mode,
         )
     except Exception as exc:
-        logger.info("LDAP probe failed: %s", exc)
+        logger.info("LDAP 探测失败: %s", exc)
         return LDAPProbeResult(
             ok=False,
             error=f"ldap_probe_failed: {exc}",
@@ -342,7 +342,7 @@ def sync_directory_users(config, max_entries=500):
             message=f"ldap_directory_sync_ready scanned={scanned} selected={len(users)}",
         )
     except Exception as exc:
-        logger.info("LDAP directory sync failed: %s", exc)
+        logger.info("LDAP 目录同步失败: %s", exc)
         return LDAPDirectorySyncResult(ok=False, error=f"ldap_directory_sync_failed: {exc}")
     finally:
         try:
@@ -452,7 +452,7 @@ def authenticate(config, username, password):
 
         _bind_server(server, user_dn, password, timeout)
     except Exception as exc:
-        logger.info("LDAP auth failed for %s: %s", username, exc)
+        logger.info("LDAP 认证失败 [%s]: %s", username, exc)
         return LDAPAuthResult(False, username, error=f"ldap_bind_failed: {exc}")
     finally:
         try:

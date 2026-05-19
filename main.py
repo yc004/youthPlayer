@@ -197,32 +197,32 @@ def load_runtime_settings():
                 "yes",
                 "on",
             }
-            logger.info("Loaded setting all_play_via_electron=%s", Config.ALL_PLAY_VIA_ELECTRON)
+            logger.info("已加载设置 all_play_via_electron=%s", Config.ALL_PLAY_VIA_ELECTRON)
         interval_item = db.session.get(SystemSetting, "monitor_capture_interval")
         if interval_item:
             try:
                 Config.MONITOR_CAPTURE_INTERVAL = max(2, min(3600, int(str(interval_item.value).strip())))
             except Exception:
                 pass
-            logger.info("Loaded setting monitor_capture_interval=%ss", Config.MONITOR_CAPTURE_INTERVAL)
+            logger.info("已加载设置 monitor_capture_interval=%ss", Config.MONITOR_CAPTURE_INTERVAL)
         screensaver_image_item = db.session.get(SystemSetting, "idle_screensaver_image")
         if screensaver_image_item:
             image_path = str(screensaver_image_item.value or "").strip()
             Config.IDLE_SCREENSAVER_IMAGE = image_path if image_path and os.path.exists(image_path) else ""
-            logger.info("Loaded setting idle_screensaver_image=%s", Config.IDLE_SCREENSAVER_IMAGE or "<empty>")
+            logger.info("已加载设置 idle_screensaver_image=%s", Config.IDLE_SCREENSAVER_IMAGE or "<empty>")
         ss_screen_item = db.session.get(SystemSetting, "idle_screensaver_screen_index")
         if ss_screen_item:
             try:
                 Config.IDLE_SCREENSAVER_SCREEN_INDEX = int(str(ss_screen_item.value).strip())
             except Exception:
                 pass
-            logger.info("Loaded setting idle_screensaver_screen_index=%s", Config.IDLE_SCREENSAVER_SCREEN_INDEX)
+            logger.info("已加载设置 idle_screensaver_screen_index=%s", Config.IDLE_SCREENSAVER_SCREEN_INDEX)
         ss_mode_item = db.session.get(SystemSetting, "idle_screensaver_window_mode")
         if ss_mode_item:
             mode = str(ss_mode_item.value or "").strip().lower()
             if mode in {"fullscreen", "custom"}:
                 Config.IDLE_SCREENSAVER_WINDOW_MODE = mode
-            logger.info("Loaded setting idle_screensaver_window_mode=%s", Config.IDLE_SCREENSAVER_WINDOW_MODE)
+            logger.info("已加载设置 idle_screensaver_window_mode=%s", Config.IDLE_SCREENSAVER_WINDOW_MODE)
         for key, attr in [
             ("idle_screensaver_window_left", "IDLE_SCREENSAVER_WINDOW_LEFT"),
             ("idle_screensaver_window_top", "IDLE_SCREENSAVER_WINDOW_TOP"),
@@ -236,7 +236,7 @@ def load_runtime_settings():
                 setattr(Config, attr, int(str(item.value).strip()))
             except Exception:
                 continue
-            logger.info("Loaded setting %s=%s", key, getattr(Config, attr))
+            logger.info("已加载设置 %s=%s", key, getattr(Config, attr))
         nc_enabled_item = db.session.get(SystemSetting, "nextcloud_enabled")
         nc_url_item = db.session.get(SystemSetting, "nextcloud_url")
         nc_user_item = db.session.get(SystemSetting, "nextcloud_username")
@@ -348,7 +348,7 @@ def setup_monitor_capture_job():
         max_instances=1,
         coalesce=True,
     )
-    logger.info("Monitor capture job enabled, interval=%ss", interval)
+    logger.info("监控截图任务已启用, 间隔=%ss", interval)
     try:
         player.capture_monitor_snapshot()
     except Exception:
