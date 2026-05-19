@@ -36,7 +36,6 @@ def configure_logging():
     if root_logger.handlers:
         return
 
-    # Slice logs into hourly files: playback_system.log.YYYY-MM-DD_HH
     file_handler = TimedRotatingFileHandler(
         filename=app.config["LOG_FILE"],
         when="H",
@@ -54,6 +53,10 @@ def configure_logging():
             logging.StreamHandler(),
         ],
     )
+
+    logging.getLogger("apscheduler").setLevel(logging.WARNING)
+    logging.getLogger("apscheduler.executors").setLevel(logging.WARNING)
+    logging.getLogger("werkzeug").setLevel(logging.WARNING)
 
 
 configure_logging()
