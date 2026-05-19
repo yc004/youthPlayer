@@ -261,7 +261,7 @@ class Player:
 
     def _init_vlc(self):
         if vlc is None:
-            logger.warning("python-vlc not installed, VLC playback unavailable.")
+            logger.warning("python-vlc 未安装，VLC 播放不可用。")
             return
         try:
             options = [
@@ -275,10 +275,10 @@ class Player:
                 "--no-qt-name-in-title",
             ]
             if os.path.exists(Config.VLC_PATH):
-                logger.info("Using VLC at: %s", Config.VLC_PATH)
+                logger.info("使用 VLC 路径: %s", Config.VLC_PATH)
             self.instance = vlc.Instance(*options)
             self.player = self.instance.media_player_new()
-            logger.info("VLC player initialized.")
+            logger.info("VLC 播放器已初始化。")
         except Exception as exc:  # pragma: no cover
             self.instance = None
             self.player = None
@@ -304,7 +304,7 @@ class Player:
                         }
                     )
             except Exception as exc:
-                logger.warning("Failed to read monitor info: %s", exc)
+                logger.warning("读取显示器信息失败: %s", exc)
         if not screens:
             screens = [
                 dict(item, primary=(item["index"] == Config.PRIMARY_SCREEN))
@@ -400,7 +400,7 @@ class Player:
                 try:
                     payload["image"] = Path(image_path).resolve().as_uri()
                 except Exception:
-                    logger.warning("Invalid screensaver image path: %s", image_path)
+                    logger.warning("屏幕保护图片路径无效: %s", image_path)
             payload_text = json.dumps(payload, ensure_ascii=False, separators=(",", ":"))
             payload_b64 = base64.urlsafe_b64encode(payload_text.encode("utf-8")).decode("ascii").rstrip("=")
             target_url = f"{self.screensaver_url}?cfg={payload_b64}"
@@ -569,10 +569,10 @@ class Player:
             )
             codec = (result.stdout or "").strip().lower()
             if codec:
-                logger.info("Detected video codec: %s for %s", codec, file_path)
+                logger.info("检测到视频编码: %s (%s)", codec, file_path)
                 return codec
         except Exception as exc:
-            logger.warning("ffprobe failed for %s: %s", file_path, exc)
+            logger.warning("ffprobe 执行失败 (%s): %s", file_path, exc)
         return None
 
     def _transcode_video(self, input_path):
@@ -595,7 +595,7 @@ class Player:
             return None  # can't determine — don't risk transcoding
         incompatible = getattr(Config, "TRANSCODE_INCOMPATIBLE_CODECS", set())
         if codec not in incompatible:
-            logger.info("Codec '%s' is compatible, skipping transcode for %s", codec, input_path)
+            logger.info("编码 '%s' 兼容，跳过转码: %s", codec, input_path)
             return None
         ffmpeg_args = str(getattr(Config, "TRANSCODE_FFMPEG_ARGS", "") or "").strip()
         timeout = int(getattr(Config, "TRANSCODE_TIMEOUT", 3600) or 3600)
@@ -630,6 +630,65 @@ class Player:
         except Exception:
             pass
         return None
+
+    def _pretranscode_playlist(self, items):
+        """
+        预编码播放列表中的所有视频文件。
+        在播放开始前对需要转码的视频进行预处理，避免播放时等待转码。
+        返回预处理后的播放列表（可能包含转码后的文件路径）。
+        """
+        ffprobe_bin = self._find_fftool("ffprobe", "FFPROBE_PATH")
+        if not ffprobe_bin:
+            logger.warning("未找到 ffprobe，跳过预编码")
+            return items
+        
+        ffmpeg_bin = self._find_fftool("ffmpeg", "FFMPEG_PATH")
+        if not ffmpeg_bin:
+            logger.warning("未找到 ffmpeg，跳过预编码")
+            return items
+        
+        incompatible = getattr(Config, "TRANSCODE_INCOMPATIBLE_CODECS", set())
+        if not incompatible:
+            logger.debug("没有配置不兼容编码，跳过预编码")
+            return items
+        
+        result = []
+        for item in items:
+            item = str(item).strip()
+            if not item:
+                continue
+            
+            if not os.path.isfile(item):
+                result.append(item)
+                continue
+            
+            output_path = self._transcode_filename(item)
+            if os.path.isfile(output_path) and os.path.getsize(output_path) > 0:
+                logger.info("预编码: 使用已存在的转码文件: %s", output_path)
+                result.append(output_path)
+                continue
+            
+            codec = self._detect_video_codec(item)
+            if not codec:
+                logger.warning("预编码: 无法检测编码，跳过: %s", item)
+                result.append(item)
+                continue
+            
+            if codec not in incompatible:
+                logger.debug("预编码: 编码 '%s' 兼容，跳过: %s", codec, item)
+                result.append(item)
+                continue
+            
+            logger.info("预编码: 开始转码 %s (编码=%s)", item, codec)
+            transcoded = self._transcode_video(item)
+            if transcoded:
+                logger.info("预编码: 转码完成: %s", transcoded)
+                result.append(transcoded)
+            else:
+                logger.error("预编码: 转码失败，使用原文件: %s", item)
+                result.append(item)
+        
+        return result
 
     def _ensure_compatible_codec(self, source):
         """
@@ -819,7 +878,10 @@ class Player:
                 return False
 
             self.stop()
-            self.playlist_items = normalized
+            # 预编码播放列表中的所有视频
+            logger.info("开始预编码播放列表 (%d 个文件)", len(normalized))
+            transcoded_items = self._pretranscode_playlist(normalized)
+            self.playlist_items = transcoded_items
             self.playlist_index = 0
             self.playlist_mode = loop_mode or "list_loop"
             self.playlist_loop_count = max(0, int(loop_count or 0))
@@ -1581,7 +1643,6 @@ class Player:
                 pass
             return True, target_path
         except Exception as exc:
-            logger.warning("Capture monitor snapshot failed: %s", exc)
             return False, str(exc)
         finally:
             try:

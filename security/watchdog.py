@@ -74,7 +74,7 @@ class Watchdog:
             now = time.time()
 
         status = self.player.get_status()
-        logger.debug("Player status: %s", status)
+        logger.debug("播放器状态: %s", status)
 
         if Config.WINDOW_RECOVERY_ENABLED:
             self.player.ensure_foreground()

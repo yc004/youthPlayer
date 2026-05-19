@@ -348,7 +348,6 @@ def setup_monitor_capture_job():
         max_instances=1,
         coalesce=True,
     )
-    logger.info("监控截图任务已启用, 间隔=%ss", interval)
     try:
         player.capture_monitor_snapshot()
     except Exception:
