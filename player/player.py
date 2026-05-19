@@ -905,6 +905,7 @@ class Player:
             )
             if not ok:
                 self.playlist_items = []
+                self.playlist_items_original = []
                 self.playlist_play_counts = []
                 self.playlist_current_item = None
                 return False
@@ -921,16 +922,22 @@ class Player:
             return True
 
     def _playlist_worker(self):
+        logger.info("播放列表工作线程已启动")
         while not self._playlist_stop_event.is_set():
             time.sleep(1)
             with self._op_lock:
                 if not self.playlist_items:
+                    logger.info("播放列表为空，工作线程退出")
                     return
 
                 if self.playlist_backend == "electron":
-                    if not self._electron_media_finished():
+                    finished = self._electron_media_finished()
+                    logger.debug("Electron 媒体状态检测: finished=%s, index=%d", finished, self.playlist_index)
+                    if not finished:
                         continue
+                    logger.info("推进播放列表: 当前索引=%d, 总数=%d", self.playlist_index, len(self.playlist_items))
                     if not self._advance_playlist_locked():
+                        logger.info("播放列表推进失败或已结束")
                         return
                     continue
 
@@ -940,10 +947,14 @@ class Player:
                 if not self.player or vlc is None:
                     continue
                 state = self.player.get_state()
+                logger.debug("VLC 状态检测: state=%s, index=%d", state, self.playlist_index)
                 if state not in {vlc.State.Ended, vlc.State.Error, vlc.State.Stopped}:
                     continue
+                logger.info("推进播放列表(VLC): 当前索引=%d, 总数=%d", self.playlist_index, len(self.playlist_items))
                 if not self._advance_playlist_locked():
+                    logger.info("播放列表推进失败或已结束")
                     return
+        logger.info("播放列表工作线程已停止")
 
     def _play_playlist_index_locked(self, index, increment_count=True):
         if not self.playlist_items:
@@ -1003,12 +1014,14 @@ class Player:
 
         if mode == "single":
             self.playlist_items = []
+            self.playlist_items_original = []
             self.expected_playing = False
             return False
 
         if mode == "single_loop":
             if self.playlist_loop_count > 0 and self.playlist_round >= self.playlist_loop_count:
                 self.playlist_items = []
+                self.playlist_items_original = []
                 self.expected_playing = False
                 return False
             self.playlist_round += 1
@@ -1019,11 +1032,13 @@ class Player:
             if next_index >= size:
                 if mode == "once":
                     self.playlist_items = []
+                    self.playlist_items_original = []
                     self.expected_playing = False
                     return False
                 # list_loop
                 if self.playlist_loop_count > 0 and self.playlist_round >= self.playlist_loop_count:
                     self.playlist_items = []
+                    self.playlist_items_original = []
                     self.expected_playing = False
                     return False
                 self.playlist_round += 1
@@ -1438,6 +1453,7 @@ class Player:
             try:
                 self._playlist_stop_event.set()
                 self.playlist_items = []
+                self.playlist_items_original = []  # 同时清空原始播放列表
                 self.playlist_index = 0
                 self.playlist_round = 1
                 self.playlist_backend = "vlc"
