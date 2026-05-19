@@ -695,6 +695,7 @@ class Player:
                 )
                 self.stop()
                 time.sleep(0.3)
+                self.last_error = ""  # 清除之前的错误状态
                 return self._play_vlc_media(source, source_type)
         return True
 
@@ -1482,7 +1483,8 @@ class Player:
         elif self.player and vlc is not None:
             state = self.player.get_state()
             state_label = str(state)
-            is_playing = state == vlc.State.Playing
+            # 除了 Playing，Opening 和 Buffering 也是活跃状态
+            is_playing = state in {vlc.State.Playing, vlc.State.Opening, vlc.State.Buffering}
             try:
                 current_ms = float(self.player.get_time() or 0)
             except Exception:
