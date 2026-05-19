@@ -98,7 +98,7 @@
         var scheduleName = active && active.name ? active.name : "无活动任务";
         scheduleNode.textContent = scheduleName;
 
-        var items = active && Array.isArray(active.playlist_items) ? active.playlist_items : [];
+        var items = Array.isArray(player.playlist_items) ? player.playlist_items : (active && Array.isArray(active.playlist_items) ? active.playlist_items : []);
         var size = Number(player.playlist_size || 0);
         if (items.length > size) size = items.length;
 

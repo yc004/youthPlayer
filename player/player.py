@@ -71,6 +71,7 @@ class Player:
         self.expected_playing = False
         self._op_lock = threading.RLock()
         self.playlist_items = []
+        self.playlist_items_original = []  # 保存原始播放列表，用于前端显示
         self.playlist_index = 0
         self.playlist_mode = "single"
         self.playlist_loop_count = 0  # 0=infinite
@@ -754,7 +755,8 @@ class Player:
                 )
                 self.stop()
                 time.sleep(0.3)
-                self.last_error = ""  # 清除之前的错误状态
+                self.last_error = ""
+                self.playlist_backend = "vlc"  # 更新播放后端
                 return self._play_vlc_media(source, source_type)
         return True
 
@@ -882,6 +884,7 @@ class Player:
             logger.info("开始预编码播放列表 (%d 个文件)", len(normalized))
             transcoded_items = self._pretranscode_playlist(normalized)
             self.playlist_items = transcoded_items
+            self.playlist_items_original = normalized  # 保存原始播放列表，用于前端显示
             self.playlist_index = 0
             self.playlist_mode = loop_mode or "list_loop"
             self.playlist_loop_count = max(0, int(loop_count or 0))
@@ -1578,13 +1581,14 @@ class Player:
             "window_bounds": self.window_bounds,
             "last_error": self.last_error,
             "last_started_at": self.last_started_at,
-            "playlist_size": len(self.playlist_items),
+            "playlist_size": len(self.playlist_items_original) if self.playlist_items_original else len(self.playlist_items),
             "playlist_index": self.playlist_index,
             "playlist_mode": self.playlist_mode,
             "playlist_loop_count": self.playlist_loop_count,
             "playlist_round": self.playlist_round,
             "playlist_backend": self.playlist_backend,
             "playlist_current_item": self.playlist_current_item,
+            "playlist_items": self.playlist_items_original if self.playlist_items_original else self.playlist_items,
             "playlist_play_counts": list(self.playlist_play_counts),
             "playback_progress": playback_progress,
             "monitor_last_capture_at": self.monitor_last_capture_at,
