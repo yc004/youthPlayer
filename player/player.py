@@ -403,8 +403,11 @@ class Player:
                 target_url = f"{self.cert_expired_url}?api_base={api_base}"
             else:
                 target_url = f"{self.screensaver_url}?cfg={payload_b64}"
-            # 和视频播放走完全相同的逻辑：仅停止当前后端，不杀守护进程
-            return self._open_web_live_electron(target_url, reset_before_open=False)
+            # 屏保绕过退避，始终尝试启动
+            ok = self._open_web_live_electron(target_url, reset_before_open=False, bypass_backoff=True)
+            if not ok:
+                logger.warning("屏保启动失败: %s", self.last_error or "未知错误")
+            return ok
 
     def _to_electron_url(self, source):
         if source.startswith(("http://", "https://", "file://")):

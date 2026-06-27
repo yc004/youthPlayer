@@ -191,14 +191,16 @@ def init_db():
 
 
 def load_license():
-    """启动时校验证书状态。"""
+    """启动时校验证书状态并同步给 Player。"""
     from security.certificate import check_certificate_valid
 
     with app.app_context():
         item = db.session.get(SystemSetting, "license_certificate")
         cert_text = str(item.value).strip() if item and str(item.value or "").strip() else None
         result = check_certificate_valid(cert_text)
-        if result.get("valid"):
+        valid = result.get("valid", False)
+        player.license_valid = valid
+        if valid:
             logger.info(
                 "✅ 证书有效: 客户=%s 过期日期=%s 剩余天数=%s",
                 result.get("customer"),
