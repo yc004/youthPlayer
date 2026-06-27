@@ -13,6 +13,7 @@ import logging
 import os
 from datetime import datetime, timedelta
 from pathlib import Path
+from typing import Optional
 
 try:
     from cryptography.hazmat.primitives import hashes, serialization
@@ -99,7 +100,7 @@ def verify_signature(public_key, data: bytes, signature_b64: str) -> bool:
         return False
 
 
-def parse_certificate_json(raw_text: str) -> dict | None:
+def parse_certificate_json(raw_text: str) -> Optional[dict]:
     """解析证书 JSON 文本。"""
     if not raw_text or not raw_text.strip():
         return None
@@ -199,7 +200,7 @@ def validate_certificate(cert_json_text: str) -> dict:
     return result
 
 
-def check_certificate_valid(cert_json_text: str | None) -> dict:
+def check_certificate_valid(cert_json_text: Optional[str]) -> dict:
     """
     检查证书是否有效（带缓存，按证书内容缓存）。
     与 validate_certificate 返回相同的结构。
@@ -242,7 +243,7 @@ def invalidate_cache():
     _cert_check_cache_time = None
 
 
-def get_cert_expire_warning(cert_result: dict) -> str | None:
+def get_cert_expire_warning(cert_result: dict) -> Optional[str]:
     """如果证书即将过期（30 天内），返回警告文本；否则返回 None。"""
     if not cert_result.get("valid"):
         return None
