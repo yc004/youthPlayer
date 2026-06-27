@@ -197,8 +197,8 @@ class Controller:
             if not active_schedule:
                 self.current_schedule_id = None
                 self.manual_stop_schedule_id = None
-                if self.suppress_idle_screensaver and not force_restart:
-                    return None
+                # 没有活动排期时，不再阻止屏保（手动停止的抑制只在当前排期窗口内有效）
+                self.suppress_idle_screensaver = False
                 self.player.show_screensaver()
                 return None
 
