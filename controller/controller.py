@@ -5,10 +5,23 @@ from apscheduler.jobstores.base import JobLookupError
 from apscheduler.triggers.cron import CronTrigger
 from apscheduler.triggers.date import DateTrigger
 
-from models import Schedule, db
+from models import Schedule, SystemSetting, db
+from security.certificate import check_certificate_valid
 
 
 logger = logging.getLogger(__name__)
+
+
+def _is_licensed():
+    """检查系统是否有有效证书。"""
+    cert_text = None
+    try:
+        item = db.session.get(SystemSetting, "license_certificate")
+        if item and str(item.value or "").strip():
+            cert_text = str(item.value).strip()
+    except Exception:
+        pass
+    return check_certificate_valid(cert_text).get("valid", False)
 
 
 class Controller:
@@ -136,6 +149,9 @@ class Controller:
         return False
 
     def _play_schedule(self, schedule, source="manual"):
+        if not _is_licensed():
+            logger.warning("证书无效，拒绝播放: %s", schedule.name)
+            return False
         logger.info("开始执行时间表 [%s]: %s", source, schedule.name)
         self.manual_stop_schedule_id = None
         self.player.set_screen(schedule.screen_index)
@@ -312,6 +328,12 @@ class Controller:
 
     def control_playback(self, action, schedule_id=None):
         try:
+            # 放行"停止"操作（让管理员可以关掉播放），其余操作需要有效证书
+            if action != "stop" and not _is_licensed():
+                logger.warning("证书无效，拒绝播放控制操作: %s", action)
+                self.player.last_error = "系统未激活，请先上传有效证书。"
+                return False
+
             if action == "start":
                 self.suppress_idle_screensaver = False
                 if schedule_id:

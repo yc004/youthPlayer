@@ -55,14 +55,17 @@ class Watchdog:
         if self.player.is_healthy():
             return
         # Prevent tight retry loops while still allowing near-immediate recovery.
-        if now - self._last_recovery_at < 1.0:
-            return
-
-        active_schedule = self.controller.get_active_schedule_now()
-        if not active_schedule:
+        if now - self._last_recovery_at < 2.0:
             return
 
         self._last_recovery_at = now
+        active_schedule = self.controller.get_active_schedule_now()
+        if not active_schedule:
+            # 没有活动排期 → 屏保窗口挂了，重新拉起来
+            logger.warning("Electron 屏保窗口不健康，重新显示")
+            self.player.show_screensaver()
+            return
+
         logger.warning(
             "Electron 窗口不健康，立即恢复活动时间表: %s",
             active_schedule.name,
@@ -81,6 +84,10 @@ class Watchdog:
 
         active_schedule = self.controller.sync_active_schedule(force_restart=False)
         if not active_schedule:
+            # 没有活动排期 → 确保屏保始终显示
+            if not self.player.is_healthy() or self.player.current_backend == "idle":
+                logger.debug("无活动排期，确保屏保运行")
+                self.player.show_screensaver()
             return
 
         if self.player.is_healthy():
