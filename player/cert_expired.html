@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>证书无效</title>
+  <style>
+    html, body {
+      margin: 0; width: 100%; height: 100%; overflow: hidden;
+      background: linear-gradient(135deg, #1a0000 0%, #3b0a0a 30%, #1a0000 100%);
+      color: #fecaca;
+      font-family: "Microsoft YaHei", "Segoe UI", sans-serif;
+      display: flex; align-items: center; justify-content: center;
+      user-select: none;
+    }
+    .wrap {
+      text-align: center;
+      padding: 40px;
+      position: relative;
+      z-index: 1;
+    }
+    .icon {
+      font-size: 100px;
+      margin-bottom: 30px;
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.7; transform: scale(1.05); }
+    }
+    .title {
+      font-size: clamp(28px, 4vw, 56px);
+      font-weight: 700;
+      margin: 0 0 20px;
+      letter-spacing: 0.05em;
+    }
+    .subtitle {
+      font-size: clamp(16px, 2vw, 28px);
+      opacity: 0.85;
+      margin: 0 0 12px;
+    }
+    .detail {
+      font-size: clamp(14px, 1.5vw, 20px);
+      opacity: 0.6;
+      margin: 0;
+    }
+    .blink {
+      margin-top: 40px;
+      font-size: clamp(12px, 1vw, 18px);
+      opacity: 0.5;
+      animation: blink 2s step-end infinite;
+    }
+    @keyframes blink {
+      50% { opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="icon">&#9888;</div>
+    <div class="title">证书已过期</div>
+    <div class="subtitle" id="subtitle">系统未激活，请联系管理员更新证书</div>
+    <div class="detail" id="detail"></div>
+    <div class="blink">请在管理后台 &rarr; 系统设置 &rarr; 许可证 中上传有效证书</div>
+  </div>
+  <script>
+    var apiBase = new URLSearchParams(location.search).get("api_base") || "http://127.0.0.1:5000";
+    function check() {
+      try {
+        var x = new XMLHttpRequest();
+        x.open("GET", apiBase + "/api/license/status", true);
+        x.onload = function () {
+          if (x.status === 200) {
+            try {
+              var r = JSON.parse(x.responseText);
+              var lic = r.license;
+              if (lic && lic.valid) {
+                // 证书恢复有效，刷新页面让父进程切回正常屏保
+                location.reload();
+                return;
+              }
+              if (lic) {
+                var sub = document.getElementById("subtitle");
+                var det = document.getElementById("detail");
+                if (lic.error && sub) sub.textContent = lic.error;
+                if (lic.expire_date && det) det.textContent = "过期日期: " + lic.expire_date;
+              }
+            } catch (_) {}
+          }
+        };
+        x.send();
+      } catch (_) {}
+      setTimeout(check, 30000);
+    }
+    check();
+  </script>
+</body>
+</html>

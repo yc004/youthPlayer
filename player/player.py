@@ -88,6 +88,7 @@ class Player:
         self.screensaver_url = Path(os.path.join(os.path.dirname(__file__), "screensaver.html")).resolve().as_uri()
         self.media_shell_url = Path(os.path.join(os.path.dirname(__file__), "media_player.html")).resolve().as_uri()
         self.guard_notice_url = Path(os.path.join(os.path.dirname(__file__), "guard_notice.html")).resolve().as_uri()
+        self.cert_expired_url = Path(os.path.join(os.path.dirname(__file__), "cert_expired.html")).resolve().as_uri()
         self.guard_processes = {}
         self.license_valid = True  # 由 Controller 定时同步
 
@@ -396,7 +397,12 @@ class Player:
                     logger.warning("屏幕保护图片路径无效: %s", image_path)
             payload_text = json.dumps(payload, ensure_ascii=False, separators=(",", ":"))
             payload_b64 = base64.urlsafe_b64encode(payload_text.encode("utf-8")).decode("ascii").rstrip("=")
-            target_url = f"{self.screensaver_url}?cfg={payload_b64}"
+            # 证书无效时显示专用"证书过期"屏保
+            if not self.license_valid:
+                api_base = f"http://{Config.ELECTRON_CONTROL_HOST}:{Config.WEB_PORT}"
+                target_url = f"{self.cert_expired_url}?api_base={api_base}"
+            else:
+                target_url = f"{self.screensaver_url}?cfg={payload_b64}"
             # 和视频播放走完全相同的逻辑：仅停止当前后端，不杀守护进程
             return self._open_web_live_electron(target_url, reset_before_open=False)
 
