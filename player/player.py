@@ -372,34 +372,16 @@ class Player:
         with self._op_lock:
             if not Config.IDLE_SCREENSAVER_ENABLED:
                 return False
-            # 避免短时间内反复重试（屏保专用冷却）
-            now_ts = time.time()
-            if now_ts - getattr(self, "_ss_last_attempt", 0) < 30:
-                return False
-            self._ss_last_attempt = now_ts
             screensaver_mode = (Config.IDLE_SCREENSAVER_WINDOW_MODE or "fullscreen").strip().lower()
             if screensaver_mode not in {"fullscreen", "custom"}:
                 screensaver_mode = "fullscreen"
-            if self.screen_index != Config.IDLE_SCREENSAVER_SCREEN_INDEX:
-                self.set_screen(Config.IDLE_SCREENSAVER_SCREEN_INDEX)
+            self.screen_index = Config.IDLE_SCREENSAVER_SCREEN_INDEX
             self.set_window_rect(
                 mode=screensaver_mode,
                 left=Config.IDLE_SCREENSAVER_WINDOW_LEFT,
                 top=Config.IDLE_SCREENSAVER_WINDOW_TOP,
                 width=Config.IDLE_SCREENSAVER_WINDOW_WIDTH,
                 height=Config.IDLE_SCREENSAVER_WINDOW_HEIGHT,
-            )
-            mode, bounds = self._resolve_window_rect()
-            ignore_cert_errors = False
-            target_signature = (
-                int(self.screen_index),
-                str(mode),
-                int(bounds["left"]),
-                int(bounds["top"]),
-                int(bounds["width"]),
-                int(bounds["height"]),
-                bool(Config.WINDOW_TOPMOST),
-                bool(ignore_cert_errors),
             )
             payload = {
                 "title": Config.IDLE_SCREENSAVER_TITLE or "Campus Player",
@@ -414,19 +396,8 @@ class Player:
             payload_text = json.dumps(payload, ensure_ascii=False, separators=(",", ":"))
             payload_b64 = base64.urlsafe_b64encode(payload_text.encode("utf-8")).decode("ascii").rstrip("=")
             target_url = f"{self.screensaver_url}?cfg={payload_b64}"
-            if (
-                self.current_backend == "electron"
-                and (self.current_source or "") == target_url
-                and self.electron_process
-                and self.electron_process.poll() is None
-                and self.electron_window_signature == target_signature
-            ):
-                return True
-            # 屏保不受退避限制 — 只要空闲就始终尝试显示
-            ok = self._open_web_live_electron(target_url, bypass_backoff=True)
-            if not ok:
-                logger.warning("屏保启动失败: %s", self.last_error or "未知错误")
-            return ok
+            # 和视频播放走完全相同的逻辑：仅停止当前后端，不杀守护进程
+            return self._open_web_live_electron(target_url, reset_before_open=False)
 
     def _to_electron_url(self, source):
         if source.startswith(("http://", "https://", "file://")):
