@@ -416,7 +416,8 @@ class Player:
                 and self.electron_window_signature == target_signature
             ):
                 return True
-            return self._open_web_live_electron(target_url)
+            # 屏保不受退避限制 — 只要空闲就始终尝试显示
+            return self._open_web_live_electron(target_url, bypass_backoff=True)
 
     def _to_electron_url(self, source):
         if source.startswith(("http://", "https://", "file://")):
@@ -1100,8 +1101,8 @@ class Player:
         self.electron_backoff_failures = 0
         self.electron_backoff_until = 0.0
 
-    def _open_web_live_electron(self, url, loop=False, reset_before_open=True):
-        if self._electron_backoff_blocked(url):
+    def _open_web_live_electron(self, url, loop=False, reset_before_open=True, bypass_backoff=False):
+        if not bypass_backoff and self._electron_backoff_blocked(url):
             wait_seconds = max(0.0, float(self.electron_backoff_until or 0.0) - time.time())
             self.last_error = (
                 f"Electron 重启正在退避 ({wait_seconds:.1f}s 剩余)."
