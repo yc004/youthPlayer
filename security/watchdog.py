@@ -84,10 +84,7 @@ class Watchdog:
 
         active_schedule = self.controller.sync_active_schedule(force_restart=False)
         if not active_schedule:
-            # 没有活动排期 → 确保屏保始终显示
-            if not self.player.is_healthy() or self.player.current_backend == "idle":
-                logger.debug("无活动排期，确保屏保运行")
-                self.player.show_screensaver()
+            # 没有活动排期 → sync_active_schedule 已调用 show_screensaver()
             return
 
         if self.player.is_healthy():

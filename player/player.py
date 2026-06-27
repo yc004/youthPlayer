@@ -372,10 +372,16 @@ class Player:
         with self._op_lock:
             if not Config.IDLE_SCREENSAVER_ENABLED:
                 return False
+            # 避免短时间内反复重试（屏保专用冷却）
+            now_ts = time.time()
+            if now_ts - getattr(self, "_ss_last_attempt", 0) < 30:
+                return False
+            self._ss_last_attempt = now_ts
             screensaver_mode = (Config.IDLE_SCREENSAVER_WINDOW_MODE or "fullscreen").strip().lower()
             if screensaver_mode not in {"fullscreen", "custom"}:
                 screensaver_mode = "fullscreen"
-            self.set_screen(Config.IDLE_SCREENSAVER_SCREEN_INDEX)
+            if self.screen_index != Config.IDLE_SCREENSAVER_SCREEN_INDEX:
+                self.set_screen(Config.IDLE_SCREENSAVER_SCREEN_INDEX)
             self.set_window_rect(
                 mode=screensaver_mode,
                 left=Config.IDLE_SCREENSAVER_WINDOW_LEFT,
@@ -417,7 +423,10 @@ class Player:
             ):
                 return True
             # 屏保不受退避限制 — 只要空闲就始终尝试显示
-            return self._open_web_live_electron(target_url, bypass_backoff=True)
+            ok = self._open_web_live_electron(target_url, bypass_backoff=True)
+            if not ok:
+                logger.warning("屏保启动失败: %s", self.last_error or "未知错误")
+            return ok
 
     def _to_electron_url(self, source):
         if source.startswith(("http://", "https://", "file://")):
