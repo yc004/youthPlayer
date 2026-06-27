@@ -149,7 +149,9 @@ class Controller:
         return False
 
     def _play_schedule(self, schedule, source="manual"):
-        if not _is_licensed():
+        licensed = _is_licensed()
+        self.player.license_valid = licensed
+        if not licensed:
             logger.warning("证书无效，拒绝播放: %s", schedule.name)
             return False
         logger.info("开始执行时间表 [%s]: %s", source, schedule.name)
@@ -209,6 +211,8 @@ class Controller:
 
     def sync_active_schedule(self, force_restart=False):
         with self.app.app_context():
+            # 每次心跳同步证书状态，供 Player 内部校验
+            self.player.license_valid = _is_licensed()
             active_schedule = self._find_active_schedule(datetime.now())
             if not active_schedule:
                 self.current_schedule_id = None
@@ -328,8 +332,10 @@ class Controller:
 
     def control_playback(self, action, schedule_id=None):
         try:
+            licensed = _is_licensed()
+            self.player.license_valid = licensed
             # 放行"停止"操作（让管理员可以关掉播放），其余操作需要有效证书
-            if action != "stop" and not _is_licensed():
+            if action != "stop" and not licensed:
                 logger.warning("证书无效，拒绝播放控制操作: %s", action)
                 self.player.last_error = "系统未激活，请先上传有效证书。"
                 return False

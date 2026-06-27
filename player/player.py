@@ -89,6 +89,7 @@ class Player:
         self.media_shell_url = Path(os.path.join(os.path.dirname(__file__), "media_player.html")).resolve().as_uri()
         self.guard_notice_url = Path(os.path.join(os.path.dirname(__file__), "guard_notice.html")).resolve().as_uri()
         self.guard_processes = {}
+        self.license_valid = True  # 由 Controller 定时同步
 
         self._init_vlc()
         self.set_screen(Config.PRIMARY_SCREEN)
@@ -995,6 +996,15 @@ class Player:
 
     def _advance_playlist_locked(self):
         if not self.playlist_items:
+            return False
+
+        # 每次切视频时校验证书
+        if not self.license_valid:
+            logger.warning("证书无效，停止播放列表自动切换")
+            self.playlist_items = []
+            self.playlist_items_original = []
+            self.expected_playing = False
+            self.last_error = "证书已过期或无效，播放已停止。"
             return False
 
         size = len(self.playlist_items)
