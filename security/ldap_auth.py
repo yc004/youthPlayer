@@ -311,7 +311,8 @@ def sync_directory_users(config, max_entries=500):
             search_filter=search_filter,
             search_scope=SUBTREE,
             attributes=attrs,
-            size_limit=limit,
+            size_limit=
+            limit,
         )
         if not ok:
             return LDAPDirectorySyncResult(ok=False, error="ldap_directory_search_failed")

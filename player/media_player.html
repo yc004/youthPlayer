@@ -18,33 +18,47 @@
       object-fit: contain;
       background: #000;
     }
+    #license-overlay {
+      position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,0.88);
+      display: none; align-items: center; justify-content: center; flex-direction: column;
+      color: #f87171; font-size: clamp(18px,3vw,32px); text-align: center; padding: 40px;
+      font-family: "Microsoft YaHei", "Segoe UI", sans-serif;
+    }
+    #license-overlay.show { display: flex; }
+    #license-overlay .lic-icon { font-size: 64px; margin-bottom: 20px; }
+    #license-overlay .lic-title { font-weight: 700; margin-bottom: 12px; }
+    #license-overlay .lic-detail { font-size: 0.7em; opacity: 0.85; max-width: 600px; }
   </style>
 </head>
 <body>
   <video id="v" autoplay playsinline controlslist="nodownload noplaybackrate"></video>
+  <div id="license-overlay">
+    <div class="lic-icon">⚠️</div>
+    <div class="lic-title">证书已过期</div>
+    <div class="lic-detail" id="lic-detail">系统未激活，请联系管理员更新证书。</div>
+  </div>
   <script>
     (function () {
       function parseCfg() {
         const q = new URLSearchParams(location.search);
         const raw = q.get("cfg") || "";
-        if (!raw) return { src: "", loop: false };
+        if (!raw) return { src: "", loop: false, api_base: "" };
         const pad = "===".slice((raw.length + 3) % 4);
         try {
           return JSON.parse(atob((raw + pad).replace(/-/g, "+").replace(/_/g, "/")));
         } catch (_) {
-          return { src: "", loop: false };
+          return { src: "", loop: false, api_base: "" };
         }
       }
 
       const cfg = parseCfg();
+      const apiBase = cfg.api_base || "http://127.0.0.1:5000";
       const v = document.getElementById("v");
       v.loop = Boolean(cfg.loop);
       v.src = String(cfg.src || "");
       v.muted = false;
       v.preload = "auto";
       v.controls = false;
-      // Track media errors so the Python side can detect codec issues
-      // and fall back to VLC when Chromium can't decode the video.
       v.addEventListener("error", function () {
         var err = v.error;
         window.__yp_media_error = {
@@ -53,7 +67,33 @@
         };
       });
       const p = v.play();
-      if (p && typeof p.catch === "function") p.catch(() => {});
+      if (p && typeof p.catch === "function") p.catch(function () {});
+
+      // License check
+      (function checkLicense() {
+        try {
+          var x = new XMLHttpRequest();
+          x.open("GET", apiBase + "/api/license/status", true);
+          x.onload = function () {
+            if (x.status === 200) {
+              try {
+                var r = JSON.parse(x.responseText);
+                var lic = r.license;
+                var ov = document.getElementById("license-overlay");
+                var detail = document.getElementById("lic-detail");
+                if (lic && !lic.valid) {
+                  if (ov) ov.classList.add("show");
+                  if (detail) detail.textContent = lic.error || "系统未激活，请联系管理员更新证书。";
+                } else {
+                  if (ov) ov.classList.remove("show");
+                }
+              } catch (_) {}
+            }
+          };
+          x.send();
+        } catch (_) {}
+        setTimeout(checkLicense, 60000);
+      })();
     })();
   </script>
 </body>

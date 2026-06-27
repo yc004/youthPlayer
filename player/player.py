@@ -186,7 +186,7 @@ class Player:
             os.path.join(os.path.dirname(__file__), "electron_runner.js"),
             "--",
             "--url",
-            self.guard_notice_url,
+            f"{self.guard_notice_url}?api_base=http%3A%2F%2F{Config.ELECTRON_CONTROL_HOST}%3A{Config.WEB_PORT}",
             "--host",
             Config.ELECTRON_CONTROL_HOST,
             "--port",
@@ -395,7 +395,10 @@ class Player:
                 bool(Config.WINDOW_TOPMOST),
                 bool(ignore_cert_errors),
             )
-            payload = {"title": Config.IDLE_SCREENSAVER_TITLE or "Campus Player"}
+            payload = {
+                "title": Config.IDLE_SCREENSAVER_TITLE or "Campus Player",
+                "api_base": f"http://{Config.ELECTRON_CONTROL_HOST}:{Config.WEB_PORT}",
+            }
             image_path = (Config.IDLE_SCREENSAVER_IMAGE or "").strip()
             if image_path and os.path.exists(image_path):
                 try:
@@ -777,7 +780,11 @@ class Player:
 
     def _build_media_shell_url(self, media_url, loop=False):
         payload_text = json.dumps(
-            {"src": str(media_url), "loop": bool(loop)},
+            {
+                "src": str(media_url),
+                "loop": bool(loop),
+                "api_base": f"http://{Config.ELECTRON_CONTROL_HOST}:{Config.WEB_PORT}",
+            },
             ensure_ascii=False,
             separators=(",", ":"),
         )

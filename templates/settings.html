@@ -16,10 +16,10 @@
         <button type="button" class="settings-tab-btn" data-tab-target="general">基础</button>
         <button type="button" class="settings-tab-btn" data-tab-target="screensaver">屏保</button>
         <button type="button" class="settings-tab-btn" data-tab-target="nextcloud">Nextcloud</button>
-        <button type="button" class="settings-tab-btn" data-tab-target="ldap">LDAP</button>
         <button type="button" class="settings-tab-btn" data-tab-target="security">安全</button>
         <button type="button" class="settings-tab-btn" data-tab-target="cache">缓存</button>
         <button type="button" class="settings-tab-btn" data-tab-target="audit">审计</button>
+        <button type="button" class="settings-tab-btn" data-tab-target="license">📜 许可证</button>
     </div>
 
     <form method="post" action="{{ url_for('main.settings') }}" enctype="multipart/form-data">
@@ -153,88 +153,6 @@
         </div>
     </form>
 
-    <form method="post" action="{{ url_for('main.settings') }}" class="settings-tab-panel" data-tab-panel="ldap">
-        <input type="hidden" name="form_action" value="ldap">
-        <input type="hidden" name="active_tab" value="ldap" data-role="settings-active-tab-input">
-        <div class="panel-head">
-            <h2>LDAP 统一认证</h2>
-            <span class="chip info">Identity</span>
-        </div>
-        <div class="settings-grid">
-            <label class="check-field field-wide">
-                <input type="checkbox" name="ldap_enabled" {% if ldap_enabled %}checked{% endif %}>
-                <span>启用 LDAP 登录</span>
-            </label>
-            <label class="field">
-                <span>LDAP Server URI</span>
-                <input type="text" name="ldap_server_uri" value="{{ ldap_server_uri }}" placeholder="ldap://ad.example.com 或 ldaps://ad.example.com">
-            </label>
-            <label class="check-field">
-                <input type="checkbox" name="ldap_use_ssl" {% if ldap_use_ssl %}checked{% endif %}>
-                <span>使用 SSL</span>
-            </label>
-            <label class="field">
-                <span>连接超时（秒）</span>
-                <input type="number" name="ldap_connect_timeout" min="1" max="60" step="0.5" value="{{ ldap_connect_timeout }}">
-            </label>
-            <label class="field">
-                <span>Base DN</span>
-                <input type="text" name="ldap_base_dn" value="{{ ldap_base_dn }}" placeholder="DC=example,DC=com">
-            </label>
-            <label class="field">
-                <span>Bind DN（可选）</span>
-                <input type="text" name="ldap_bind_dn" value="{{ ldap_bind_dn }}" placeholder="CN=ldap-reader,OU=Service,DC=example,DC=com">
-            </label>
-            <label class="field">
-                <span>Bind Password（可选）</span>
-                <input type="password" name="ldap_bind_password" value="{{ ldap_bind_password }}">
-            </label>
-            <label class="field">
-                <span>User Filter</span>
-                <input type="text" name="ldap_user_filter" value="{{ ldap_user_filter }}" placeholder="(sAMAccountName={username})">
-            </label>
-            <label class="field">
-                <span>User DN Template（可选）</span>
-                <input type="text" name="ldap_user_dn_template" value="{{ ldap_user_dn_template }}" placeholder="CN={username},OU=Users,DC=example,DC=com">
-            </label>
-            <label class="field">
-                <span>Group Attr</span>
-                <input type="text" name="ldap_group_attr" value="{{ ldap_group_attr or 'memberOf' }}" placeholder="memberOf">
-            </label>
-            <label class="field field-wide">
-                <span>允许登录组（逗号分隔）</span>
-                <input type="text" name="ldap_allowed_groups" value="{{ ldap_allowed_groups }}" placeholder="CN=TVUsers,OU=Groups,DC=example,DC=com">
-            </label>
-            <label class="field field-wide">
-                <span>管理员组（逗号分隔）</span>
-                <input type="text" name="ldap_admin_groups" value="{{ ldap_admin_groups }}" placeholder="CN=TVAdmins,OU=Groups,DC=example,DC=com">
-            </label>
-            <label class="check-field">
-                <input type="checkbox" name="ldap_auto_create_users" {% if ldap_auto_create_users %}checked{% endif %}>
-                <span>首次 LDAP 登录自动建档</span>
-            </label>
-            <label class="check-field">
-                <input type="checkbox" name="ldap_local_fallback" {% if ldap_local_fallback %}checked{% endif %}>
-                <span>LDAP 失败允许本地账号回退</span>
-            </label>
-            <label class="check-field">
-                <input type="checkbox" name="ldap_sync_group_admin" {% if ldap_sync_group_admin %}checked{% endif %}>
-                <span>按 LDAP 组同步管理员身份</span>
-            </label>
-            <div class="field field-wide">
-                <span>LDAP Auto Detect &amp; Connection Test</span>
-                <div class="playlist-tools">
-                    <button type="button" class="btn btn-secondary" data-role="ldap-detect-btn">Auto Detect</button>
-                    <button type="button" class="btn btn-secondary" data-role="ldap-test-btn">Test Connection</button>
-                    <small class="field-help" data-role="ldap-test-result">Use current inputs to detect/test without saving first.</small>
-                </div>
-            </div>
-        </div>
-        <div class="form-actions">
-            <button type="submit" class="btn btn-primary">保存 LDAP 设置</button>
-        </div>
-    </form>
-
     <form method="post" action="{{ url_for('main.settings') }}" class="settings-tab-panel" data-tab-panel="security">
         <input type="hidden" name="form_action" value="password">
         <input type="hidden" name="active_tab" value="security" data-role="settings-active-tab-input">
@@ -269,6 +187,77 @@
             <input type="hidden" name="active_tab" value="cache" data-role="settings-active-tab-input">
             <button type="submit" class="btn btn-danger">清理缓存</button>
         </form>
+    </div>
+
+    <div class="settings-tab-panel" data-tab-panel="license">
+        <div class="panel-head">
+            <h2>📜 系统许可证</h2>
+            <span class="chip {% if license_status.valid %}success{% else %}danger{% endif %}">
+                {{ '已激活' if license_status.valid else '未激活' }}
+            </span>
+        </div>
+        <p class="section-desc">
+            上传由证书生成工具签发的 <code>.lic</code> 证书文件以激活系统。
+            未激活或证书过期时，播放界面将显示提示信息。
+        </p>
+
+        {% if license_status.valid %}
+        <div class="license-card license-valid">
+            <div class="license-field">
+                <span class="license-label">客户名称</span>
+                <span class="license-value">{{ license_status.customer }}</span>
+            </div>
+            <div class="license-field">
+                <span class="license-label">签发日期</span>
+                <span class="license-value">{{ license_status.issue_date }}</span>
+            </div>
+            <div class="license-field">
+                <span class="license-label">过期日期</span>
+                <span class="license-value">{{ license_status.expire_date }}</span>
+            </div>
+            <div class="license-field">
+                <span class="license-label">剩余天数</span>
+                <span class="license-value {% if license_status.remaining_days <= 30 %}text-warning{% endif %}">
+                    {{ license_status.remaining_days }} 天
+                    {% if license_status.warning %}
+                    <span class="chip warning">{{ license_status.warning }}</span>
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+        {% else %}
+        <div class="license-card license-invalid">
+            <div class="license-error">
+                <strong>⚠️ {{ license_status.error or '未上传证书' }}</strong>
+            </div>
+            {% if license_status.customer %}
+            <div class="license-field">
+                <span class="license-label">客户名称</span>
+                <span class="license-value">{{ license_status.customer }}</span>
+            </div>
+            <div class="license-field">
+                <span class="license-label">过期日期</span>
+                <span class="license-value">{{ license_status.expire_date }}</span>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <div class="license-actions">
+            <form method="post" action="{{ url_for('main.upload_license') }}" enctype="multipart/form-data" class="license-upload-form">
+                <label class="field">
+                    <span>上传证书文件（.lic）</span>
+                    <input type="file" name="license_file" accept=".lic">
+                </label>
+                <button type="submit" class="btn btn-primary">📤 上传证书</button>
+            </form>
+
+            {% if license_status.customer %}
+            <form method="post" action="{{ url_for('main.clear_license') }}" onsubmit="return confirm('确定要清除当前证书吗？清除后系统将进入未授权状态，播放界面将显示证书过期提示。');">
+                <button type="submit" class="btn btn-outline-danger">🗑 清除证书</button>
+            </form>
+            {% endif %}
+        </div>
     </div>
 
     <div class="settings-tab-panel" data-tab-panel="audit">

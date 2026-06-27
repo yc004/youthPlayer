@@ -5,7 +5,8 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "apscheduler==3.9.1",
+    "apscheduler>=3.10",
+    "cryptography>=41.0.0",
     "flask==2.0.1",
     "flask-login==0.5.0",
     "flask-sqlalchemy==2.5.1",

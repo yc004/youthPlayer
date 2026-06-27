@@ -38,6 +38,19 @@
     </header>
     {% endif %}
 
+    <!-- License Warning Banner -->
+    {% if not license_status.valid %}
+    <div class="license-banner license-expired">
+        <div class="license-banner-inner">
+            <span class="license-banner-icon">⚠️</span>
+            <span class="license-banner-text">
+                系统未激活：{{ license_status.error or '请上传有效证书' }}
+                <a href="{{ url_for('main.settings', tab='license') }}" class="license-banner-link">前往上传证书</a>
+            </span>
+        </div>
+    </div>
+    {% endif %}
+
     <main class="page-shell">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}

@@ -26,6 +26,13 @@ from models import (
     User,
     db,
 )
+from security.certificate import (
+    check_certificate_valid,
+    get_cert_expire_warning,
+    invalidate_cache,
+    parse_certificate_json,
+    validate_certificate,
+)
 from security.ldap_auth import authenticate as ldap_authenticate
 from security.ldap_auth import group_intersects as ldap_group_intersects
 from security.ldap_auth import sync_directory_users as ldap_sync_directory_users
@@ -72,16 +79,19 @@ SETTING_KEY_LDAP_ADMIN_GROUPS = "ldap_admin_groups"
 SETTING_KEY_LDAP_AUTO_CREATE_USERS = "ldap_auto_create_users"
 SETTING_KEY_LDAP_LOCAL_FALLBACK = "ldap_local_fallback"
 SETTING_KEY_LDAP_SYNC_GROUP_ADMIN = "ldap_sync_group_admin"
+SETTING_KEY_LICENSE_CERTIFICATE = "license_certificate"
+LICENSE_ALLOWED_EXTENSIONS = {".lic"}
+LICENSE_MAX_SIZE = 100 * 1024  # 100KB
 SCREENSAVER_ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".bmp", ".webp"}
 SCREENSAVER_MAX_SIZE = 20 * 1024 * 1024
 SETTINGS_ALLOWED_TABS = {
     "general",
     "screensaver",
     "nextcloud",
-    "ldap",
     "security",
     "cache",
     "audit",
+    "license",
 }
 PERMISSION_DEFS = [
     ("dashboard.view", "查看控制台"),
@@ -361,6 +371,7 @@ def inject_permission_helpers():
         "has_perm": _has_permission,
         "permission_defs": PERMISSION_DEFS,
         "permission_labels": PERMISSION_LABEL_MAP,
+        "license_status": _get_license_status(),
     }
 
 
@@ -1172,6 +1183,7 @@ def api_status():
                 "available": bool(player.monitor_last_capture_path and os.path.exists(player.monitor_last_capture_path)),
                 "frame_url": url_for("main.monitor_frame"),
             },
+            "license": _get_license_status(),
         }
     )
 
@@ -1984,6 +1996,7 @@ def settings():
         .all()
     )
     nextcloud_cache_stats = _nextcloud_cache_stats()
+    license_status = _get_license_status()
     return render_template(
         "settings.html",
         all_play_via_electron=all_play_via_electron,
@@ -2020,6 +2033,7 @@ def settings():
         ldap_local_fallback=ldap_local_fallback,
         ldap_sync_group_admin=ldap_sync_group_admin,
         nextcloud_cache_stats=nextcloud_cache_stats,
+        license_status=license_status,
         active_tab=active_tab,
         audit_logs=audit_logs,
         operation_logs=operation_logs,
@@ -2114,3 +2128,144 @@ def delete_user(user_id):
     else:
         flash("不能删除当前登录账户。", "error")
     return redirect(url_for("main.manage_users"))
+
+
+# ── 证书 / 许可证管理 ───────────────────────────────────────────────
+
+
+def _load_license_cert_text():
+    """从数据库加载已上传的证书 JSON 文本。"""
+    item = db.session.get(SystemSetting, SETTING_KEY_LICENSE_CERTIFICATE)
+    if not item or not str(item.value or "").strip():
+        return None
+    return str(item.value).strip()
+
+
+def _get_license_status():
+    """获取当前证书状态（供模板和 API 使用）。"""
+    cert_text = _load_license_cert_text()
+    result = check_certificate_valid(cert_text)
+    warning = get_cert_expire_warning(result) if result.get("valid") else None
+    return {
+        "valid": result.get("valid", False),
+        "customer": result.get("customer", ""),
+        "issue_date": result.get("issue_date", ""),
+        "expire_date": result.get("expire_date", ""),
+        "remaining_days": result.get("remaining_days", 0),
+        "error": result.get("error", ""),
+        "warning": warning,
+    }
+
+
+@main.route("/api/license/status")
+def api_license_status():
+    """公开 API：查询证书状态（播放器 Electron 页面使用，无需登录）。"""
+    status = _get_license_status()
+    return jsonify({"ok": True, "license": status})
+
+
+@main.route("/settings/license/upload", methods=["POST"])
+@login_required
+@_permission_required("settings.manage")
+def upload_license():
+    """上传 .lic 证书文件。"""
+    file_storage = request.files.get("license_file")
+    if not file_storage or not (file_storage.filename or "").strip():
+        flash("请选择要上传的证书文件（.lic）。", "error")
+        return redirect(url_for("main.settings", tab="license"))
+
+    filename = (file_storage.filename or "").strip()
+    suffix = os.path.splitext(filename)[1].lower()
+    if suffix not in LICENSE_ALLOWED_EXTENSIONS:
+        flash("仅支持 .lic 格式的证书文件。", "error")
+        return redirect(url_for("main.settings", tab="license"))
+
+    content_length = request.content_length or 0
+    if content_length > LICENSE_MAX_SIZE:
+        flash("证书文件过大，最大支持 100KB。", "error")
+        return redirect(url_for("main.settings", tab="license"))
+
+    try:
+        raw = file_storage.read().decode("utf-8", errors="replace")
+    except Exception as exc:
+        flash(f"证书文件读取失败: {exc}", "error")
+        return redirect(url_for("main.settings", tab="license"))
+
+    if not raw or not raw.strip():
+        flash("证书文件内容为空。", "error")
+        return redirect(url_for("main.settings", tab="license"))
+
+    # 预校验
+    cert = parse_certificate_json(raw)
+    if not cert:
+        flash("证书格式无效：无法解析 JSON。", "error")
+        return redirect(url_for("main.settings", tab="license"))
+
+    # 保存到数据库
+    old_value = _load_license_cert_text()
+    item = db.session.get(SystemSetting, SETTING_KEY_LICENSE_CERTIFICATE)
+    if not item:
+        item = SystemSetting(key=SETTING_KEY_LICENSE_CERTIFICATE, value=raw.strip())
+        db.session.add(item)
+    else:
+        item.value = raw.strip()
+    db.session.commit()
+
+    invalidate_cache()
+
+    _append_setting_audit_log(
+        SETTING_KEY_LICENSE_CERTIFICATE,
+        "<已上传证书>" if old_value else "<empty>",
+        "<已更新证书>",
+    )
+    _append_operation_audit_log(
+        action="license_upload",
+        success=True,
+        target_type="license",
+        target_id="certificate",
+        detail=f"customer={cert.get('customer', '')} expire={cert.get('expire_date', '')}",
+    )
+
+    # 立即校验并反馈
+    result = validate_certificate(raw.strip())
+    if result.get("valid"):
+        flash(
+            f"✅ 证书上传成功！客户: {result['customer']}，有效期至: {result['expire_date']}（剩余 {result['remaining_days']} 天）。",
+            "success",
+        )
+    else:
+        flash(
+            f"⚠️ 证书已保存但校验未通过: {result.get('error')}",
+            "warning",
+        )
+
+    return redirect(url_for("main.settings", tab="license"))
+
+
+@main.route("/settings/license/clear", methods=["POST"])
+@login_required
+@_permission_required("settings.manage")
+def clear_license():
+    """清除已上传的证书。"""
+    old_value = _load_license_cert_text()
+    item = db.session.get(SystemSetting, SETTING_KEY_LICENSE_CERTIFICATE)
+    if item:
+        db.session.delete(item)
+        db.session.commit()
+
+    invalidate_cache()
+
+    _append_setting_audit_log(
+        SETTING_KEY_LICENSE_CERTIFICATE,
+        "<已上传证书>" if old_value else "<empty>",
+        "<已清除>",
+    )
+    _append_operation_audit_log(
+        action="license_clear",
+        success=True,
+        target_type="license",
+        target_id="certificate",
+    )
+
+    flash("证书已清除。系统将进入未授权状态。", "info")
+    return redirect(url_for("main.settings", tab="license"))

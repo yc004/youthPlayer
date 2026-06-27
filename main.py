@@ -190,6 +190,30 @@ def init_db():
             db.session.commit()
 
 
+def load_license():
+    """启动时校验证书状态。"""
+    from security.certificate import check_certificate_valid
+
+    with app.app_context():
+        item = db.session.get(SystemSetting, "license_certificate")
+        cert_text = str(item.value).strip() if item and str(item.value or "").strip() else None
+        result = check_certificate_valid(cert_text)
+        if result.get("valid"):
+            logger.info(
+                "✅ 证书有效: 客户=%s 过期日期=%s 剩余天数=%s",
+                result.get("customer"),
+                result.get("expire_date"),
+                result.get("remaining_days"),
+            )
+            if result.get("remaining_days", 0) <= Config.LICENSE_EXPIRE_WARNING_DAYS:
+                logger.warning(
+                    "⚠️ 证书即将过期！剩余 %s 天，请及时续期。",
+                    result.get("remaining_days"),
+                )
+        else:
+            logger.warning("❌ 证书校验失败: %s", result.get("error") or "未知错误")
+
+
 def load_runtime_settings():
     with app.app_context():
         item = db.session.get(SystemSetting, "all_play_via_electron")
@@ -359,6 +383,7 @@ def setup_monitor_capture_job():
 
 def bootstrap():
     init_db()
+    load_license()
     load_runtime_settings()
     setup_monitor_capture_job()
     sync_nextcloud_cache_auto_clear_job(scheduler)

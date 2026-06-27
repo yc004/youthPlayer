@@ -92,8 +92,8 @@ class Config:
     # Web 配置
     WEB_PORT = int(os.environ.get("YP_WEB_PORT", 5000))
 
-    # LDAP login settings
-    LDAP_ENABLED = os.environ.get("YP_LDAP_ENABLED", "0") == "1"
+    # LDAP login settings (已禁用 — 功能不稳定)
+    LDAP_ENABLED = False
     LDAP_SERVER_URI = os.environ.get("YP_LDAP_SERVER_URI", "").strip()
     LDAP_USE_SSL = os.environ.get("YP_LDAP_USE_SSL", "0") == "1"
     LDAP_CONNECT_TIMEOUT = float(os.environ.get("YP_LDAP_CONNECT_TIMEOUT", 5.0))
@@ -108,6 +108,13 @@ class Config:
     LDAP_AUTO_CREATE_USERS = os.environ.get("YP_LDAP_AUTO_CREATE_USERS", "1") == "1"
     LDAP_LOCAL_FALLBACK = os.environ.get("YP_LDAP_LOCAL_FALLBACK", "1") == "1"
     LDAP_SYNC_GROUP_ADMIN = os.environ.get("YP_LDAP_SYNC_GROUP_ADMIN", "1") == "1"
+
+    # 证书校验配置
+    # 证书内容存储在数据库 SystemSetting(key='license_certificate') 中
+    # 以下为运行时缓存
+    LICENSE_CHECK_ENABLED = os.environ.get("YP_LICENSE_CHECK_ENABLED", "1") == "1"
+    # 证书过期前 N 天开始警告
+    LICENSE_EXPIRE_WARNING_DAYS = int(os.environ.get("YP_LICENSE_EXPIRE_WARNING_DAYS", 30))
 
     # 日志配置
     LOG_LEVEL = os.environ.get("YP_LOG_LEVEL", "INFO")

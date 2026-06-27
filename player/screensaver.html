@@ -38,6 +38,15 @@
     .sub { margin-top: 14px; opacity: .85; font-size: clamp(14px, 1.6vw, 24px); }
     .clock { margin-top: 28px; font-size: clamp(36px, 6vw, 90px); font-weight: 800; }
     .date { margin-top: 10px; font-size: clamp(16px, 2vw, 30px); opacity: .9; }
+    #license-overlay {
+      position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,0.88);
+      display: none; align-items: center; justify-content: center; flex-direction: column;
+      color: #f87171; font-size: clamp(18px,3vw,32px); text-align: center; padding: 40px;
+    }
+    #license-overlay.show { display: flex; }
+    #license-overlay .lic-icon { font-size: 64px; margin-bottom: 20px; }
+    #license-overlay .lic-title { font-weight: 700; margin-bottom: 12px; }
+    #license-overlay .lic-detail { font-size: 0.7em; opacity: 0.85; max-width: 600px; }
   </style>
 </head>
 <body>
@@ -49,11 +58,17 @@
     <div id="clock" class="clock">--:--:--</div>
     <div id="date" class="date">----</div>
   </div>
+  <div id="license-overlay">
+    <div class="lic-icon">⚠️</div>
+    <div class="lic-title">证书已过期</div>
+    <div class="lic-detail" id="lic-detail">系统未激活，请联系管理员更新证书。</div>
+  </div>
   <script>
     const q = new URLSearchParams(location.search);
     const cfg = q.get("cfg");
     let t = q.get("title");
     let image = q.get("image");
+    let apiBase = "";
     if (cfg) {
       try {
         const pad = "=".repeat((4 - (cfg.length % 4 || 4)) % 4);
@@ -62,6 +77,7 @@
         if (parsed && typeof parsed === "object") {
           if (parsed.title) t = parsed.title;
           if (parsed.image) image = parsed.image;
+          if (parsed.api_base) apiBase = parsed.api_base;
         }
       } catch (_) {}
     }
@@ -89,6 +105,32 @@
     }
     tick();
     setInterval(tick, 1000);
+    // License check
+    (function checkLicense() {
+      try {
+        var baseUrl = (typeof apiBase !== "undefined" && apiBase) ? apiBase : "http://127.0.0.1:5000";
+        var x = new XMLHttpRequest();
+        x.open("GET", baseUrl + "/api/license/status", true);
+        x.onload = function () {
+          if (x.status === 200) {
+            try {
+              var r = JSON.parse(x.responseText);
+              var lic = r.license;
+              var ov = document.getElementById("license-overlay");
+              var detail = document.getElementById("lic-detail");
+              if (lic && !lic.valid) {
+                if (ov) ov.classList.add("show");
+                if (detail) detail.textContent = lic.error || "系统未激活，请联系管理员更新证书。";
+              } else {
+                if (ov) ov.classList.remove("show");
+              }
+            } catch (_) {}
+          }
+        };
+        x.send();
+      } catch (_) {}
+      setTimeout(checkLicense, 60000);
+    })();
   </script>
 </body>
 </html>

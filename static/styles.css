@@ -1107,3 +1107,116 @@
             padding: 10px 12px;
         }
     }
+
+    /* ── License / Certificate UI ─────────────────────────────── */
+
+    .license-banner {
+        background: #fef2f2;
+        border-bottom: 2px solid #fecaca;
+        color: #991b1b;
+        padding: 10px 28px;
+        font-size: 14px;
+    }
+    .license-banner-inner {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    .license-banner-icon {
+        font-size: 20px;
+        flex-shrink: 0;
+    }
+    .license-banner-text {
+        flex: 1;
+    }
+    .license-banner-link {
+        color: #dc2626;
+        font-weight: 600;
+        text-decoration: underline;
+        margin-left: 8px;
+    }
+
+    .license-card {
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    .license-valid {
+        border-left: 4px solid #16a34a;
+    }
+    .license-invalid {
+        border-left: 4px solid #dc2626;
+        background: #fef2f2;
+    }
+    .license-field {
+        display: flex;
+        align-items: center;
+        padding: 8px 0;
+        border-bottom: 1px solid #f3f4f6;
+    }
+    .license-field:last-child {
+        border-bottom: none;
+    }
+    .license-label {
+        width: 120px;
+        font-weight: 600;
+        color: #6b7280;
+        font-size: 13px;
+        text-transform: uppercase;
+    }
+    .license-value {
+        flex: 1;
+        font-size: 15px;
+        color: #1f2937;
+    }
+    .license-error {
+        padding: 12px;
+        background: #fee2e2;
+        border-radius: 6px;
+        color: #991b1b;
+    }
+    .license-actions {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+    .license-upload-form {
+        display: flex;
+        gap: 12px;
+        align-items: flex-end;
+        flex: 1;
+    }
+    .btn-outline-danger {
+        background: transparent;
+        border: 1px solid #dc2626;
+        color: #dc2626;
+        padding: 8px 18px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+    }
+    .btn-outline-danger:hover {
+        background: #dc2626;
+        color: #fff;
+    }
+    .text-warning {
+        color: #d97706 !important;
+    }
+    .section-desc {
+        color: #6b7280;
+        font-size: 14px;
+        margin: 0 0 16px 0;
+    }
+    .chip.danger {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+    .chip.warning {
+        background: #fef3c7;
+        color: #92400e;
+    }
