@@ -8,4 +8,4 @@ requests==2.26.0
 SQLAlchemy==1.4.32
 Werkzeug==2.0.1
 ldap3==2.9.1
-cryptography>=41.0.0
+cryptography>=41.0.0,<43.0.0

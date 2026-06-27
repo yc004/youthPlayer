@@ -15,15 +15,17 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Optional
 
+_crypto_import_error = None
 try:
     from cryptography.hazmat.primitives import hashes, serialization
     from cryptography.hazmat.primitives.asymmetric import padding
     from cryptography.hazmat.backends import default_backend
-except ImportError:
+except ImportError as _e:
     hashes = None
     serialization = None
     padding = None
     default_backend = None
+    _crypto_import_error = str(_e)
 
 
 logger = logging.getLogger(__name__)
@@ -63,7 +65,10 @@ def _load_public_key():
         return _public_key_cache
 
     if any(x is None for x in [serialization, hashes, padding, default_backend]):
-        logger.warning("cryptography 库未安装，证书校验不可用。")
+        if _crypto_import_error:
+            logger.warning("cryptography 导入失败 (%s)，证书校验不可用。Win7 请安装 cryptography<43。", _crypto_import_error)
+        else:
+            logger.warning("cryptography 库未安装，证书校验不可用。")
         return None
 
     pem = PUBLIC_KEY_PEM.strip()
